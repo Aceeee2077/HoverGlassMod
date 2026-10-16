@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "dev.transparentinventory.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["ContainerScreenAccessor", "RecipeBookScreenAccessor", "GuiGraphicsExtractorAccessor", "GuiGraphicsExtractorMixin", "ContainerScreenMixin", "ScreenMixin", "GuiRenderStateMixin", "PictureInPictureMixin", "MouseHandlerMixin", "KeyboardHandlerMixin", "InteractionMixin", "CameraMixin", "MinecraftMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

@@ -1,0 +1,139 @@
+package dev.transparentinventory.client.screen;
+
+import dev.transparentinventory.client.ConfigLoader;
+import dev.transparentinventory.client.InventoryConfig;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+
+/** Can render as a modal overlay without replacing/removing a live vanilla menu. */
+public final class SpatialSettingsScreen extends Screen {
+    private final Screen parent;
+    private final boolean overlay;
+    private final String screenName;
+    private int page;
+    private int top;
+
+    public SpatialSettingsScreen(Screen parent, boolean overlay) {
+        super(Component.translatable("spatialui.settings.title"));
+        this.parent = parent;
+        this.overlay = overlay;
+        this.screenName = parent instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
+                ? parent.getClass().getName() : null;
+    }
+
+    @Override protected void init() {
+        int contentWidth = Math.min(320, width - 16);
+        int left = (width - contentWidth) / 2;
+        top = Math.max(6, (height - 174) / 2);
+        int row = top + 34;
+        if (page == 0) {
+            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
+                    () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true));
+            var current = addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.opacity.current",
+                    () -> screenName == null ? 0 : 1 - InventoryConfig.get().opacityFor(screenName),
+                    value -> { if (screenName != null) InventoryConfig.get().screenOpacities.put(screenName, (float) (1 - value)); }, true));
+            current.active = screenName != null;
+            current.setTooltip(Tooltip.create(Component.translatable("spatialui.opacity.current.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.opacity.dim",
+                    () -> InventoryConfig.get().worldDimOpacity, value -> InventoryConfig.get().worldDimOpacity = (float) value, true));
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.opacity.inherit"), button -> {
+                if (screenName != null) InventoryConfig.get().screenOpacities.remove(screenName);
+            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build()).active = screenName != null;
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.settings.reset"), button -> {
+                InventoryConfig.setInstance(new InventoryConfig());
+                rebuildWidgets();
+            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build());
+        } else if (page == 1) {
+            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.scale",
+                    () -> (InventoryConfig.get().guiScale - 0.5), value -> InventoryConfig.get().guiScale = 0.5 + value, false));
+            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.distance",
+                    () -> InventoryConfig.get().cameraDistance / 8, value -> InventoryConfig.get().cameraDistance = value * 8, false));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.camera.duration",
+                    () -> InventoryConfig.get().cameraTransitionDurationMs / 1000.0,
+                    value -> InventoryConfig.get().cameraTransitionDurationMs = (int) (value * 1000), false));
+            addRenderableWidget(Button.builder(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled), button -> {
+                InventoryConfig.get().cameraEnabled = !InventoryConfig.get().cameraEnabled;
+                button.setMessage(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled));
+            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build());
+            addRenderableWidget(Button.builder(toggle("spatialui.anchors", InventoryConfig.get().worldAnchoringEnabled), button -> {
+                InventoryConfig.get().worldAnchoringEnabled = !InventoryConfig.get().worldAnchoringEnabled;
+                button.setMessage(toggle("spatialui.anchors", InventoryConfig.get().worldAnchoringEnabled));
+            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build());
+        } else {
+            addRenderableWidget(Button.builder(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory), button -> {
+                InventoryConfig.get().cinematicInventory = !InventoryConfig.get().cinematicInventory;
+                button.setMessage(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory));
+            }).bounds(left, row, contentWidth, 20).build());
+            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.inventory.tilt",
+                    () -> (InventoryConfig.get().inventoryTiltDegrees + 12) / 24,
+                    value -> InventoryConfig.get().inventoryTiltDegrees = value * 24 - 12, false));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.inventory.duration",
+                    () -> InventoryConfig.get().openingAnimationDurationMs / 1000.0,
+                    value -> InventoryConfig.get().openingAnimationDurationMs = (int) (value * 1000), false));
+        }
+        addRenderableWidget(Button.builder(Component.translatable(page == 0 ? "spatialui.settings.more" : page == 1 ? "spatialui.settings.entrance" : "spatialui.settings.opacity"), button -> {
+            page = (page + 1) % 3;
+            rebuildWidgets();
+        }).bounds(left, row + 92, contentWidth / 2 - 2, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
+                .bounds(left + contentWidth / 2 + 2, row + 92, contentWidth / 2 - 2, 20).build());
+    }
+
+    private static Component toggle(String key, boolean enabled) {
+        return Component.translatable(key).append(": ").append(Component.translatable(enabled ? "options.on" : "options.off"));
+    }
+
+    @Override public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tick) {
+        graphics.fill(0, 0, width, height, overlay ? 0x90000000 : 0xF0101520);
+    }
+
+    @Override public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tick) {
+        graphics.centeredText(font, title, width / 2, top, 0xFFFFFFFF);
+        Component context = screenName == null ? Component.translatable("spatialui.settings.global.hint")
+                : Component.translatable(InventoryConfig.get().screenOpacities.containsKey(screenName) ? "spatialui.settings.custom" : "spatialui.settings.inherited", parent.getTitle());
+        graphics.centeredText(font, context, width / 2, top + 15, 0xFFCCD5E0);
+        super.extractRenderState(graphics, mouseX, mouseY, tick);
+        graphics.centeredText(font, Component.translatable("spatialui.settings.hint"), width / 2, top + 154, 0xFFB9C7D4);
+    }
+
+    @Override public void onClose() {
+        boolean saved = ConfigLoader.save();
+        if (!saved && minecraft.player != null) minecraft.player.sendSystemMessage(Component.translatable("spatialui.settings.save_failed"));
+        if (overlay) SpatialScreenManager.INSTANCE.closeSettings();
+        else dev.transparentinventory.client.compat.MinecraftAccess.screen(minecraft, parent);
+    }
+
+    @Override public boolean isPauseScreen() { return false; }
+
+    private static final class SettingSlider extends AbstractSliderButton {
+        private final String label;
+        private final DoubleSupplier read;
+        private final DoubleConsumer write;
+        private final boolean percentage;
+        SettingSlider(int x, int y, int width, String label, DoubleSupplier read, DoubleConsumer write, boolean percentage) {
+            super(x, y, width, 20, Component.empty(), read.getAsDouble());
+            this.label = label; this.read = read; this.write = write; this.percentage = percentage;
+            updateMessage();
+        }
+        @Override protected void updateMessage() {
+            String number = percentage ? Math.round(value * 100) + "%"
+                    : label.endsWith("duration") ? Math.round(value * 1000) + " ms"
+                    : label.endsWith("tilt") ? String.format(java.util.Locale.ROOT, "%.1f°", value * 24 - 12)
+                    : String.format(java.util.Locale.ROOT, "%.2f", label.endsWith("distance") ? value * 8 : value + 0.5);
+            setMessage(Component.translatable(label).append(": " + number));
+        }
+        @Override protected void applyValue() { write.accept(percentage ? Math.round(value * 100) / 100.0 : value); }
+        @Override public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int x, int y, float tick) {
+            value = read.getAsDouble();
+            updateMessage();
+            super.extractWidgetRenderState(graphics, x, y, tick);
+        }
+    }
+}

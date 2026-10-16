@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "dev.transparentinventory.client.legacy.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": ["LegacyContainerScreenAccessor", "LegacyInventoryScreenMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

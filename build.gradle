@@ -1,0 +1,172 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.fabricmc:fabric-loom:${loom_version}"
+    }
+}
+
+// Registered before Loom runs so it is consulted first. Gradle aborts on a connection
+// error instead of falling through to later repositories, and BMCLAPI (below) proxies to
+// an USTC mirror that intermittently refuses connections. Maven Central carries every
+// ordinary Minecraft library (netty, gson, oshi, lz4, log4j, ...), so resolving from it
+// first keeps those requests away from the flaky mirror. Artifacts Central does not have
+// fall through to the mirror, which is still registered below.
+repositories {
+    mavenCentral()
+}
+
+// libraries.minecraft.net is unreachable from some networks; BMCLAPI mirrors it 1:1.
+repositories.all { repo ->
+    if (repo instanceof MavenArtifactRepository
+            && repo.url.toString().startsWith('https://libraries.minecraft.net')) {
+        repo.url = uri('https://bmclapi2.bangbang93.com/maven')
+    }
+}
+
+def targets = new groovy.json.JsonSlurper().parse(file('gradle/minecraft-targets.json'))
+def targetMinecraft = providers.gradleProperty('mc').getOrElse(project.minecraft_version)
+def target = targets[targetMinecraft]
+if (target == null) throw new GradleException("Unsupported Minecraft target: ${targetMinecraft}. Choose: ${targets.keySet()}")
+def targetApi = target.api
+def targetJava = (target.java ?: 25) as int
+def spatial = target.spatial != false
+
+// Loom 1.17+ ships two plugin ids. The new 'net.fabricmc.fabric-loom' plugin hard-disables
+// obfuscation (no mappings support); legacy Minecraft targets need the old 'fabric-loom' id
+// so official Mojang mappings can be layered. Spatial (26.x) targets use the new plugin.
+if (spatial) {
+    apply plugin: 'net.fabricmc.fabric-loom'
+} else {
+    apply plugin: 'fabric-loom'
+}
+
+def mixinConfig = spatial ? 'transparent_inventory.client.mixins.json'
+        : "transparent_inventory.legacy.mixins.json"
+layout.buildDirectory = file("build/targets/${targetMinecraft}")
+
+// Loom/Jar naming: "<archives-name>-<version>.jar".
+// Embedding the Minecraft version in the archives name keeps every target's jar
+// distinguishable (hoverglass-mc1.20.1-0.3.0.jar) while the mod's own
+// version stays clean for fabric.mod.json.
+version = project.mod_version
+group = project.maven_group
+base { archivesName = "${project.archives_base_name}-mc${targetMinecraft}" }
+
+dependencies {
+    minecraft "com.mojang:minecraft:${targetMinecraft}"
+    // The new (non-obfuscated) pipeline forbids mappings; only legacy targets remap.
+    if (!spatial) {
+        mappings loom.layered { officialMojangMappings() }
+        // Legacy Minecraft versions do not ship Mixin on the compile classpath.
+        implementation "net.fabricmc:sponge-mixin:0.17.4+mixin.0.8.7"
+        implementation "io.github.llamalad7:mixinextras-fabric:0.5.5"
+    }
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    // Legacy fabric-api builds ship intermediary access wideners that modern loom rejects;
+    // our code never references fabric-api classes, so only spatial targets need it on the classpath.
+    if (spatial) implementation "net.fabricmc.fabric-api:fabric-api:${targetApi}"
+}
+
+// Only API adapters and mixin hooks vary. Rendering, animation and config stay shared.
+def overlay = file("src/versions/${target.family}/java")
+def overrides = overlay.exists() ? fileTree(overlay).matching { include '**/*.java' }.files.collect {
+    overlay.toPath().relativize(it.toPath()).toString().replace('\\', '/')
+} as Set : [] as Set
+// Legacy targets ship a self-contained 2D pipeline; every spatial-only shared class
+// (anchor/camera/input/layout/look/render/screen/compat/mixin packages) is dropped.
+def legacyKeep = [
+        'dev/transparentinventory/client/ConfigLoader.java',
+        'dev/transparentinventory/client/InventoryConfig.java',
+        'dev/transparentinventory/client/ModClient.java',
+] as Set
+def animPackage = 'dev/transparentinventory/client/anim'
+sourceSets.main.java {
+    srcDir overlay
+    if (!spatial) srcDir 'src/versions/legacy-shared/java'
+    exclude { entry ->
+        if (!entry.file.toPath().startsWith(file('src/main/java').toPath())) return false
+        def path = entry.path.replace('\\', '/')
+        if (overrides.contains(path)) return true
+        // 'anim' is shared by every target; everything else under client/ is spatial-only.
+        // Entry paths for directories have no trailing slash, so match both forms.
+        if (!spatial && path.startsWith('dev/transparentinventory/client/')
+                && !legacyKeep.contains(path)
+                && path != animPackage
+                && !path.startsWith(animPackage + '/')) return true
+        false
+    }
+}
+
+// Isolated engine tests use their own disposable world and synthetic input;
+// they never drive the user's normal development window or ship in the mod jar.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'spatialui_gametest'
+        enableGameTests = false
+        enableClientGameTests = true
+        clearRunDirectory = false
+    }
+}
+
+def testOverlay = file("src/versions/${target.family}/gametest")
+def testOverrides = testOverlay.exists() ? fileTree(testOverlay).matching { include '**/*.java' }.files.collect {
+    testOverlay.toPath().relativize(it.toPath()).toString().replace('\\', '/')
+} as Set : [] as Set
+sourceSets.gametest.java {
+    srcDir testOverlay
+    exclude { entry -> entry.file.toPath().startsWith(file('src/gametest/java').toPath()) && testOverrides.contains(entry.path) }
+}
+
+processResources {
+    inputs.properties version: project.version, minecraft: targetMinecraft, fabricApi: targetApi,
+            javaVersion: targetJava, mixinConfig: mixinConfig
+    filesMatching('fabric.mod.json') { expand version: project.version, minecraft: targetMinecraft,
+            fabricApi: targetApi, javaVersion: targetJava, mixinConfig: mixinConfig }
+    from("src/versions/${target.family}/resources")
+    if (!spatial) from('src/versions/legacy-shared/resources')
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(targetJava)
+    targetCompatibility = JavaVersion.toVersion(targetJava)
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJava)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach { options.release = targetJava }
+
+// A dependency-free executable regression suite for physics, layout and look tracking.
+// It exercises the spatial physics/layout/look packages, which legacy targets do not
+// compile, so it stays a spatial-only concern.
+tasks.register('physicsTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.transparentinventory.client.InventoryRegressionTest'
+}
+if (spatial) check.dependsOn physicsTest
+if (!spatial) sourceSets.test.java.exclude '**/InventoryRegressionTest.java'
+
+// The regression suite above is a plain main() program, so the standard test task
+// has nothing to discover; prevent that from failing the build.
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+}
+
+jar {
+    from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } }
+}
+
+tasks.register('collectRelease', Copy) {
+    dependsOn build
+    // Legacy (obfuscated) targets keep the un-remapped dev jar in 'devlibs' and the
+    // production, intermediary-remapped jar in 'libs'; non-obfuscated targets only
+    // write 'libs'. Take 'libs' so every target ships its production jar.
+    from(layout.buildDirectory.dir('libs')) {
+        include '*.jar'
+        exclude '*-dev.jar', '*-sources.jar'
+    }
+    into(rootProject.file('dist'))
+}

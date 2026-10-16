@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "transparent_inventory",
+  "version": "${version}",
+  "name": "Hoverglass",
+  "description": "Turns the vanilla inventory into a translucent glass panel that slides in with a first-person camera pull. On Minecraft 26.x this extends to container screens, world anchoring and in-game settings.",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.transparentinventory.client.ModClient"] },
+  "mixins": ["${mixinConfig}"],
+  "license": "MIT",
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": ">=${fabricApi}",
+    "minecraft": "${minecraft}",
+    "java": ">=${javaVersion}"
+  }
+}

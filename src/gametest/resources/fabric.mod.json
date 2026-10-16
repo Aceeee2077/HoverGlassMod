@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "spatialui_gametest",
+  "version": "1.0.0",
+  "environment": "client",
+  "mixins": ["spatialui_gametest.mixins.json"],
+  "entrypoints": {
+    "fabric-client-gametest": ["dev.transparentinventory.gametest.SpatialUiGameTest"]
+  }
+}
