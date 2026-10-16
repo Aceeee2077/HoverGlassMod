@@ -1,5 +1,10 @@
 # Hoverglass
 
+<p align="center">
+  <img src="docs/screenshots/inventory-cinematic.png" width="49%" alt="Hoverglass —— 玻璃背包面板随镜头下拉从左侧滑入">
+  <img src="docs/screenshots/inventory-recipe-book.png" width="49%" alt="Hoverglass —— 配方书与合成界面呈现在玻璃面板上">
+</p>
+
 [English](README.md) | **简体中文**
 
 > 把原版容器界面变成可透视的玻璃面板，并让它在镜头下拉时从侧面滑入。

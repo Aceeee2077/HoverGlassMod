@@ -1,5 +1,10 @@
 # Hoverglass
 
+<p align="center">
+  <img src="docs/screenshots/inventory-cinematic.png" width="49%" alt="Hoverglass — the glass inventory panel slides in from the left as the camera pulls back">
+  <img src="docs/screenshots/inventory-recipe-book.png" width="49%" alt="Hoverglass — recipe book and crafting shown on the glass panel">
+</p>
+
 **English** | [简体中文](README.zh-CN.md)
 
 > Turns the vanilla container UI into a see-through glass panel that slides in as the camera pulls back.
