@@ -1,13 +1,15 @@
 # Hoverglass
 
 <p align="center">
-  <img src="docs/screenshots/inventory-cinematic.png" width="49%" alt="Hoverglass —— 玻璃背包面板随镜头下拉从左侧滑入">
+  <img src="docs/screenshots/creative-glass.png" width="49%" alt="Hoverglass 0.3.2 —— 创造模式玻璃物品栏与右侧人物">
   <img src="docs/screenshots/inventory-recipe-book.png" width="49%" alt="Hoverglass —— 配方书与合成界面呈现在玻璃面板上">
 </p>
 
 [English](README.md) | **简体中文**
 
 > 把原版容器界面变成可透视的玻璃面板，并让它在镜头下拉时从侧面滑入。
+
+**26.1.2 · 0.3.2 更新**：补齐创造模式的分类、搜索与玩家背包页，三者均支持玻璃材质、左滑闪光入场和右侧人物构图。0.3.1 仅替换生存背包，创造模式仍是旧外观的问题已修复。升级时为创造物品栏一次性添加 84% 透明度默认值，已有独立设置会保留；无需先切换生存模式。**F8 → 应用参考图玻璃效果** 可为生存和创造背包同时应用完整预设，F8 设置标题会显示已加载版本号。
 
 Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务器不需要安装**。它不替换原版界面逻辑，只改变呈现方式：槽位、配方书、交易、物品搬运和网络协议全部保持原版。
 
@@ -57,7 +59,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
 | 1.21.11 | `hoverglass-mc1.21.11-0.3.0.jar` | 玻璃背包 | 21 | 0.141.6+1.21.11 |
 | 26.1 | `hoverglass-mc26.1-0.3.0.jar` | 空间容器 | 25 | 0.145.1+26.1 |
 | 26.1.1 | `hoverglass-mc26.1.1-0.3.0.jar` | 空间容器 | 25 | 0.145.4+26.1.1 |
-| 26.1.2 | `hoverglass-mc26.1.2-0.3.0.jar` | 空间容器 | 25 | 0.155.3+26.1.2 |
+| 26.1.2 | `hoverglass-mc26.1.2-0.3.2.jar` | 空间容器 | 25 | 0.155.3+26.1.2 |
 | 26.2 | `hoverglass-mc26.2-0.3.0.jar` | 空间容器 | 25 | 0.159.0+26.2 |
 | 26.3 | `hoverglass-mc26.3-0.3.0.jar` | 空间容器 | 25 | 0.163.0+26.3 |
 
@@ -67,7 +69,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
 - 玻璃面板自绘：半透明背景、四边描边、全部槽位边框，透明度由配置控制。
 - 玩家预览可以关闭（`playerPreview`），位置与高度由比例参数控制。
 - 没有游戏内设置界面，所有参数通过 `config/transparent_inventory.json` 手动调整，重启或重新打开背包后生效。
-- 动画时长由 `openingAnimationDurationMs` 控制，默认 320 ms。
+- 动画时长由 `openingAnimationDurationMs` 控制，源码默认 480 ms。
 
 ## 空间容器分支（26.1 – 26.3）
 
@@ -85,9 +87,11 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
 - **当前界面透明度**：只对当前界面类型保存。例如箱子和铁砧可以使用不同透明度，同一类型的箱子共用设置。
 - **当前界面跟随全局**：删除该类型的独立透明度。
 - **世界背景遮罩强度**：单独控制世界变暗程度；与面板透明度无关。
+- **应用参考图玻璃效果**：将生存及创造背包设为 84% 透明度、明亮描边、左滑扫光与右侧人物构图，保留其他容器的独立透明度。更改镜头与入场设置后，关闭并重新打开背包查看完整动画。
 - **空间与镜头设置**：调整界面大小、镜头距离、镜头过渡时间，以及是否启用镜头和世界锚点。
+- **背包入场动画**：可切换玻璃材质、调整人物向右让位幅度、停留倾角和动画时间。
 
-物品、数量、耐久条、文字、工具提示和槽位悬停高亮保持可读。原版面板贴图及皮肤元素的透明度会改变。**Esc / F8 / 完成** 保存并返回原界面。
+物品、数量、耐久条、文字、工具提示和槽位悬停高亮保持可读。玻璃背包的透明度只影响玻璃底和槽位填充，边框及装备提示仍可见；其他容器仍调整原版面板贴图透明度。**Esc / F8 / 完成** 保存并返回原界面。
 
 设置界面支持中文和英文。F8 为固定快捷键；无需 Mod Menu 或 Cloth Config。
 
@@ -104,7 +108,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
   "enabled": true,
   "playerPreview": true,
   "closeAnimation": true,
-  "panelOpacity": 0.65,
+  "panelOpacity": 0.18,
   "worldDimOpacity": 0.0,
   "screenOpacities": {
     "net.minecraft.client.gui.screens.inventory.ContainerScreen": 0.45,
@@ -112,7 +116,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
   },
   "excludedScreens": [],
   "additionalScreens": [],
-  "openingAnimationDurationMs": 320,
+  "openingAnimationDurationMs": 480,
 
   "defaultSpatialHandledScreens": true,
   "worldAnchoringEnabled": true,
@@ -120,11 +124,13 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
   "cameraEnabled": true,
   "thirdPersonOnOpen": true,
   "cinematicInventory": true,
+  "glassInventory": true,
+  "inventoryCameraSide": 0.72,
   "inventoryTiltDegrees": 4.0,
   "cameraDistance": 3.0,
   "cameraYawOffset": 0.0,
   "cameraPitchOffset": 0.0,
-  "cameraTransitionDurationMs": 250,
+  "cameraTransitionDurationMs": 420,
   "guiScale": 1.0,
   "guiDistance": 1.5,
   "guiVerticalOffset": 0.3

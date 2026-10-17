@@ -24,6 +24,10 @@ public final class InventoryRegressionTest {
         testLayoutMath();
         testLookTracker();
         testSlideTracker();
+        testCinematicTimeline();
+        testGlassPreset();
+        testCreativeGlassMigration();
+        testInventoryCursorLook();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -294,13 +298,102 @@ public final class InventoryRegressionTest {
     }
 
     // ------------------------------------------------------------------
-    // Helpers
+    // Cinematic regressions: endpoints, visible landing pulse, reverse continuity and hit mapping.
     // ------------------------------------------------------------------
+
+    private static void testCinematicTimeline() {
+        long start = 1_000_000_000L;
+        var animation = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        checkClose(animation.motion(start, 480), 0, 1E-9, "entrance starts at zero without a negative jump");
+        checkClose(animation.motion(start + 480_000_000L, 480), 1, 1E-9, "entrance ends at target");
+        var sampled = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        for (int ms = 0; ms <= 250; ms += 10) sampled.motion(start + ms * 1_000_000L, 480);
+        var skipped = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        skipped.motion(start + 250_000_000L, 480);
+        check(sampled.impact(start + 250_000_000L) > 0.5, "flash happens during arrival, before settling");
+        checkClose(sampled.impact(start + 250_000_000L), skipped.impact(start + 250_000_000L), 1E-9,
+                "landing flash timing survives skipped frames");
+        double peak = 0;
+        for (int ms = 0; ms <= 480; ms += 5) {
+            long now = start + ms * 1_000_000L;
+            double motion = animation.motion(now, 480), visibility = animation.progress(now, 480);
+            peak = Math.max(peak, motion);
+            check(visibility >= 0 && visibility <= 1, "opacity remains valid during overshoot");
+            var transform = dev.transparentinventory.client.render.InventoryEntrance.transform(427, 240, 213, 120,
+                    176, 166, 1.12, motion, visibility, 3, animation.impact(now));
+            double x = transform.screenX(154, 95), y = transform.screenY(154, 95);
+            checkClose(transform.localX(x, y), 154, 1E-8, "animated slanted slot X inverse");
+            checkClose(transform.localY(x, y), 95, 1E-8, "animated slanted slot Y inverse");
+        }
+        check(peak > 1.08 && peak < 1.12, "entrance has controlled overshoot");
+        long closingAt = start + 240_000_000L;
+        double before = animation.motion(closingAt, 480);
+        animation.close(closingAt, 480);
+        checkClose(animation.motion(closingAt, 480), before, 1E-9, "mid-entrance close does not jump");
+        checkClose(animation.impact(closingAt), 0, 1E-9, "closing never replays opening flash");
+        var instant = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        checkClose(instant.motion(start, 0), 1, 1E-9, "zero-duration entrance is immediate");
+        checkClose(instant.impact(start), 0, 1E-9, "zero-duration entrance has no phantom flash");
+    }
+
+    private static void testGlassPreset() {
+        var config = new InventoryConfig();
+        config.screenOpacities.put("other.container", 0.43F);
+        config.applyGlassPreset();
+        checkClose(config.opacityFor("net.minecraft.client.gui.screens.inventory.InventoryScreen"), 0.16, 1E-6,
+                "reference preset gives 84% transparent inventory");
+        checkClose(config.opacityFor("other.container"), 0.43, 1E-6, "preset preserves other container overrides");
+        config.inventoryCameraSide = Double.POSITIVE_INFINITY;
+        config.sanitize();
+        checkClose(config.inventoryCameraSide, 0.95, 1E-9, "camera side offset has safe upper limit");
+    }
 
     private static InventoryAnimator newAnimator() {
         InventoryConfig config = new InventoryConfig();
         config.sanitize();
         return new InventoryAnimator(config);
+    }
+
+    private static void testCreativeGlassMigration() {
+        String creative = "net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen";
+        var config = new InventoryConfig();
+        config.panelOpacity = 0.65F; // Existing pre-creative config.
+        config.sanitize();
+        checkClose(config.opacityFor(creative), 0.16, 1E-6, "upgrade seeds creative glass without requiring a preset");
+        checkClose(config.panelOpacity, 0.65, 1E-6, "upgrade preserves global opacity");
+        config.screenOpacities.remove(creative);
+        config.sanitize();
+        checkClose(config.opacityFor(creative), 0.65, 1E-6, "choosing inheritance survives save/sanitize");
+        var custom = new InventoryConfig();
+        custom.screenOpacities.put(creative, 0.42F);
+        custom.sanitize();
+        checkClose(custom.opacityFor(creative), 0.42, 1E-6, "upgrade respects an existing creative override");
+        custom.applyGlassPreset();
+        checkClose(custom.opacityFor(creative), 0.16, 1E-6, "reference preset also applies to creative inventory");
+    }
+
+    private static void testInventoryCursorLook() {
+        var left = dev.transparentinventory.client.look.InventoryLookAngles.at(10, 20, 10, 20, 176, 166, 50, 35);
+        var right = dev.transparentinventory.client.look.InventoryLookAngles.at(186, 186, 10, 20, 176, 166, 50, 35);
+        check(left.yaw() < right.yaw() - 40, "head turns as cursor moves across inventory");
+        check(left.pitch() < -30 && right.pitch() > 30, "head follows vertical cursor movement");
+        for (int i = -10; i <= 20; i++) {
+            var target = dev.transparentinventory.client.look.InventoryLookAngles.at(i * 40, i * 30, 10, 20, 176, 166, 50, 35);
+            check(Math.abs(target.yaw()) <= 50 && Math.abs(target.pitch()) <= 35, "cursor outside panel cannot over-rotate head");
+        }
+        var transform = new dev.transparentinventory.client.render.SpatialTransform(98, 103, 145, 120, 1.12, 4, 0.05, 0.94);
+        double sx = transform.screenX(45, 70), sy = transform.screenY(45, 70);
+        var projected = dev.transparentinventory.client.look.InventoryLookAngles.at(transform.localX(sx, sy), transform.localY(sx, sy),
+                10, 20, 176, 166, 50, 35);
+        var direct = dev.transparentinventory.client.look.InventoryLookAngles.at(45, 70, 10, 20, 176, 166, 50, 35);
+        checkClose(projected.yaw(), direct.yaw(), 1E-5, "head target follows tilted panel coordinates");
+        checkClose(projected.pitch(), direct.pitch(), 1E-5, "head pitch is independent of GUI scale");
+        var invalid = dev.transparentinventory.client.look.InventoryLookAngles.at(Double.NaN, 0, 0, 0, 176, 166, 50, 35);
+        check(invalid.yaw() == 0 && invalid.pitch() == 0, "invalid mouse input yields neutral head pose");
+        var config = new InventoryConfig();
+        config.containerScale = Double.POSITIVE_INFINITY;
+        config.sanitize();
+        checkClose(config.containerScale, 2, 1E-9, "container size is safely bounded");
     }
 
     private static void check(boolean condition, String message) {

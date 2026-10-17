@@ -19,6 +19,7 @@ public abstract class MinecraftMixin {
     private void spatial$unload(ClientLevel next, boolean reset, CallbackInfo ci) {
         if (next != null) return;
         SpatialCameraController.INSTANCE.reset();
+        dev.transparentinventory.client.look.InventoryLookController.INSTANCE.reset();
         SpatialAnchorResolver.clear();
         SpatialScreenManager.INSTANCE.dismissSettings();
         SpatialScreenManager.INSTANCE.synchronize();

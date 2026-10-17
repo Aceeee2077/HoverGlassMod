@@ -37,17 +37,23 @@ public final class SpatialScreenManager {
         Screen current = dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
         SpatialScreenProfile resolved = client.level == null ? null : SpatialScreenRegistry.INSTANCE.resolve(current);
         if (current == screen && resolved == profile && sessionLevel == client.level) return;
+        // Vanilla may redirect InventoryScreen to CreativeModeInventoryScreen after
+        // the camera has already switched to third person. Preserve the opening intent.
+        boolean inventoryHandoff = sessionLevel == client.level && firstPersonInventory && profile != null
+                && resolved != null && profile.anchor() == dev.transparentinventory.client.anchor.AnchorType.PLAYER
+                && resolved.anchor() == dev.transparentinventory.client.anchor.AnchorType.PLAYER;
         if (current != screen || sessionLevel != client.level) dismissSettings();
         screen = current;
         sessionLevel = client.level;
         profile = resolved;
         firstPersonInventory = resolved != null && resolved.anchor() == dev.transparentinventory.client.anchor.AnchorType.PLAYER
-                && client.options.getCameraType().isFirstPerson();
+                && (client.options.getCameraType().isFirstPerson() || inventoryHandoff);
         presented = SpatialTransform.IDENTITY;
         presentedSpatial = false;
         forceClose = false;
         vanillaFallback = false;
-        animation = resolved == null ? null : new SpatialAnimationController(System.nanoTime());
+        animation = resolved == null ? null : inventoryHandoff && animation != null && !animation.closing()
+                ? animation : new SpatialAnimationController(System.nanoTime());
         anchor = resolved == null ? SpatialAnchor.screenSpace() : SpatialAnchorResolver.resolve(resolved.anchor());
         if (resolved == null) SpatialAnchorResolver.clear();
     }
@@ -114,6 +120,10 @@ public final class SpatialScreenManager {
                 * animation.progress(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs));
     }
 
+    public double visibility() {
+        return active() ? animation.progress(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs) : 1;
+    }
+
     public SpatialTransform prepare(Screen candidate) {
         synchronize();
         if (candidate != screen) return SpatialTransform.IDENTITY;
@@ -148,16 +158,26 @@ public final class SpatialScreenManager {
                 panelWidth += 160;
                 originX -= 80;
             }
+            // Creative category tabs extend above and below the main panel. Reserve
+            // their full footprint, including Fabric's tab-page buttons above them.
+            if (candidate instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen) {
+                panelHeight += 92;
+                originY -= 14;
+            }
         }
         double centerX = width * (0.5 + profile.offsetX());
         double centerY = height * (0.5 + profile.offsetY());
         double scale = config.guiScale * profile.scale();
+        boolean readableContainer = candidate instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
+                && profile.anchor() != dev.transparentinventory.client.anchor.AnchorType.PLAYER;
+        if (readableContainer) scale *= config.containerScale;
         if (cinematicInventory()) {
             vanillaFallback = false;
             long now = System.nanoTime();
+            double motion = animation.motion(now, config.openingAnimationDurationMs);
             double impact = animation.impact(now);
             SpatialTransform transform = InventoryEntrance.transform(width, height, originX, originY, panelWidth, panelHeight, scale,
-                    animation.motion(now, config.openingAnimationDurationMs),
+                    motion,
                     animation.progress(now, config.openingAnimationDurationMs), config.inventoryTiltDegrees, impact);
             presentedImpact = impact;
             flashEdgeX = transform.centerX() + transform.halfWidth(panelWidth, panelHeight);
@@ -178,7 +198,7 @@ public final class SpatialScreenManager {
                 if (Double.isFinite(point.x) && Double.isFinite(point.y) && Math.abs(point.x) < 1.2 && Math.abs(point.y) < 1.2) {
                     centerX = (point.x + 1) * width / 2;
                     centerY = (1 - point.y) * height / 2;
-                    scale *= Math.clamp(config.guiDistance / depth, 0.65, 1.15);
+                    if (!readableContainer) scale *= Math.clamp(config.guiDistance / depth, 0.65, 1.15);
                     projected = true;
                 }
             }
@@ -188,7 +208,7 @@ public final class SpatialScreenManager {
         if (vanillaFallback) return SpatialTransform.IDENTITY;
         double progress = animation.progress(System.nanoTime(), config.openingAnimationDurationMs);
         scale *= 0.92 + 0.08 * progress;
-        scale = Math.clamp(Math.min(scale, Math.min((width - 12) / panelWidth, (height - 12) / panelHeight)), 0.1, 1.5);
+        scale = Math.clamp(Math.min(scale, Math.min((width - 20) / panelWidth, (height - 20) / panelHeight)), 0.1, 2.0);
         double halfWidth = panelWidth * scale / 2 + 4;
         double halfHeight = panelHeight * scale / 2 + 4;
         centerX = Math.clamp(centerX, Math.min(halfWidth, width / 2), Math.max(width / 2, width - halfWidth));

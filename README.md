@@ -1,7 +1,9 @@
 # Hoverglass
 
+**26.1.2 · 0.3.2:** Creative inventory is now covered too: category tabs, search and the personal inventory use glass chrome, the left entrance and right-side player framing. Version 0.3.1 only replaced the survival background. Upgrading seeds 84% creative transparency once, respecting existing per-screen overrides. **F8 → Apply reference glass style** applies the complete preset to both inventory types. The settings title displays the loaded mod version.
+
 <p align="center">
-  <img src="docs/screenshots/inventory-cinematic.png" width="49%" alt="Hoverglass — the glass inventory panel slides in from the left as the camera pulls back">
+  <img src="docs/screenshots/creative-glass.png" width="49%" alt="Hoverglass 0.3.2 — creative glass inventory with the player framed on the right">
   <img src="docs/screenshots/inventory-recipe-book.png" width="49%" alt="Hoverglass — recipe book and crafting shown on the glass panel">
 </p>
 
@@ -57,7 +59,7 @@ Grab the jar that matches your game version from the [**Releases page**](../../r
 | 1.21.11 | `hoverglass-mc1.21.11-0.3.0.jar` | Glass Inventory | 21 | 0.141.6+1.21.11 |
 | 26.1 | `hoverglass-mc26.1-0.3.0.jar` | Spatial Container | 25 | 0.145.1+26.1 |
 | 26.1.1 | `hoverglass-mc26.1.1-0.3.0.jar` | Spatial Container | 25 | 0.145.4+26.1.1 |
-| 26.1.2 | `hoverglass-mc26.1.2-0.3.0.jar` | Spatial Container | 25 | 0.155.3+26.1.2 |
+| 26.1.2 | `hoverglass-mc26.1.2-0.3.2.jar` | Spatial Container | 25 | 0.155.3+26.1.2 |
 | 26.2 | `hoverglass-mc26.2-0.3.0.jar` | Spatial Container | 25 | 0.159.0+26.2 |
 | 26.3 | `hoverglass-mc26.3-0.3.0.jar` | Spatial Container | 25 | 0.163.0+26.3 |
 
@@ -67,7 +69,7 @@ Grab the jar that matches your game version from the [**Releases page**](../../r
 - The glass panel is drawn from scratch: translucent background, edge outline and per-slot borders, all driven by configuration.
 - The player preview can be disabled (`playerPreview`); its position and height are controlled by ratio parameters.
 - There is no in-game settings screen. Everything is tuned by hand in `config/transparent_inventory.json` and applies after a restart or after reopening the inventory.
-- Animation length is controlled by `openingAnimationDurationMs`, 320 ms by default.
+- Animation length is controlled by `openingAnimationDurationMs`, currently 480 ms by default in source.
 
 ## Spatial Container branch (26.1 – 26.3)
 
@@ -104,7 +106,7 @@ Common fields, with an example:
   "enabled": true,
   "playerPreview": true,
   "closeAnimation": true,
-  "panelOpacity": 0.65,
+  "panelOpacity": 0.18,
   "worldDimOpacity": 0.0,
   "screenOpacities": {
     "net.minecraft.client.gui.screens.inventory.ContainerScreen": 0.45,
@@ -112,7 +114,7 @@ Common fields, with an example:
   },
   "excludedScreens": [],
   "additionalScreens": [],
-  "openingAnimationDurationMs": 320,
+  "openingAnimationDurationMs": 480,
 
   "defaultSpatialHandledScreens": true,
   "worldAnchoringEnabled": true,
@@ -120,11 +122,13 @@ Common fields, with an example:
   "cameraEnabled": true,
   "thirdPersonOnOpen": true,
   "cinematicInventory": true,
+  "glassInventory": true,
+  "inventoryCameraSide": 0.72,
   "inventoryTiltDegrees": 4.0,
   "cameraDistance": 3.0,
   "cameraYawOffset": 0.0,
   "cameraPitchOffset": 0.0,
-  "cameraTransitionDurationMs": 250,
+  "cameraTransitionDurationMs": 420,
   "guiScale": 1.0,
   "guiDistance": 1.5,
   "guiVerticalOffset": 0.3

@@ -50,9 +50,14 @@ public final class SpatialCameraController {
     public float yawOffset() { return (float) (InventoryConfig.get().cameraYawOffset * blend); }
     public float pitchOffset() { return (float) (InventoryConfig.get().cameraPitchOffset * blend); }
     /** Move the camera left to reveal the real player on the right, with a delayed sweep. */
-    public float lateralOffset() {
-        return cinematic && InventoryConfig.get().cinematicInventory
-                ? (float) (-InventoryConfig.get().cameraDistance * 0.62 * blend * blend) : 0;
+    public float lateralOffset(float rearDistance) {
+        if (!cinematic || !InventoryConfig.get().cinematicInventory) return 0;
+        // The vanilla rear rays may already have shortened the boom. Keep the
+        // shoulder proportional so a rear wall cannot leave a full-length side sweep.
+        double desiredRear = InventoryConfig.get().cameraDistance * blend;
+        double collisionRatio = desiredRear <= 1E-6 ? 0 : Math.clamp(Math.abs(rearDistance) / desiredRear, 0, 1);
+        return (float) (-desiredRear * InventoryConfig.get().inventoryCameraSide
+                * (0.45 + 0.55 * blend) * collisionRatio);
     }
     public void reset() {
         if (original != null) Minecraft.getInstance().options.setCameraType(original);

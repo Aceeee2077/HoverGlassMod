@@ -30,7 +30,7 @@ SpatialTransform：本帧 billboard 投影快照
 
 选择顺序：先检查排除列表，然后是精确类、最近的已注册父类、通用容器。未匹配的普通 Screen 只有显式出现在 `additionalScreens` 中才使用屏幕相对 profile。
 
-- `InventoryScreen` → PLAYER。
+- `InventoryScreen` / `CreativeModeInventoryScreen` → PLAYER。
 - `MerchantScreen` / `HorseInventoryScreen` → ENTITY。
 - `AbstractContainerScreen` → 通用交互来源，优先最近一次方块或实体交互。
 - 未知来源 → SCREEN_SPACE。
@@ -68,6 +68,14 @@ invalid/NaN/零缩放不会进入除法；输入退回原坐标。过小的窗�
 JSON `panelOpacity` 表示不透明度；UI 透明度滑块展示 `1 - panelOpacity`。`screenOpacities` 以完整 Screen 类名覆盖全局值，删除键即恢复继承。范围均为 0–1。
 
 `GuiRenderStateMixin` 在**提取时**复制 `BlitRenderState` 和 `ColoredRectangleRenderState` 并乘原有 alpha，不使用跨帧 GPU 全局状态。数量、文字和物品状态不改色。延迟工具提示、物品装饰（耐久/冷却/数量）和原版槽位高亮使用不透明范围，世界遮罩另行控制。
+
+0.3.1 的生存背包可启用 `glassInventory`：`InventoryScreenMixin` 仅替换背景与标签外观，`GlassInventoryRenderer` 按原版 Slot 坐标绘制玻璃底、槽位描边、装备轮廓与扫光。菜单内容、点击逻辑、配方书和槽位仍由原版提取。自绘 chrome 在局部 deferred 范围内自行提交 alpha，避免重复乘透明度；玻璃底和槽位填充随透明度变化，边框与空装备提示保持可读。禁用玻璃时恢复原版背景及内嵌玩家模型；没有电影镜头时保留内嵌预览。
+
+入场使用归一化 ease-out-back，起点为 0、终点为 1，约 10% 过冲。闪光起点由第一次越过停留位置的解析时间决定，因此漏帧不会推迟闪光；关闭和零时长动画不会触发入场闪光。人物右侧构图由 `inventoryCameraSide` 控制，范围 0–0.95；原有对角碰撞射线覆盖全部侧移。
+
+0.3.2 将创造物品栏注册为 PLAYER profile。创造模式按键直开、以及已经切换镜头的生存背包重定向到创造背包，都保留第一人称入场意图。布局额外计入上下分类标签与 Fabric 翻页按钮所占区域。`CreativeInventoryScreenMixin` 仅包裹原版背景、标签及滚动条的贴图提交，保留 vanilla/Fabric 的分类图标、分页、搜索、提示及槽位流程；玩家背包标签采用原版可见槽位布局，屏幕外的隐藏槽位不绘制描边。电影镜头下不再绘制重复的小人物。
+
+`creativeGlassDefaultsApplied` 记录创造玻璃默认值是否已迁移：首次清理配置时仅对缺少独立设置的创造界面添加 0.16 不透明度，后续选择“跟随全局”不会被保存时重新插入。预设会同时设置生存和创造物品栏，不改变其他容器覆盖值。设置标题包含实际加载的模组版本，便于核对 jar。
 
 渲染范围和矩阵都使用 `try/finally` 恢复，避免下一帧、HUD 或设置界面继承面板透明度。
 

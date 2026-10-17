@@ -21,5 +21,13 @@
   "spatialui.settings.entrance": "背包入场动画",
   "spatialui.inventory.cinematic": "第一人称侧移入场",
   "spatialui.inventory.tilt": "面板停留倾角",
-  "spatialui.inventory.duration": "界面开关时间"
+  "spatialui.inventory.duration": "界面开关时间",
+  "spatialui.inventory.glass": "透明玻璃背包",
+  "spatialui.inventory.side": "人物向右让位幅度",
+  "spatialui.inventory.preset": "应用参考图玻璃效果（透明度 84%）",
+  "spatialui.container_scale": "箱子等容器显示大小",
+  "spatialui.settings.look": "人物头部跟随设置",
+  "spatialui.look.enabled": "头部跟随物品栏鼠标",
+  "spatialui.look.head_yaw": "左右转头幅度",
+  "spatialui.look.head_pitch": "上下转头幅度"
 }

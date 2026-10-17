@@ -35,7 +35,7 @@ public abstract class CameraMixin {
 
     @WrapOperation(method = "alignWithEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;move(FFF)V"))
     private void spatial$shoulder(Camera camera, float forward, float up, float right, Operation<Void> original) {
-        float lateral = SpatialCameraController.INSTANCE.lateralOffset();
+        float lateral = SpatialCameraController.INSTANCE.lateralOffset(forward);
         if (lateral == 0 || Minecraft.getInstance().level == null) {
             original.call(camera, forward, up, right);
             return;

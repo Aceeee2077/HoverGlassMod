@@ -2,5 +2,5 @@
   "required": true,
   "package": "dev.transparentinventory.gametest.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["KeyboardTestAccess", "MouseTestAccess"]
+  "client": ["KeyboardTestAccess", "MouseTestAccess", "CreativeTestAccess"]
 }

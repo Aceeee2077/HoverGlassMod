@@ -13,6 +13,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class ContainerScreenMixin {
+    @WrapMethod(method = "extractSlot")
+    private void spatial$readableEquipment(GuiGraphicsExtractor graphics, net.minecraft.world.inventory.Slot slot,
+                                           int mouseX, int mouseY, Operation<Void> original) {
+        boolean previous = SpatialGuiRenderer.deferred();
+        if (dev.transparentinventory.client.render.GlassInventoryRenderer.active((AbstractContainerScreen<?>) (Object) this)) {
+            SpatialGuiRenderer.deferred(true);
+        }
+        try { original.call(graphics, slot, mouseX, mouseY); }
+        finally { SpatialGuiRenderer.deferred(previous); }
+    }
+
     @WrapMethod(method = {"extractSlotHighlightBack", "extractSlotHighlightFront"})
     private void spatial$readableHighlight(GuiGraphicsExtractor graphics, Operation<Void> original) {
         boolean wasDeferred = SpatialGuiRenderer.deferred();

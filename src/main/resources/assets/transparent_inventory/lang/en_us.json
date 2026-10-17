@@ -21,5 +21,13 @@
   "spatialui.settings.entrance": "Inventory entrance",
   "spatialui.inventory.cinematic": "First-person side entrance",
   "spatialui.inventory.tilt": "Resting panel tilt",
-  "spatialui.inventory.duration": "GUI animation duration"
+  "spatialui.inventory.duration": "GUI animation duration",
+  "spatialui.inventory.glass": "Glass inventory",
+  "spatialui.inventory.side": "Player rightward framing",
+  "spatialui.inventory.preset": "Apply reference glass style (84% transparent)",
+  "spatialui.container_scale": "Chest / container size",
+  "spatialui.settings.look": "Player head tracking",
+  "spatialui.look.enabled": "Head follows inventory cursor",
+  "spatialui.look.head_yaw": "Horizontal head range",
+  "spatialui.look.head_pitch": "Vertical head range"
 }

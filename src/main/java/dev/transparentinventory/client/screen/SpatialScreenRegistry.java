@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public final class SpatialScreenRegistry {
     private SpatialScreenRegistry() {
         register(AbstractContainerScreen.class, new SpatialScreenProfile("handled", AnchorType.BLOCK, 1, 0, 0));
         register(InventoryScreen.class, new SpatialScreenProfile("inventory", AnchorType.PLAYER, 1, -0.08, 0));
+        register(CreativeModeInventoryScreen.class, new SpatialScreenProfile("creative_inventory", AnchorType.PLAYER, 1, -0.08, 0));
         register(MerchantScreen.class, new SpatialScreenProfile("merchant", AnchorType.ENTITY, 1, 0, 0));
         register(HorseInventoryScreen.class, new SpatialScreenProfile("horse", AnchorType.ENTITY, 1, 0, 0));
     }

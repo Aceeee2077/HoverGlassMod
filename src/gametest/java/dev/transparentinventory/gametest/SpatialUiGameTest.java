@@ -64,24 +64,28 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
             command("give @a minecraft:stone 64");
             command("experience add @a 100 levels");
             context.waitTicks(10);
-            cinematicEntrance();
-            inventory();
-            cameraAndCloseSafety();
-            for (String station : new String[]{"chest", "barrel", "crafting_table", "furnace", "anvil", "enchanting_table",
-                    "blast_furnace", "smoker", "brewing_stand", "smithing_table", "loom", "stonecutter", "grindstone",
-                    "cartography_table", "beacon", "hopper", "dispenser", "dropper"}) {
-                openBlock(station);
-                assertSpatial(AnchorType.BLOCK);
-                if (station.equals("chest")) chest();
-                if (station.equals("anvil")) anvil();
-                if (station.equals("enchanting_table")) enchanting();
-                hoverInventory();
-                context.takeScreenshot("spatialui-" + station);
-                screens++;
-                close();
+            if (!"creative".equals(System.getProperty("hoverglass.testScope"))) {
+                cinematicEntrance();
+                inventory();
+                cameraAndCloseSafety();
+                for (String station : new String[]{"chest", "barrel", "crafting_table", "furnace", "anvil", "enchanting_table",
+                        "blast_furnace", "smoker", "brewing_stand", "smithing_table", "loom", "stonecutter", "grindstone",
+                        "cartography_table", "beacon", "hopper", "dispenser", "dropper"}) {
+                    openBlock(station);
+                    assertSpatial(AnchorType.BLOCK);
+                    if (station.equals("chest")) chest();
+                    if (station.equals("anvil")) anvil();
+                    if (station.equals("enchanting_table")) enchanting();
+                    hoverInventory();
+                    context.takeScreenshot("spatialui-" + station);
+                    screens++;
+                    close();
+                }
+                largeChest();
+                merchant();
+                horse();
             }
-            merchant();
-            horse();
+            creativeInventory();
             context.getInput().pressKey(InputConstants.KEY_E); context.waitForScreen(InventoryScreen.class);
             context.getInput().pressKey(InputConstants.KEY_F8);
             check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.settings() != null), "settings active before world unload");
@@ -92,6 +96,145 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
     }
 
     private void command(String text) { world.getServer().runCommand(text); TestWorldAccess.clientPackets(context, world); }
+
+    private void creativeInventory() {
+        // The preceding container tests change inventory on both sides. Force an
+        // authoritative full snapshot for this scenario's empty destination slot.
+        world.getServer().runOnServer(server -> {
+            var player = server.getPlayerList().getPlayers().getFirst();
+            player.getInventory().setItem(0, ItemStack.EMPTY);
+            player.inventoryMenu.sendAllDataToRemote();
+        });
+        TestWorldAccess.clientPackets(context, world);
+        context.waitFor(client -> client.player.getInventory().getItem(0).isEmpty());
+        command("gamemode creative @a");
+        context.waitFor(client -> client.player.hasInfiniteMaterials());
+        context.runOnClient(client -> {
+            var config = new InventoryConfig();
+            config.panelOpacity = 0.65F; // Simulate an existing user's global setting.
+            config.openingAnimationDurationMs = 1000;
+            config.cameraTransitionDurationMs = 500;
+            InventoryConfig.setInstance(config);
+            client.options.setCameraType(CameraType.FIRST_PERSON);
+        });
+        long started = System.nanoTime();
+        context.getInput().pressKey(InputConstants.KEY_E);
+        context.waitForScreen(CreativeModeInventoryScreen.class);
+        context.waitFor(client -> SpatialScreenManager.INSTANCE.mapsInput());
+        double earlyX = context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().centerX());
+        context.waitFor(client -> System.nanoTime() - started > 400_000_000L);
+        context.takeScreenshot("spatialui-creative-entering");
+        context.waitFor(client -> System.nanoTime() - started > 1_150_000_000L);
+        assertSpatial(AnchorType.PLAYER);
+        context.runOnClient(client -> {
+            var screen = (CreativeModeInventoryScreen) dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            var t = SpatialScreenManager.INSTANCE.transform();
+            check(SpatialScreenManager.INSTANCE.cinematicInventory(), "creative inventory uses cinematic player profile");
+            check(t.centerX() > earlyX && t.centerX() < screen.width * 0.4, "creative panel enters from left");
+            check(Math.abs(t.tiltDegrees() - 4) < 0.01, "creative panel retains its tilt");
+            var eye = client.gameRenderer.projectPointToScreen(client.player.getEyePosition());
+            check(eye.x > 0.3 && eye.x < 0.9, "creative mode frames real player on right");
+            check(Math.abs(InventoryConfig.get().opacityFor(screen.getClass().getName()) - 0.16F) < 1E-6,
+                    "creative glass is enabled at 84% transparency without pressing preset");
+            var bounds = (ContainerScreenAccessor) screen;
+            check(t.screenY(bounds.spatial$left(), bounds.spatial$top() - 58) >= 0, "creative top tabs and page buttons fit window");
+        });
+        context.getInput().setCursorPos(10, 10);
+        context.runOnClient(client -> {
+            client.getToastManager().clear();
+            client.gui.getChat().clearMessages(true);
+        });
+        context.takeScreenshot("spatialui-creative-glass");
+        headTracking("creative");
+        hoverInventory();
+        var picked = context.computeOnClient(client -> client.player.containerMenu.getSlot(0).getItem().getItem());
+        clickSlot(0, 0);
+        check(context.computeOnClient(client -> client.player.containerMenu.getCarried().is(picked)), "creative catalog click picks item");
+        clickSlot(45, 0);
+        context.runOnClient(client -> System.out.println("[creativeGameTest] after hotbar placement: carried="
+                + client.player.containerMenu.getCarried() + " slot45=" + client.player.containerMenu.getSlot(45).getItem()
+                + " inventory0=" + client.player.getInventory().getItem(0)
+                + " hovered=" + ((ContainerScreenAccessor) dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatial$hoveredSlot()));
+        check(context.computeOnClient(client -> client.player.containerMenu.getCarried().isEmpty()
+                && client.player.getInventory().getItem(0).is(picked)), "creative catalog item places in real hotbar");
+        moveToSlot(0);
+        context.getInput().scroll(-3); context.waitTicks(3);
+        check(context.computeOnClient(client -> ((dev.transparentinventory.gametest.mixin.CreativeTestAccess)
+                dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatialtest$scroll()) > 0, "creative wheel scroll maps correctly");
+        var thumb = context.computeOnClient(client -> {
+            var bounds = (ContainerScreenAccessor) dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            return projected(client, bounds.spatial$left() + 181, bounds.spatial$top() + 25);
+        });
+        context.getInput().setCursorPos(thumb[0], thumb[1]);
+        context.getInput().holdMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        var bottom = context.computeOnClient(client -> {
+            var bounds = (ContainerScreenAccessor) dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            return projected(client, bounds.spatial$left() + 181, bounds.spatial$top() + 124);
+        });
+        context.getInput().setCursorPos(bottom[0], bottom[1]); context.waitTicks(2);
+        context.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        check(context.computeOnClient(client -> ((dev.transparentinventory.gametest.mixin.CreativeTestAccess)
+                dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatialtest$scroll()) > 0.8,
+                "creative scrollbar drag uses transformed coordinates");
+
+        creativeTab(net.minecraft.world.item.CreativeModeTab.Type.SEARCH);
+        context.getInput().typeChars("diamond"); context.waitTicks(4);
+        check(context.computeOnClient(client -> ((dev.transparentinventory.gametest.mixin.CreativeTestAccess)
+                dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatialtest$search().getValue()).equals("diamond"),
+                "creative search receives native typing after transformed tab click");
+        check(context.computeOnClient(client -> !client.player.containerMenu.getSlot(0).getItem().isEmpty()
+                && client.player.containerMenu.getSlot(0).getItem().getHoverName().getString().toLowerCase(java.util.Locale.ROOT).contains("diamond")),
+                "creative search filters actual items");
+        context.getInput().setCursorPos(10, 10);
+        context.takeScreenshot("spatialui-creative-search");
+        creativeTab(net.minecraft.world.item.CreativeModeTab.Type.INVENTORY);
+        check(context.computeOnClient(client -> ((CreativeModeInventoryScreen) dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).isInventoryOpen()),
+                "creative personal inventory tab works");
+        hoverInventory();
+        context.getInput().setCursorPos(10, 10);
+        context.takeScreenshot("spatialui-creative-personal");
+        clickSlot(36, 0);
+        check(context.computeOnClient(client -> !client.player.containerMenu.getCarried().isEmpty()), "creative personal hotbar pickup");
+        int trash = context.computeOnClient(client -> ((dev.transparentinventory.gametest.mixin.CreativeTestAccess)
+                dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatialtest$trash().index);
+        clickSlot(trash, 0);
+        check(context.computeOnClient(client -> client.player.containerMenu.getCarried().isEmpty()), "creative trash slot still deletes carried item");
+        Object menu = context.computeOnClient(client -> client.player.containerMenu);
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.settings() != null && client.player.containerMenu == menu),
+                "creative F8 keeps actual menu alive");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.runOnClient(client -> {
+            InventoryConfig.get().openingAnimationDurationMs = 0;
+            InventoryConfig.get().cameraTransitionDurationMs = 0;
+        });
+        screens++;
+        close();
+        command("gamemode survival @a");
+        context.waitFor(client -> !client.player.hasInfiniteMaterials());
+        context.getInput().pressKey(InputConstants.KEY_E);
+        context.waitForScreen(InventoryScreen.class); context.waitTicks(3);
+        command("gamemode creative @a");
+        context.waitForScreen(CreativeModeInventoryScreen.class); context.waitTicks(3);
+        check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.cinematicInventory()),
+                "survival-to-creative redirect preserves original first-person intent");
+        close();
+        command("gamemode survival @a");
+        context.waitFor(client -> !client.player.hasInfiniteMaterials());
+    }
+
+    private void creativeTab(net.minecraft.world.item.CreativeModeTab.Type type) {
+        var point = context.computeOnClient(client -> {
+            var screen = dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            var bounds = (ContainerScreenAccessor) screen;
+            var access = (dev.transparentinventory.gametest.mixin.CreativeTestAccess) screen;
+            var tab = net.minecraft.world.item.CreativeModeTabs.tabs().stream().filter(t -> t.getType() == type).findFirst().orElseThrow();
+            return projected(client, bounds.spatial$left() + access.spatialtest$tabX(tab) + 13,
+                    bounds.spatial$top() + access.spatialtest$tabY(tab) + 16);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT); context.waitTicks(3);
+    }
 
     private void cinematicEntrance() {
         context.runOnClient(client -> {
@@ -104,6 +247,8 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         context.waitFor(client -> SpatialScreenManager.INSTANCE.mapsInput());
         double earlyX = context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().centerX());
         context.waitFor(client -> System.nanoTime() - started > 400_000_000L);
+        check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.impactFlash()) > 0.1,
+                "visible landing flash begins while panel is arriving");
         context.takeScreenshot("spatialui-inventory-entering");
         context.waitFor(client -> System.nanoTime() - started > 1_100_000_000L);
         context.runOnClient(client -> {
@@ -124,6 +269,7 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         context.getInput().pressKey(InputConstants.KEY_E); context.waitForScreen(InventoryScreen.class); context.waitTicks(3);
         check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().tiltDegrees()) == 0,
                 "already-third-person inventory retains standard layout");
+        headTracking("third-person");
         context.runOnClient(client -> dev.transparentinventory.client.compat.MinecraftAccess.screen(client).onClose());
         context.waitFor(client -> dev.transparentinventory.client.compat.MinecraftAccess.screen(client) == null); context.waitTicks(3);
         context.runOnClient(client -> client.options.setCameraType(CameraType.FIRST_PERSON));
@@ -158,6 +304,8 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         check(total == 64, "drag conserves items");
         settings();
         recipeBookAndResize();
+        glassPreset();
+        headTracking("survival");
         hoverInventory();
         context.takeScreenshot("spatialui-inventory");
         screens++;
@@ -194,6 +342,38 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
             } catch (java.io.IOException error) { throw new java.io.UncheckedIOException(error); }
             InventoryConfig.get().screenOpacities.clear();
             InventoryConfig.get().panelOpacity = 0.65F;
+        });
+    }
+
+    private void glassPreset() {
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        var point = context.computeOnClient(client -> {
+            var widget = SpatialScreenManager.INSTANCE.settings().children().stream()
+                    .filter(net.minecraft.client.gui.components.Button.class::isInstance)
+                    .map(net.minecraft.client.gui.components.Button.class::cast)
+                    .filter(button -> button.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("spatialui.inventory.preset").getString()))
+                    .findFirst().orElseThrow();
+            return raw(client, widget.getX() + widget.getWidth() / 2.0, widget.getY() + 10);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        check(context.computeOnClient(client -> Math.abs(InventoryConfig.get().opacityFor(InventoryScreen.class.getName()) - 0.16F)) < 1E-6,
+                "reference preset applies through actual settings button");
+        context.takeScreenshot("spatialui-glass-settings");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitTicks(4);
+        hoverInventory();
+        context.takeScreenshot("spatialui-glass-reference");
+        context.runOnClient(client -> {
+            InventoryConfig.get().glassInventory = false;
+        });
+        context.waitTicks(3);
+        hoverInventory();
+        context.takeScreenshot("spatialui-glass-disabled");
+        context.runOnClient(client -> {
+            InventoryConfig.get().glassInventory = true;
+            InventoryConfig.get().openingAnimationDurationMs = 0;
+            InventoryConfig.get().cameraTransitionDurationMs = 0;
         });
     }
 
@@ -251,6 +431,11 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         long started = System.nanoTime();
         context.getInput().pressKey(InputConstants.KEY_E); context.waitForScreen(InventoryScreen.class);
         context.waitFor(client -> System.nanoTime() - started > 400_000_000L);
+        context.runOnClient(client -> System.out.println("[spatialGameTest] rear wall camera="
+                + dev.transparentinventory.client.compat.MinecraftAccess.camera(client).position()
+                + " eye=" + client.player.getEyePosition() + " yaw=" + client.player.getYRot()
+                + " pitch=" + client.player.getXRot()));
+        context.takeScreenshot("spatialui-rear-wall");
         check(context.computeOnClient(client -> dev.transparentinventory.client.compat.MinecraftAccess.camera(client).position().distanceTo(client.player.getEyePosition())) < 2,
                 "vanilla obstruction rays shorten spatial camera distance");
         command("fill -1 200 -1 1 204 -1 minecraft:air");
@@ -307,6 +492,14 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
     }
 
     private void chest() {
+        double size = context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().scale());
+        check(size >= 0.99, "default chest no longer shrinks its items below native GUI size");
+        context.runOnClient(client -> InventoryConfig.get().cameraDistance = 6);
+        context.waitTicks(4);
+        check(Math.abs(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().scale()) - size) < 0.01,
+                "chest item size does not shrink with world-anchor distance");
+        context.runOnClient(client -> InventoryConfig.get().cameraDistance = 3);
+        context.waitTicks(4);
         context.waitFor(client -> client.player.containerMenu.getSlot(0).getItem().is(Items.DIAMOND));
         moveToSlot(0);
         check(context.computeOnClient(client -> ((ContainerScreenAccessor) dev.transparentinventory.client.compat.MinecraftAccess.screen(client)).spatial$hoveredSlot().index) == 0, "chest hover follows transformed slot");
@@ -319,6 +512,119 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         check(context.computeOnClient(client -> client.player.containerMenu.getCarried().isEmpty()), "chest shift click is transfer, not pickup");
         check(context.computeOnClient(client -> client.player.containerMenu.getSlot(1).getItem().isEmpty()), "chest shift click transfers item");
         TestWorldAccess.serverPackets(context, world);
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        settingsButton("spatialui.settings.more");
+        var point = context.computeOnClient(client -> {
+            var slider = SpatialScreenManager.INSTANCE.settings().children().stream()
+                    .filter(net.minecraft.client.gui.components.AbstractSliderButton.class::isInstance)
+                    .map(net.minecraft.client.gui.components.AbstractSliderButton.class::cast)
+                    .filter(widget -> widget.getMessage().getString().startsWith(net.minecraft.network.chat.Component.translatable("spatialui.container_scale").getString()))
+                    .findFirst().orElseThrow();
+            return raw(client, slider.getX() + 2, slider.getY() + 10);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        check(context.computeOnClient(client -> InventoryConfig.get().containerScale) == 0.75, "container size slider reaches minimum");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitTicks(3);
+        check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.transform().scale()) < size - 0.2,
+                "container size setting changes actual rendered panel");
+        context.runOnClient(client -> InventoryConfig.get().containerScale = 1.35);
+        context.waitTicks(3);
+    }
+
+    private void largeChest() {
+        command("setblock 0 200 3 minecraft:chest[facing=north,type=left] replace");
+        command("setblock 1 200 3 minecraft:chest[facing=north,type=right] replace");
+        command("item replace block 0 200 3 container.0 with minecraft:diamond 32");
+        context.runOnClient(client -> client.gameMode.useItemOn(client.player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(STATION), Direction.NORTH, STATION, false)));
+        context.waitFor(client -> client.player.containerMenu.slots.size() == 90);
+        context.waitTicks(4);
+        context.runOnClient(client -> {
+            var screen = dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            var bounds = (ContainerScreenAccessor) screen;
+            var t = SpatialScreenManager.INSTANCE.transform();
+            check(bounds.spatial$height() * t.scale() > screen.height * 0.85, "large chest uses readable window height");
+            check(t.centerY() - t.halfHeight(bounds.spatial$width(), bounds.spatial$height()) >= 0
+                    && t.centerY() + t.halfHeight(bounds.spatial$width(), bounds.spatial$height()) <= screen.height,
+                    "large chest stays within window");
+            client.gui.getChat().clearMessages(true); client.getToastManager().clear();
+        });
+        hoverInventory();
+        context.takeScreenshot("spatialui-large-chest-readable");
+        screens++;
+        close();
+        command("setblock 1 200 3 minecraft:air");
+    }
+
+    private void headTracking(String mode) {
+        float[] original = context.computeOnClient(client -> new float[]{client.player.getYRot(), client.player.getXRot(),
+                client.player.yHeadRot, client.player.yBodyRot});
+        moveInPanel(0.1, 0.15);
+        context.waitTicks(10);
+        float[] left = headPose();
+        context.takeScreenshot("spatialui-head-" + mode + "-upper-left");
+        moveInPanel(0.9, 0.85);
+        context.waitTicks(10);
+        float[] right = headPose();
+        context.takeScreenshot("spatialui-head-" + mode + "-lower-right");
+        check(right[0] > left[0] + 25, mode + " rendered head turns horizontally with cursor");
+        check(right[1] > left[1] + 30, mode + " rendered head follows cursor vertically");
+        check(Math.abs(left[2] - right[2]) < 0.01, mode + " cursor does not rotate rendered body");
+        context.runOnClient(client -> {
+            check(client.player.getYRot() == original[0] && client.player.getXRot() == original[1]
+                    && client.player.yHeadRot == original[2] && client.player.yBodyRot == original[3],
+                    "rendered gaze never modifies actual player orientation");
+        });
+        var serverAngles = world.getServer().computeOnServer(server -> {
+            var player = server.getPlayerList().getPlayers().getFirst();
+            return new float[]{player.getYRot(), player.getXRot()};
+        });
+        check(serverAngles[0] == original[0] && serverAngles[1] == original[1], "gaze is not sent to server");
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        settingsButton("spatialui.settings.more");
+        settingsButton("spatialui.settings.entrance");
+        settingsButton("spatialui.settings.look");
+        settingsButton("spatialui.look.enabled");
+        check(!context.computeOnClient(client -> InventoryConfig.get().playerLookAtInventory), "head tracking toggle works");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitTicks(2);
+        float[] disabled = headPose();
+        check(Math.abs(disabled[0]) < 0.01 && Math.abs(disabled[1] - original[1]) < 0.01,
+                "disabling head tracking immediately restores vanilla pose");
+        context.runOnClient(client -> InventoryConfig.get().playerLookAtInventory = true);
+    }
+
+    private float[] headPose() {
+        return context.computeOnClient(client -> {
+            var renderer = client.getEntityRenderDispatcher().getRenderer(client.player);
+            var pose = (net.minecraft.client.renderer.entity.state.AvatarRenderState) renderer.createRenderState(client.player, 1F);
+            return new float[]{pose.yRot, pose.xRot, pose.bodyRot};
+        });
+    }
+
+    private void moveInPanel(double x, double y) {
+        var point = context.computeOnClient(client -> {
+            var bounds = (ContainerScreenAccessor) dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            return projected(client, bounds.spatial$left() + bounds.spatial$width() * x,
+                    bounds.spatial$top() + bounds.spatial$height() * y);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+    }
+
+    private void settingsButton(String key) {
+        var point = context.computeOnClient(client -> {
+            var button = SpatialScreenManager.INSTANCE.settings().children().stream()
+                    .filter(net.minecraft.client.gui.components.Button.class::isInstance)
+                    .map(net.minecraft.client.gui.components.Button.class::cast)
+                    .filter(widget -> widget.getMessage().getString().startsWith(net.minecraft.network.chat.Component.translatable(key).getString()))
+                    .findFirst().orElseThrow();
+            return raw(client, button.getX() + button.getWidth() / 2.0, button.getY() + 10);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        context.waitTicks(1);
     }
 
     private void anvil() {

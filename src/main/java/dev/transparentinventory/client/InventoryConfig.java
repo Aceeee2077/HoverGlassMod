@@ -32,7 +32,7 @@ public final class InventoryConfig {
     // ------------------------------------------------------------------
 
     public boolean enabled = true;
-    /** Legacy drop-inventory settings; the universal path preserves vanilla previews. */
+    /** Legacy player-preview settings. */
     public boolean playerPreview = true;
     public boolean playerLookAtInventory = true;
     public boolean closeAnimation = true;
@@ -43,15 +43,22 @@ public final class InventoryConfig {
     public boolean cameraEnabled = true;
     public boolean thirdPersonOnOpen = true;
     public boolean cinematicInventory = true;
+    /** Replace survival and creative inventory textures with outlined glass. */
+    public boolean glassInventory = true;
+    /** Migration marker: seed the newly supported creative screen once, respecting overrides. */
+    public boolean creativeGlassDefaultsApplied;
+    public double inventoryCameraSide = 0.72;
     public double inventoryTiltDegrees = 4.0;
     public double cameraDistance = 3.0;
     public double cameraYawOffset = 0;
     public double cameraPitchOffset = 0;
-    public int cameraTransitionDurationMs = 250;
+    public int cameraTransitionDurationMs = 420;
     public double guiScale = 1.0;
+    /** Readable screen-space size for chests and other non-player containers. */
+    public double containerScale = 1.35;
     public double guiDistance = 1.5;
     public double guiVerticalOffset = 0.3;
-    public int openingAnimationDurationMs = 320;
+    public int openingAnimationDurationMs = 480;
     public float worldDimOpacity = 0.0F;
     public List<String> excludedScreens = new ArrayList<>();
     /** Non-container screens are opt-in so menus/chat are never spatialized by accident. */
@@ -65,16 +72,14 @@ public final class InventoryConfig {
     // Visual alpha values
     // ------------------------------------------------------------------
 
-    /** Vanilla panel/skin opacity, 0 = invisible, 1 = opaque. */
-    public float panelOpacity = 0.65F;
-    // Remaining chrome/physics/layout/look parameters are retained for old config
-    // compatibility and the legacy math regressions, not the universal renderer.
-    /** Slot fill alpha, spec range [0.02, 0.15]. */
+    /** Panel opacity, 0 = invisible, 1 = opaque; glass rims stay independently visible. */
+    public float panelOpacity = 0.18F;
+    /** Glass slot fill alpha, multiplied by panel opacity. */
     public float slotOpacity = 0.09F;
-    /** Panel border alpha, spec range [0.20, 0.35]. */
-    public float borderOpacity = 0.28F;
-    /** Slot border alpha, spec range [0.16, 0.28]. */
-    public float slotBorderOpacity = 0.22F;
+    /** Glass panel border alpha [0, 1], independent of panel opacity. */
+    public float borderOpacity = 0.72F;
+    /** Glass slot border alpha [0, 1], independent of panel opacity. */
+    public float slotBorderOpacity = 0.58F;
     /** Hovered slot alpha, spec range [0.12, 0.22]. */
     public float hoverOpacity = 0.18F;
     /** Selected (quick-craft) slot alpha, spec range [0.25, 0.40]. */
@@ -149,6 +154,23 @@ public final class InventoryConfig {
     public InventoryConfig() {
     }
 
+    /** Apply the reference composition without erasing other containers' opacity choices. */
+    public void applyGlassPreset() {
+        enabled = glassInventory = cinematicInventory = cameraEnabled = thirdPersonOnOpen = true;
+        screenOpacities.put("net.minecraft.client.gui.screens.inventory.InventoryScreen", 0.16F);
+        screenOpacities.put("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen", 0.16F);
+        worldDimOpacity = 0;
+        borderOpacity = 0.78F;
+        slotBorderOpacity = 0.64F;
+        slotOpacity = 0.09F;
+        openingAnimationDurationMs = 480;
+        cameraTransitionDurationMs = 420;
+        inventoryCameraSide = 0.72;
+        cameraDistance = 3.0;
+        inventoryTiltDegrees = 3.0;
+        guiScale = 1.12;
+    }
+
     /**
      * Clamps every value into a safe range so a hand-edited or corrupted config
      * file can never produce NaN/absurd physics or off-screen layouts.
@@ -165,9 +187,11 @@ public final class InventoryConfig {
         cameraYawOffset = clamp(cameraYawOffset, -60, 60);
         cameraPitchOffset = clamp(cameraPitchOffset, -45, 45);
         inventoryTiltDegrees = clamp(inventoryTiltDegrees, -12, 12);
+        inventoryCameraSide = clamp(inventoryCameraSide, 0, 0.95);
         cameraTransitionDurationMs = (int) clamp(cameraTransitionDurationMs, 0, 2000);
         openingAnimationDurationMs = (int) clamp(openingAnimationDurationMs, 0, 2000);
         guiScale = clamp(guiScale, 0.5, 1.5);
+        containerScale = clamp(containerScale, 0.75, 2.0);
         guiDistance = clamp(guiDistance, 0.5, 6);
         guiVerticalOffset = clamp(guiVerticalOffset, -2, 3);
         if (excludedScreens == null) excludedScreens = new ArrayList<>();
@@ -177,6 +201,10 @@ public final class InventoryConfig {
         if (screenOpacities == null) screenOpacities = new LinkedHashMap<>();
         screenOpacities.entrySet().removeIf(entry -> entry.getKey() == null || entry.getKey().isBlank() || entry.getValue() == null);
         screenOpacities.replaceAll((name, value) -> clamp(value, 0F, 1F));
+        if (!creativeGlassDefaultsApplied) {
+            screenOpacities.putIfAbsent("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen", 0.16F);
+            creativeGlassDefaultsApplied = true;
+        }
 
         slideSpeed = clamp(slideSpeed, 600.0, 6000.0);
         slideBrake = clamp(slideBrake, 200.0, 8000.0);
