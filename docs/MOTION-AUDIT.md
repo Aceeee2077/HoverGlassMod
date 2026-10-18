@@ -33,3 +33,49 @@ Fabric's HUD/level-render/item-use extension points do not expose replacement of
 ## Compatibility boundaries
 
 New Phase 1 runtime integration is for the existing 26.x spatial branch. Legacy source filtering keeps new Minecraft-dependent packages/mixins out of 1.20/1.21; their existing features remain unchanged. Actual 26.1.2/26.2/26.3 method descriptors must be checked before use, with RenderPearl adapters where required. Other hand/camera mods may append transforms to the same methods; toggles provide a fallback, but compatibility cannot be claimed without testing those combinations. Multiplayer visuals consume existing vanilla state; new server mechanics, trails, explosion shake and model-scale block animation are outside this MVP.
+
+## Delivered Phase 1 — 0.5.0
+
+| Feature | Status on tested 26.1.2 client |
+| --- | --- |
+| Smooth held-item switching | Working — separate visual cache per hand; actual slot/item changes immediately |
+| Sword/tool attack motion | Working — additional render transform using vanilla swing progress |
+| Sprint camera motion | Working — speed envelope and small render-pose sway |
+| Jump feedback | Working — upward transition impulse |
+| Landing / hard landing | Working — velocity-scaled spring response |
+| Confirmed melee hit | Working — matching existing server damage event; whiffs/rejected hits excluded |
+| Block break feedback | Working — native after-break event with extra bounded material fragments |
+| Block placement animation | Partial — 200 ms material-particle proxy; actual chunk block is not scaled |
+
+The mod remains client-only. All original attack, cooldown, inventory, collision, fall damage, movement and placement logic executes normally. No custom packets, protocol, tick freezing, FOV changes, shader, framebuffer, fullscreen pass or new third-party dependency was added. The controller reuses transform matrices; item copies happen on visual item changes. Particle objects are allocated only at interactions. Particle caps are 16 per burst / 48 owned / at least 40 ms between bursts. No hardware FPS/allocation benchmark was performed.
+
+### New source files
+
+Under `src/main/java/dev/transparentinventory/client/`:
+
+- `anim/Easing.java`, `anim/DampedSpring.java`, `anim/ItemSwapTimeline.java` — engine-free shared math and timing.
+- `motion/MotionClient.java`, `motion/FirstPersonMotion.java`, `motion/VisualMotionController.java` — event registration, visual held-item state and camera response.
+- `effects/BlockFeedback.java` — bounded material-particle feedback and cleanup.
+- `mixin/FirstPersonMotionMixin.java`, `mixin/MotionViewMixin.java`, `mixin/MotionDamageMixin.java`, `mixin/BlockPlaceFeedbackMixin.java` — the four additional mixin entries.
+- `src/versions/26.1/java/dev/transparentinventory/client/mixin/FirstPersonMotionMixin.java` — 26.1 render-method adapter.
+- `src/versions/26.3/java/dev/transparentinventory/client/mixin/FirstPersonMotionMixin.java`, `MotionViewMixin.java` — extracted hand/model-state adapter. Models are resolved again only when the visual item differs from the prepared vanilla model.
+- `src/gametest/java/dev/transparentinventory/gametest/MotionGameTest.java` — disposable-world runtime tests.
+
+### Existing files modified for this task
+
+- `InventoryConfig.java`: nested, sanitized motion options in the existing Gson file.
+- `screen/SpatialSettingsScreen.java`: three more pages with master/accessibility, first-person, camera and world controls.
+- `mixin/CameraMixin.java`, `mixin/MinecraftMixin.java`: frame sampling and lifecycle cleanup. Existing anchor/interaction hooks remain unchanged.
+- `build.gradle`, `gradle.properties`, `src/main/resources/fabric.mod.json`: conditional spatial client initializer, valid source JSON, version 0.5.0 and feature description; loader/game/Java/API versions unchanged.
+- `transparent_inventory.client.mixins.json`, both translation files: four new hooks and translated settings.
+- `InventoryRegressionTest.java`: 30 additional assertions for spring frame partitioning, timeline endpoints/rapid selection/dropped frames and config migration/clamping.
+- Test metadata, `SpatialUiGameTest.java`, and both `TestWorldAccess.java` versions: register motion tests, support a focused run, and adapt chat/toasts/HUD visibility for 26.2 without changing test semantics on 26.1.
+- `README.md`, `README.zh-CN.md`, `docs/ARCHITECTURE.md`, `docs/TESTING.md`, this audit and selected real-client screenshots document implementation and limits.
+
+Existing uncommitted glass-menu and hotbar work from before this task was retained.
+
+### Verification scope
+
+26.1.2: full vanilla/Fabric client and integrated-server test run passed, including all 25 original UI/container checks, glass menu/HUD checks and the new motion scenarios; 1032 plain-Java assertions passed. Tests cover rapid switching and unchanged real inventory, native sword swings, sprinting, bobbing off, screen effects off, normal/hard landing, confirmed/rejected attacks, actual server block break/place, minimal particles, map/drink/bow bypass, F8 per-feature/reduced-motion persistence, third person, spectator and world unload. Screenshots were inspected. See `TESTING.md` for exact final commands/results.
+
+Build checks passed for 26.1, 26.1.1, 26.2, 1.20.1 and 1.21.11. 26.2 also compiles both client test suites. 26.3 compiles/assembles and passes the 1032 math assertions on a plain JVM; its real client was not run because the offline environment lacks its LWJGL 3.4.3 native dependencies. Third-party modpacks/camera or hand-rendering mod combinations and separate remote-server latency conditions were not tested. Hit matching intentionally tracks only the most recent melee intent for one second.

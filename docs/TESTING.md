@@ -1,5 +1,16 @@
 # 验证记录
 
+## 2026-10-18 · 0.5.0 流畅动效 MVP
+
+- 兼容性审计为 Compatible，完整依据与文件清单见 `MOTION-AUDIT.md`。使用当前实际映射检查 26.1 `renderArmWithItem`、26.2 `submitArmWithItem`、26.3 `FirstPersonHandsAndItemsRenderer` 及其状态快照，未降级 Minecraft 或引入动画库。
+- 完整命令：`build runClientGameTest collectRelease -Pmc=26.1.2 -I .tools/local-test-assets.init.gradle --offline --console=plain`，`BUILD SUCCESSFUL in 1m 28s`。1032 条数学/配置断言、25 类原有界面检查、新增独立动效客户端场景全部通过。日志 `.tools/motion-final-test.log`。
+- 最终资源模板保持有效 JSON，测试辅助层补齐 26.2 HUD/聊天/提示访问后，以 `-PmotionOnly` 执行同一命令复核：`BUILD SUCCESSFUL in 40s`，1032 条断言及完整动效/设置场景通过。日志 `.tools/motion-release-test.log`。已检查最终 Jar 为 `transparent_inventory` / `0.5.0` / MC `26.1.2`，包含动效入口与四个新 Mixin，不包含测试类；legacy Jar 仅保留原入口。
+- 已查看并留存真实截图 `motion-item-lowering.png`、`motion-item-raised.png`、`motion-sword-swing.png`、`motion-block-place-pulse.png` 及三页动效设置。新设置同样可使用已有液态玻璃主题。
+- 新增场景：数字键/快速切换后实际库存与手持物立即正确；可见模型按时间线完成换物；原版鼠标挥剑且实际玩家角度保持不变；原生疾跑、起跳、普通/较高落地有视图响应；关闭视角摇晃或屏幕效果时偏移为零。真实攻击猪触发原版服务器伤害通知后才追加命中反馈，挥空或攻击不可伤害目标不触发。
+- 破坏/放置通过原版游戏模式方法和真实服务器同步，额外粒子确实创建、单次数量受限，最少粒子设置停用新增碎片。地图、饮用、拉弓绕过自定义手部流程。F8 中减少动态、独立命中和破坏开关可操作，并与玻璃配置一同保存。第三人称、旁观者、卸载世界会停用/清理新状态。放置仅为四 tick 的粒子代理，没有模型缩放。
+- 26.1、26.1.1、26.2、1.20.1、1.21.11 均通过 `build --offline`；26.2 的 `build compileGametestJava collectRelease` 通过，`BUILD SUCCESSFUL in 18s`。26.3 `assemble compileTestJava --offline` 通过，1032 条纯 Java 断言另以无 Minecraft/native 的 classpath 执行通过；未实机验证 26.3，离线缓存仍缺少其 LWJGL 3.4.3 native 依赖。
+- 没有新增 shader 或 framebuffer；没有发送自定义网络包或修改攻击、移动、碰撞、伤害、冷却、放置规则。没有第三方整合包、远程服务器延迟或多硬件 FPS 基准结论。
+
 ## 2026-10-18 · 0.4.1 玻璃 HUD 快捷栏（26.1.2）
 
 - `build runClientGameTest collectRelease -Pmc=26.1.2 --offline`：`BUILD SUCCESSFUL in 1m 10s`，1002 条纯 Java 断言及原有 25 类界面回归通过，同时执行新增 HUD 专项检查。

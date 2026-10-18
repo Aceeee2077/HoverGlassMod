@@ -109,8 +109,8 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
             InventoryConfig.get().glassHotbar = true;
             InventoryConfig.get().hotbarOpacity = 0.16F;
             client.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.RIGHT);
-            client.getToastManager().clear();
-            client.gui.getChat().clearMessages(true);
+            TestWorldAccess.clearToasts(client);
+            TestWorldAccess.clearChat(client);
         });
         context.getInput().pressKey(InputConstants.KEY_1);
         context.waitTicks(2);
@@ -136,7 +136,7 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         });
         context.waitFor(client -> client.player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT);
         context.getInput().pressKey(InputConstants.KEY_F1);
-        check(context.computeOnClient(client -> client.options.hideGui), "F1 hides HUD including glass hotbar");
+        check(context.computeOnClient(client -> TestWorldAccess.hudHidden(client)), "F1 hides HUD including glass hotbar");
         context.takeScreenshot("spatialui-hotbar-hidden");
         context.getInput().pressKey(InputConstants.KEY_F1);
         context.getInput().pressKey(InputConstants.KEY_E);
@@ -275,8 +275,8 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
         });
         context.getInput().setCursorPos(10, 10);
         context.runOnClient(client -> {
-            client.getToastManager().clear();
-            client.gui.getChat().clearMessages(true);
+            TestWorldAccess.clearToasts(client);
+            TestWorldAccess.clearChat(client);
         });
         context.takeScreenshot("spatialui-creative-glass");
         headTracking("creative");
@@ -683,7 +683,7 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
             check(t.centerY() - t.halfHeight(bounds.spatial$width(), bounds.spatial$height()) >= 0
                     && t.centerY() + t.halfHeight(bounds.spatial$width(), bounds.spatial$height()) <= screen.height,
                     "large chest stays within window");
-            client.gui.getChat().clearMessages(true); client.getToastManager().clear();
+            TestWorldAccess.clearChat(client); TestWorldAccess.clearToasts(client);
         });
         hoverInventory();
         context.takeScreenshot("spatialui-large-chest-readable");

@@ -1,5 +1,17 @@
 # 空间界面架构
 
+## 0.5.0 流畅动效扩展
+
+兼容性审计见 `MOTION-AUDIT.md`。原有目录与 mod ID 保留；新增 `motion`、`effects` 包，纯数学继续放在 `anim`。`MotionClient` 仅在 26.x 注册原生攻击意图和破坏完成事件；legacy 资源处理移除该入口。
+
+`FirstPersonMotion` 的两只手分别持有时间线和短暂显示堆栈，只修改渲染参数。110 ms 降下后切换显示模型，210 ms 抬起并回弹；快速换槽从当前位置重新降下，实际物品和槽位立即由原版切换。`FirstPersonMotionMixin` 保留原版手部选择与使用流程，用 try/finally 平衡姿态栈；剑/工具的附加曲线读取原版挥动进度。26.1 拦截 `renderArmWithItem`，26.2 为 `submitArmWithItem`；26.3 独立的提交器使用已提取模型状态，必要时同步显示堆栈与模型快照。
+
+`VisualMotionController` 在原有 Camera mixin 的 update 尾部每帧采样一次，`MotionViewMixin` 在 vanilla `bobView` 尾部将同一小幅位移/旋转应用到世界和手部的视图栈。没有修改实体姿态、相机 boom、FOV 或移动输入。弹簧采用解析阻尼解，换物品采用单调时钟；长帧中断、菜单、世界切换、旁观者和第三人称重置状态。
+
+命中反馈匹配最近 1 秒的攻击目标及现有伤害通知中的直接/归属伤害源，只有均为本地玩家时才触发。未匹配、挥空、被拒绝及远程投射物不追加近战反馈。该观察器不注册或发送数据包。
+
+`BlockFeedback` 使用原版 BLOCK 材质粒子，单次最多 16 个、拥有的粒子最多 48 个、最小突发间隔 40 ms。放置代理存活 4 tick，破坏粒子 10–12 tick。粒子最少设置、减少动态效果、主开关、距离和世界身份均参与过滤。原版粒子系统继续运行；重置只移除本模组持有的粒子。没有新增 shader、framebuffer 或全屏绘制通道。
+
 ## 0.4.1 HUD 玻璃快捷栏
 
 `HotbarMixin` 仅包裹 `Hud.extractItemHotbar`（26.1.x 为 `Gui.extractItemHotbar`）的四种 chrome sprite（底板、选中框、左右副手槽），其余 sprite 调用原函数。物品、装饰、攻击指示、HUD 隐藏与旁观者路径沿用原版。`GlassHotbarRenderer` 复用玻璃背包的边框与颜色辅助函数，在原版坐标绘制静态九格和副手槽；不读取空间变换或动画，不创建额外 framebuffer，也不引入逐帧临时对象。26.3 使用 RenderPearl 描述符适配。

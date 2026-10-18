@@ -1,5 +1,9 @@
 # Hoverglass
 
+**26.x · 0.5.0 fluid motion MVP:** Time-based held-item lowering/swapping/raising, modest sword/tool swing transforms, subtle sprint/jump/landing camera feedback, confirmed melee-hit response, extra material fragments and a 200 ms placement particle proxy. All effects are client-side; inventory, damage, cooldowns, movement and block rules stay vanilla.
+
+Cycle F8 pages to **Fluid animations → Camera motion → World feedback** for feature toggles, intensities and reduced motion. Defaults are 65% hand / 50% camera strength. Reduced motion disables the added effects; vanilla view-bobbing, screen-effect and damage-tilt settings are honored. Camera additions suspend in menus, third person, spectator, flight and riding. Vanilla map/use-item hand coordination is preserved. See the [architecture audit and validation boundaries](docs/MOTION-AUDIT.md). Legacy targets retain their previous feature set.
+
 **26.x · 0.4.1:** The HUD hotbar and offhand well now use the inventory's glass material by default, with a clear selection rim. Item icons, counts, durability and attack indicators retain vanilla rendering. Cycle through F8 pages to **Hotbar settings** for a separate toggle and transparency slider (84% by default).
 
 **26.x · 0.4.0:** Press **F8 → Liquid glass UI** to toggle rounded translucent chrome, edge highlights and mouse reflections on standard menu buttons and sliders, including pause, options and mod settings. Disabled by default; changes apply immediately and persist when leaving settings. The pause backdrop keeps vanilla blur with a cool gradient. This setting is independent of the glass inventory preset. It uses lightweight GUI drawing rather than optical refraction; custom third-party widgets may retain their own appearance. Available on the 26.x branch with F8 settings.

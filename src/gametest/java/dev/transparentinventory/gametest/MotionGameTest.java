@@ -151,12 +151,13 @@ public final class MotionGameTest implements FabricClientGameTest {
         command("tp @a 0.5 200 0.5 0 20");
         command("gamemode creative @a");
         command("setblock 0 200 3 minecraft:stone");
-        context.runOnClient(client -> { client.getToastManager().clear(); client.gui.getChat().clearMessages(true); });
+        context.runOnClient(client -> { TestWorldAccess.clearToasts(client); TestWorldAccess.clearChat(client); });
         context.getInput().pressKey(InputConstants.KEY_2); context.waitTicks(3);
         long before = context.computeOnClient(client -> BlockFeedback.emitted());
         check(context.computeOnClient(client -> client.gameMode.startDestroyBlock(BLOCK, Direction.NORTH)), "vanilla accepts block break");
         context.waitFor(client -> BlockFeedback.emitted() > before);
         check(context.computeOnClient(client -> BlockFeedback.activeCount() <= 16), "break particle burst is bounded");
+        context.waitTicks(1);
         context.takeScreenshot("motion-block-break");
         TestWorldAccess.serverPackets(context, world); TestWorldAccess.clientPackets(context, world);
         context.waitFor(client -> client.level.getBlockState(BLOCK).isAir());
@@ -165,6 +166,7 @@ public final class MotionGameTest implements FabricClientGameTest {
         context.runOnClient(client -> client.gameMode.useItemOn(client.player, InteractionHand.MAIN_HAND,
                 new BlockHitResult(new Vec3(.5, 200, 3.5), Direction.UP, BLOCK.below(), false)));
         context.waitFor(client -> BlockFeedback.emitted() > placementBefore);
+        context.waitTicks(1);
         context.takeScreenshot("motion-block-place-pulse");
         TestWorldAccess.serverPackets(context, world); TestWorldAccess.clientPackets(context, world);
         check(world.getServer().computeOnServer(server -> !server.overworld().getBlockState(BLOCK).isAir()), "placement still reaches vanilla server");
@@ -206,7 +208,11 @@ public final class MotionGameTest implements FabricClientGameTest {
         context.runOnClient(client -> client.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         context.waitTicks(2);
         check(context.computeOnClient(client -> VisualMotionController.INSTANCE.x() == 0 && VisualMotionController.INSTANCE.y() == 0), "third person disables first-person camera effects");
-        context.runOnClient(client -> client.options.setCameraType(CameraType.FIRST_PERSON));
+        context.runOnClient(client -> {
+            client.options.setCameraType(CameraType.FIRST_PERSON);
+            InventoryConfig.get().liquidGlassUi = true;
+            TestWorldAccess.clearToasts(client); TestWorldAccess.clearChat(client);
+        });
         context.getInput().pressKey(InputConstants.KEY_F8);
         for (String key : new String[]{"spatialui.settings.more", "spatialui.settings.entrance", "spatialui.settings.look",
                 "spatialui.settings.hotbar", "spatialui.settings.motion"}) click(key);
@@ -230,7 +236,7 @@ public final class MotionGameTest implements FabricClientGameTest {
             try {
                 var path = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve(dev.transparentinventory.client.ConfigLoader.FILE_NAME);
                 var saved = new com.google.gson.Gson().fromJson(java.nio.file.Files.readString(path), InventoryConfig.class);
-                check(saved.motion.reduceMotion && saved.glassHotbar, "new settings persist alongside existing glass config");
+                check(saved.motion.reduceMotion && saved.glassHotbar && saved.liquidGlassUi, "new settings persist alongside existing glass config");
             } catch (java.io.IOException e) { throw new AssertionError(e); }
             InventoryConfig.get().motion.reduceMotion = false; InventoryConfig.get().motion.enabled = false;
         });
