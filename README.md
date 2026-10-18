@@ -1,5 +1,9 @@
 # Hoverglass
 
+**26.x · 0.4.1:** The HUD hotbar and offhand well now use the inventory's glass material by default, with a clear selection rim. Item icons, counts, durability and attack indicators retain vanilla rendering. Cycle through F8 pages to **Hotbar settings** for a separate toggle and transparency slider (84% by default).
+
+**26.x · 0.4.0:** Press **F8 → Liquid glass UI** to toggle rounded translucent chrome, edge highlights and mouse reflections on standard menu buttons and sliders, including pause, options and mod settings. Disabled by default; changes apply immediately and persist when leaving settings. The pause backdrop keeps vanilla blur with a cool gradient. This setting is independent of the glass inventory preset. It uses lightweight GUI drawing rather than optical refraction; custom third-party widgets may retain their own appearance. Available on the 26.x branch with F8 settings.
+
 **26.1.2 · 0.3.3:** Chests and other containers default to 135% size, fit the window and no longer shrink with world-anchor distance. The player's rendered head smoothly follows the cursor in survival and creative inventories, including an existing third-person perspective. F8 offers container sizing and a head-tracking page with an enable switch and horizontal/vertical limits. Tracking changes only the extracted model pose; player orientation, camera and server state stay untouched.
 
 <p align="center">

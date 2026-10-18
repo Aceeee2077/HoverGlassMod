@@ -1,5 +1,21 @@
 # 验证记录
 
+## 2026-10-18 · 0.4.1 玻璃 HUD 快捷栏（26.1.2）
+
+- `build runClientGameTest collectRelease -Pmc=26.1.2 --offline`：`BUILD SUCCESSFUL in 1m 10s`，1002 条纯 Java 断言及原有 25 类界面回归通过，同时执行新增 HUD 专项检查。
+- 最终对惯用手设置补齐原版客户端设置广播，等待玩家实际主手同步后再拍两侧副手槽；`build runClientGameTest collectRelease -Pmc=26.1.2 -PcreativeOnly --offline` 再次通过，`BUILD SUCCESSFUL in 32s`。26.2 的 `build collectRelease --offline` 通过；26.3 仅验证编译及 assemble。
+- 通过原版数字键选中第一/第九格、滚轮从第九格回到第一格，检查真实选中槽与物品数量；实际切换左右惯用手，检查副手两侧截图；F1 隐藏和恢复；背包打开时 HUD 与空间玻璃背包同时正常绘制。
+- 通过 F8 实际翻页、关闭快捷栏玻璃并返回原版底板；重新启用，把独立透明度滑块拖到 100%，检查 `hotbarOpacity=0` 并确认现有 JSON 保存开关与透明度。设置覆盖层保留同一个菜单对象。
+- 已目视检查 `docs/screenshots/hotbar-glass.png`、`hotbar-with-inventory.png`；物品图标和数量清晰，空槽显示世界背景，选中框与副手槽保留描边。原有液态玻璃菜单及全部容器测试继续通过。没有验证用户截图中的第三方整合包组合。
+
+## 2026-10-18 · 0.4.0 液态玻璃菜单（26.1.2）
+
+- `build runClientGameTest collectRelease -Pmc=26.1.2 --offline` 通过，1 分 9 秒；1002 条纯 Java 断言与 25 类实际客户端界面检查通过。最终仅降低玻璃填充不透明度后，再运行同一构建及 `-PcreativeOnly`：26 秒通过，覆盖创造背包与新增菜单检查。
+- 通过原版 Esc 打开暂停菜单，F8 打开设置首页，实际点击液态玻璃开关。检查设置保持暂停语义、返回同一个暂停 Screen、保存 JSON 中的 `liquidGlassUi=true`，并拖动玻璃滑块检查数值改变。实际点击选项按钮进入 OptionsScreen，再返回设置关闭风格，确认开关关闭并可点击原版返回游戏按钮。
+- 已目视检查最终暂停菜单截图，留存 `docs/screenshots/pause-liquid-glass.png`；按钮文字、默认布局及点击继续沿用原版。原 23 类背包/容器测试全部保留。
+- 26.1、26.1.1、26.2 的 `build collectRelease --offline` 通过；未运行这些版本的实际客户端。26.3 为 RenderPearl 管线提供独立适配，Java 编译及 assemble 通过；完整 check 因离线缓存缺少 LWJGL 3.4.3 native 依赖未完成，未验证 26.3 实际客户端。
+- 主题默认关闭，独立于玻璃背包；关闭后原版 sprite 调用直接执行。实现采用 GUI 半透明填充和高光，暂停背景复用原版模糊，没有实现真实光学折射。未对第三方自绘控件或多硬件性能作验证。
+
 ## 2026-10-17 · 0.3.3 容器放大与头部跟随（26.1.2）
 
 - 最终 `build runClientGameTest collectRelease --offline` 通过，`BUILD SUCCESSFUL in 1m 6s`；纯 Java 回归 1002 条断言、实际客户端 23 类界面通过。发布包 `hoverglass-mc26.1.2-0.3.3.jar` 已核对版本、MC 目标和头部跟随 mixin，未包含测试模块。

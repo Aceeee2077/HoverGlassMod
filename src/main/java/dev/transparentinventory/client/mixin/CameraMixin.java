@@ -19,6 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
+    @Inject(method = "update", at = @At("TAIL"))
+    private void motion$frame(net.minecraft.client.DeltaTracker tracker, CallbackInfo ci) {
+        dev.transparentinventory.client.motion.VisualMotionController.INSTANCE.frame();
+    }
     @Shadow private float yRot;
     @Shadow private float xRot;
     @Shadow protected abstract void setRotation(float yaw, float pitch);

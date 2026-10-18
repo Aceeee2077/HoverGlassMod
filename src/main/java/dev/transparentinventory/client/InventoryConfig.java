@@ -45,6 +45,35 @@ public final class InventoryConfig {
     public boolean cinematicInventory = true;
     /** Replace survival and creative inventory textures with outlined glass. */
     public boolean glassInventory = true;
+    /** Optional menu/widget theme, independent of the inventory glass preset. */
+    public boolean liquidGlassUi = false;
+    /** HUD hotbar chrome; item rendering and selection remain vanilla. */
+    public boolean glassHotbar = true;
+    public float hotbarOpacity = 0.16F;
+    public MotionOptions motion = new MotionOptions();
+
+    /** Optional 26.x visual extensions, stored inside the existing config file. */
+    public static final class MotionOptions {
+        public boolean enabled = true;
+        public boolean itemSwap = true;
+        public boolean attackAnimation = true;
+        public double firstPersonIntensity = 0.65;
+        public boolean sprintSway = true;
+        public boolean jumpMotion = true;
+        public boolean landingMotion = true;
+        public boolean hitShake = true;
+        public double cameraIntensity = 0.5;
+        public boolean blockBreakEffects = true;
+        public boolean blockPlaceAnimation = true;
+        public double particleMultiplier = 1;
+        public boolean reduceMotion;
+
+        public void sanitize() {
+            firstPersonIntensity = clamp(firstPersonIntensity, 0, 1);
+            cameraIntensity = clamp(cameraIntensity, 0, 1);
+            particleMultiplier = clamp(particleMultiplier, 0, 2);
+        }
+    }
     /** Migration marker: seed the newly supported creative screen once, respecting overrides. */
     public boolean creativeGlassDefaultsApplied;
     public double inventoryCameraSide = 0.72;
@@ -176,7 +205,10 @@ public final class InventoryConfig {
      * file can never produce NaN/absurd physics or off-screen layouts.
      */
     public void sanitize() {
+        if (motion == null) motion = new MotionOptions();
+        motion.sanitize();
         panelOpacity = clamp(panelOpacity, 0F, 1F);
+        hotbarOpacity = clamp(hotbarOpacity, 0F, 1F);
         slotOpacity = clamp(slotOpacity, 0F, 1F);
         borderOpacity = clamp(borderOpacity, 0F, 1F);
         slotBorderOpacity = clamp(slotBorderOpacity, 0F, 1F);

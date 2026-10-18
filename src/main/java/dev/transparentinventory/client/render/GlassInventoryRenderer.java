@@ -143,11 +143,11 @@ public final class GlassInventoryRenderer {
         g.fill(x + width * 25 / 49, y + height * 43 / 72, x + width * 31 / 49, y + height * 65 / 72, tint);
     }
 
-    private static int color(double alpha, int rgb) {
+    static int color(double alpha, int rgb) {
         return ((int) Math.round(Math.clamp(alpha, 0, 1) * 255) << 24) | rgb;
     }
 
-    private static void frame(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {
+    static void frame(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {
         g.fill(x + 2, y, x + w - 2, y + 1, color);
         g.fill(x + 2, y + h - 1, x + w - 2, y + h, color);
         g.fill(x, y + 2, x + 1, y + h - 2, color);

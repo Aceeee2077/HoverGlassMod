@@ -28,12 +28,59 @@ public final class InventoryRegressionTest {
         testGlassPreset();
         testCreativeGlassMigration();
         testInventoryCursorLook();
+        testMotionUtilities();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
     // ------------------------------------------------------------------
     // 1. Frame-rate independence
     // ------------------------------------------------------------------
+
+    private static void testMotionUtilities() {
+        for (double t : new double[]{0, .1, .25, .5, .9, 1}) {
+            check(dev.transparentinventory.client.anim.Easing.smoothstep(t) >= 0 && dev.transparentinventory.client.anim.Easing.smoothstep(t) <= 1, "bounded easing");
+        }
+        double reference = 0, referenceVelocity = 0;
+        for (int fps : new int[]{30, 60, 144, 240}) {
+            var spring = new dev.transparentinventory.client.anim.DampedSpring();
+            spring.impulse(.8);
+            for (int frame = 0; frame < fps / 2; frame++) spring.update(1.0 / fps);
+            if (fps == 30) { reference = spring.position(); referenceVelocity = spring.velocity(); }
+            checkClose(spring.position(), reference, 1E-12, "analytic spring independent of FPS");
+            checkClose(spring.velocity(), referenceVelocity, 1E-12, "spring velocity independent of FPS");
+            spring.update(4); checkClose(spring.position(), 0, 1E-7, "spring settles");
+        }
+        long start = 1_000_000_000L;
+        var swap = new dev.transparentinventory.client.anim.ItemSwapTimeline();
+        swap.select(1, start); swap.select(2, start);
+        swap.sample(start + 90_000_000L);
+        check(swap.visibleKey() == 1 && swap.lower() > .8, "old item retained while lowering");
+        swap.sample(start + 110_000_000L);
+        check(swap.visibleKey() == 2 && swap.lower() == 1, "item changes only at hidden point");
+        swap.sample(start + 250_000_000L);
+        check(swap.lower() < 0, "item raise has small overshoot");
+        swap.sample(start + 320_000_000L);
+        check(!swap.active() && swap.lower() == 0, "swap ends exactly at idle");
+        swap.select(3, start + 400_000_000L); swap.sample(start + 450_000_000L);
+        double before = swap.lower(); swap.select(4, start + 450_000_000L);
+        checkClose(swap.lower(), before, 1E-12, "rapid reselection preserves position");
+        swap.sample(start + 2_000_000_000L);
+        check(swap.visibleKey() == 4 && !swap.active(), "dropped frames complete latest swap");
+        for (int fps : new int[]{30, 60, 144, 240}) {
+            var clock = new dev.transparentinventory.client.anim.ItemSwapTimeline();
+            clock.select(1, start); clock.select(2, start);
+            for (int i = 1; i < fps / 4; i++) clock.sample(start + (long) (i * 1E9 / fps));
+            clock.sample(start + 250_000_000L);
+            var direct = new dev.transparentinventory.client.anim.ItemSwapTimeline();
+            direct.select(1, start); direct.select(2, start); direct.sample(start + 250_000_000L);
+            checkClose(clock.lower(), direct.lower(), 1E-12, "item timeline independent of FPS");
+        }
+        var config = new InventoryConfig(); config.motion = null; config.sanitize();
+        check(config.motion != null, "missing motion config migrates safely");
+        config.motion.firstPersonIntensity = Double.NaN; config.motion.cameraIntensity = 9; config.motion.particleMultiplier = -4;
+        config.sanitize();
+        check(config.motion.firstPersonIntensity == 0 && config.motion.cameraIntensity == 1 && config.motion.particleMultiplier == 0, "motion config clamps invalid values");
+    }
 
     private static void testFrameRateIndependence() {
         double[] fpsValues = {30.0, 60.0, 144.0, 240.0};

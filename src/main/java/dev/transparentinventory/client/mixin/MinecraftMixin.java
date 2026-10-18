@@ -18,6 +18,8 @@ public abstract class MinecraftMixin {
     @Inject(method = "updateLevelInEngines(Lnet/minecraft/client/multiplayer/ClientLevel;Z)V", at = @At("HEAD"))
     private void spatial$unload(ClientLevel next, boolean reset, CallbackInfo ci) {
         if (next != null) return;
+        dev.transparentinventory.client.motion.VisualMotionController.INSTANCE.reset();
+        dev.transparentinventory.client.effects.BlockFeedback.clear();
         SpatialCameraController.INSTANCE.reset();
         dev.transparentinventory.client.look.InventoryLookController.INSTANCE.reset();
         SpatialAnchorResolver.clear();

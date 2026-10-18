@@ -123,9 +123,12 @@ sourceSets.gametest.java {
 
 processResources {
     inputs.properties version: project.version, minecraft: targetMinecraft, fabricApi: targetApi,
-            javaVersion: targetJava, mixinConfig: mixinConfig
-    filesMatching('fabric.mod.json') { expand version: project.version, minecraft: targetMinecraft,
-            fabricApi: targetApi, javaVersion: targetJava, mixinConfig: mixinConfig }
+            javaVersion: targetJava, mixinConfig: mixinConfig, motionEntrypoint: spatial
+    filesMatching('fabric.mod.json') {
+        expand version: project.version, minecraft: targetMinecraft,
+                fabricApi: targetApi, javaVersion: targetJava, mixinConfig: mixinConfig
+        if (!spatial) filter { line -> line.replace(', "dev.transparentinventory.client.motion.MotionClient"', '') }
+    }
     from("src/versions/${target.family}/resources")
     if (!spatial) from('src/versions/legacy-shared/resources')
 }

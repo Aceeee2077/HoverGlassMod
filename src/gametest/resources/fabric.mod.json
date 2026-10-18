@@ -5,6 +5,6 @@
   "environment": "client",
   "mixins": ["spatialui_gametest.mixins.json"],
   "entrypoints": {
-    "fabric-client-gametest": ["dev.transparentinventory.gametest.SpatialUiGameTest"]
+    "fabric-client-gametest": ["dev.transparentinventory.gametest.SpatialUiGameTest", "dev.transparentinventory.gametest.MotionGameTest"]
   }
 }

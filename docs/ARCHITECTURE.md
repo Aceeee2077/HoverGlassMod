@@ -1,5 +1,17 @@
 # 空间界面架构
 
+## 0.4.1 HUD 玻璃快捷栏
+
+`HotbarMixin` 仅包裹 `Hud.extractItemHotbar`（26.1.x 为 `Gui.extractItemHotbar`）的四种 chrome sprite（底板、选中框、左右副手槽），其余 sprite 调用原函数。物品、装饰、攻击指示、HUD 隐藏与旁观者路径沿用原版。`GlassHotbarRenderer` 复用玻璃背包的边框与颜色辅助函数，在原版坐标绘制静态九格和副手槽；不读取空间变换或动画，不创建额外 framebuffer，也不引入逐帧临时对象。26.3 使用 RenderPearl 描述符适配。
+
+配置 `glassHotbar` 默认 true，`hotbarOpacity` 默认 0.16，均存入现有 JSON；F8 第五页提供独立控制。总开关和快捷栏开关关闭时执行原版 sprite，不修改游戏或菜单状态。
+
+## 0.4.0 可切换菜单主题
+
+`InventoryConfig.liquidGlassUi` 默认 false，经 F8 设置首页切换并由现有配置保存。`LiquidGlassButtonMixin` 只替换 `AbstractButton.extractDefaultSprite`；`LiquidGlassSliderMixin` 只包裹滑块的两次 sprite 提交，保留原版文字滚动、数值逻辑、键盘、鼠标和旁白。`LiquidGlassRenderer` 使用半透明圆角、渐变、高光和鼠标位置反光绘制，并以 try/finally 恢复 deferred 状态；不接管输入，也不改变控件坐标。
+
+`LiquidGlassPauseMixin` 为显示完整菜单的暂停 Screen 复用原版背景模糊并绘制冷色渐变；未显示菜单时保持原版。设置从暂停菜单打开时继承父界面的暂停语义。关闭主题或模组总开关时，所有主题钩子直接回到原版路径。26.3 的 RenderPearl 类型和调用描述符由版本目录内的两个 mixin 适配，其余渲染共用。
+
 ## 0.3.3 容器可读性与人物视线
 
 非 PLAYER 容器的 `containerScale` 默认为 1.35，范围 0.75–2.0；与 `guiScale` 及 profile 缩放组合后按窗口四周各 10 GUI 像素留白裁定最终大小。世界锚点继续决定面板中心，不再通过深度缩小此类容器。输入仍使用同一份最终变换，因此放大不改变槽位命中逻辑。

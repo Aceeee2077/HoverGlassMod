@@ -39,6 +39,7 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
     private int screens;
 
     @Override public void runTest(ClientGameTestContext testContext) {
+        if ("motion".equals(System.getProperty("hoverglass.testScope"))) return;
         context = testContext;
         context.runOnClient(client -> {
             InventoryConfig config = new InventoryConfig();
@@ -86,6 +87,8 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
                 horse();
             }
             creativeInventory();
+            liquidGlassMenus();
+            glassHotbar();
             context.getInput().pressKey(InputConstants.KEY_E); context.waitForScreen(InventoryScreen.class);
             context.getInput().pressKey(InputConstants.KEY_F8);
             check(context.computeOnClient(client -> SpatialScreenManager.INSTANCE.settings() != null), "settings active before world unload");
@@ -96,6 +99,137 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
     }
 
     private void command(String text) { world.getServer().runCommand(text); TestWorldAccess.clientPackets(context, world); }
+
+    private void glassHotbar() {
+        command("item replace entity @a hotbar.0 with minecraft:diamond_sword");
+        command("item replace entity @a hotbar.1 with minecraft:firework_rocket 64");
+        command("item replace entity @a hotbar.8 with minecraft:apple 32");
+        command("item replace entity @a weapon.offhand with minecraft:torch 64");
+        context.runOnClient(client -> {
+            InventoryConfig.get().glassHotbar = true;
+            InventoryConfig.get().hotbarOpacity = 0.16F;
+            client.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.RIGHT);
+            client.getToastManager().clear();
+            client.gui.getChat().clearMessages(true);
+        });
+        context.getInput().pressKey(InputConstants.KEY_1);
+        context.waitTicks(2);
+        check(context.computeOnClient(client -> client.player.getInventory().getSelectedSlot() == 0
+                && client.player.getMainHandItem().is(Items.DIAMOND_SWORD)), "glass hotbar preserves number-key selection");
+        context.takeScreenshot("spatialui-hotbar-glass");
+        context.getInput().pressKey(InputConstants.KEY_9);
+        context.waitTicks(2);
+        check(context.computeOnClient(client -> client.player.getInventory().getSelectedSlot() == 8
+                && client.player.getMainHandItem().getCount() == 32), "glass highlight follows last slot without altering items");
+        context.takeScreenshot("spatialui-hotbar-last-slot");
+        context.getInput().scroll(-1); context.waitTicks(2);
+        check(context.computeOnClient(client -> client.player.getInventory().getSelectedSlot() == 0), "glass hotbar preserves wheel wraparound");
+        context.runOnClient(client -> {
+            client.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.LEFT);
+            client.options.broadcastOptions();
+        });
+        context.waitFor(client -> client.player.getMainArm() == net.minecraft.world.entity.HumanoidArm.LEFT);
+        context.takeScreenshot("spatialui-hotbar-left-handed");
+        context.runOnClient(client -> {
+            client.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.RIGHT);
+            client.options.broadcastOptions();
+        });
+        context.waitFor(client -> client.player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT);
+        context.getInput().pressKey(InputConstants.KEY_F1);
+        check(context.computeOnClient(client -> client.options.hideGui), "F1 hides HUD including glass hotbar");
+        context.takeScreenshot("spatialui-hotbar-hidden");
+        context.getInput().pressKey(InputConstants.KEY_F1);
+        context.getInput().pressKey(InputConstants.KEY_E);
+        context.waitForScreen(InventoryScreen.class); context.waitTicks(3);
+        context.takeScreenshot("spatialui-hotbar-with-inventory");
+        Object menu = context.computeOnClient(client -> client.player.containerMenu);
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        settingsButton("spatialui.settings.more");
+        settingsButton("spatialui.settings.entrance");
+        settingsButton("spatialui.settings.look");
+        settingsButton("spatialui.settings.hotbar");
+        settingsButton("spatialui.hotbar.glass");
+        check(context.computeOnClient(client -> !InventoryConfig.get().glassHotbar), "HUD glass disabled through actual F8 toggle");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        check(context.computeOnClient(client -> client.player.containerMenu == menu), "HUD settings preserve live inventory menu");
+        close(); context.takeScreenshot("spatialui-hotbar-vanilla");
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        settingsButton("spatialui.settings.more");
+        settingsButton("spatialui.settings.entrance");
+        settingsButton("spatialui.settings.look");
+        settingsButton("spatialui.settings.hotbar");
+        settingsButton("spatialui.hotbar.glass");
+        var point = context.computeOnClient(client -> {
+            var slider = (net.minecraft.client.gui.components.AbstractWidget)
+                    dev.transparentinventory.client.compat.MinecraftAccess.screen(client).children().get(1);
+            return raw(client, slider.getRight() - 2, slider.getY() + 10);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT); context.waitTicks(1);
+        check(context.computeOnClient(client -> InventoryConfig.get().hotbarOpacity == 0), "HUD transparency slider reaches 100 percent");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.takeScreenshot("spatialui-hotbar-fully-transparent");
+        context.runOnClient(client -> {
+            try {
+                var file = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve(dev.transparentinventory.client.ConfigLoader.FILE_NAME);
+                var saved = new com.google.gson.Gson().fromJson(java.nio.file.Files.readString(file), InventoryConfig.class);
+                check(saved.glassHotbar && saved.hotbarOpacity == 0, "HUD glass and opacity persist to existing config");
+            } catch (java.io.IOException e) { throw new AssertionError(e); }
+            InventoryConfig.get().hotbarOpacity = 0.16F;
+        });
+    }
+
+    private void liquidGlassMenus() {
+        context.runOnClient(client -> InventoryConfig.get().liquidGlassUi = false);
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitForScreen(net.minecraft.client.gui.screens.PauseScreen.class);
+        Object pause = context.computeOnClient(dev.transparentinventory.client.compat.MinecraftAccess::screen);
+        context.takeScreenshot("spatialui-pause-vanilla");
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        context.waitForScreen(dev.transparentinventory.client.screen.SpatialSettingsScreen.class);
+        check(context.computeOnClient(client -> dev.transparentinventory.client.compat.MinecraftAccess.screen(client).isPauseScreen()),
+                "settings opened from pause keeps singleplayer paused");
+        settingsButton("spatialui.ui.liquid_glass");
+        check(context.computeOnClient(client -> InventoryConfig.get().liquidGlassUi), "liquid glass enabled by actual settings click");
+        context.takeScreenshot("spatialui-liquid-settings");
+        // Exercise native slider dragging while its chrome is replaced.
+        var point = context.computeOnClient(client -> {
+            var settings = dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            var slider = (net.minecraft.client.gui.components.AbstractWidget) settings.children().getFirst();
+            return raw(client, slider.getX() + slider.getWidth() * 0.3, slider.getY() + 10);
+        });
+        context.getInput().setCursorPos(point[0], point[1]);
+        context.getInput().holdMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        context.getInput().setCursorPos(point[0] + 20, point[1]);
+        context.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        context.waitTicks(2);
+        check(context.computeOnClient(client -> InventoryConfig.get().panelOpacity > 0.4 && InventoryConfig.get().panelOpacity < 0.8),
+                "glass slider retains native value updates");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        check(context.computeOnClient(dev.transparentinventory.client.compat.MinecraftAccess::screen) == pause,
+                "settings returns to same pause menu");
+        context.runOnClient(client -> {
+            try {
+                var file = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve(dev.transparentinventory.client.ConfigLoader.FILE_NAME);
+                var saved = new com.google.gson.Gson().fromJson(java.nio.file.Files.readString(file), InventoryConfig.class);
+                check(saved.liquidGlassUi, "liquid glass choice persisted to JSON");
+            } catch (java.io.IOException e) { throw new AssertionError(e); }
+        });
+        context.takeScreenshot("spatialui-pause-liquid");
+        settingsButton("menu.options");
+        context.waitForScreen(net.minecraft.client.gui.screens.options.OptionsScreen.class);
+        context.takeScreenshot("spatialui-options-liquid");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitForScreen(net.minecraft.client.gui.screens.PauseScreen.class);
+        context.getInput().pressKey(InputConstants.KEY_F8);
+        settingsButton("spatialui.ui.liquid_glass");
+        check(context.computeOnClient(client -> !InventoryConfig.get().liquidGlassUi), "liquid glass toggles off immediately");
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.takeScreenshot("spatialui-pause-restored");
+        settingsButton("menu.returnToGame");
+        context.waitFor(client -> dev.transparentinventory.client.compat.MinecraftAccess.screen(client) == null);
+        screens += 2;
+    }
 
     private void creativeInventory() {
         // The preceding container tests change inventory on both sides. Force an
@@ -615,7 +749,9 @@ public final class SpatialUiGameTest implements FabricClientGameTest {
 
     private void settingsButton(String key) {
         var point = context.computeOnClient(client -> {
-            var button = SpatialScreenManager.INSTANCE.settings().children().stream()
+            var target = SpatialScreenManager.INSTANCE.settings() != null ? SpatialScreenManager.INSTANCE.settings()
+                    : dev.transparentinventory.client.compat.MinecraftAccess.screen(client);
+            var button = target.children().stream()
                     .filter(net.minecraft.client.gui.components.Button.class::isInstance)
                     .map(net.minecraft.client.gui.components.Button.class::cast)
                     .filter(widget -> widget.getMessage().getString().startsWith(net.minecraft.network.chat.Component.translatable(key).getString()))
