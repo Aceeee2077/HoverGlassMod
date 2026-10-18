@@ -1,5 +1,13 @@
 # 验证记录
 
+## 2026-10-17 · 0.3.3 容器放大与头部跟随（26.1.2）
+
+- 最终 `build runClientGameTest collectRelease --offline` 通过，`BUILD SUCCESSFUL in 1m 6s`；纯 Java 回归 1002 条断言、实际客户端 23 类界面通过。发布包 `hoverglass-mc26.1.2-0.3.3.jar` 已核对版本、MC 目标和头部跟随 mixin，未包含测试模块。
+- 生存、创造和原本第三人称三种背包状态：鼠标分别移动到左上及右下，读取实际玩家渲染状态验证 head yaw/pitch 发生明显变化，身体角度保持不变。原始客户端实体的 yaw/pitch/head/body 与服务端 yaw/pitch 全部保持原值；F8 开关可禁用跟随并立即恢复原版姿态。
+- 箱子验证：默认槽位不再小于原生 GUI 比例；把镜头距离由 3 改为 6，槽位缩放保持不变；通过真实 F8 滑块调到 75%，实际面板随之缩小并能正确取放。6 行大箱子占用超过窗口 85% 高度，边界仍完整位于窗口内，变换后的悬停正常。
+- 继续覆盖取放、Shift 转移、拖拽、配方书、文本输入、附魔、交易、创造分类/搜索/滚动条/垃圾槽、关闭过渡、镜头碰撞及世界卸载。已查看并留存 `large-chest-readable.png`、`head-follow-upper-left.png`、`head-follow-lower-right.png`。
+- 本轮验证为原版/Fabric 26.1.2 客户端环境；未将第三方侧栏、光影包或服务器整合包兼容性作为已验证结论。
+
 ## 2026-10-17 · 0.3.2 创造物品栏修复（26.1.2）
 
 - 复现根因：0.3.1 仅为 `InventoryScreen` 绘制玻璃；`CreativeModeInventoryScreen` 继承通用 BLOCK profile，未触发背包电影镜头。此前的 21 类界面检查未包含创造物品栏。

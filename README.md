@@ -1,6 +1,6 @@
 # Hoverglass
 
-**26.1.2 · 0.3.2:** Creative inventory is now covered too: category tabs, search and the personal inventory use glass chrome, the left entrance and right-side player framing. Version 0.3.1 only replaced the survival background. Upgrading seeds 84% creative transparency once, respecting existing per-screen overrides. **F8 → Apply reference glass style** applies the complete preset to both inventory types. The settings title displays the loaded mod version.
+**26.1.2 · 0.3.3:** Chests and other containers default to 135% size, fit the window and no longer shrink with world-anchor distance. The player's rendered head smoothly follows the cursor in survival and creative inventories, including an existing third-person perspective. F8 offers container sizing and a head-tracking page with an enable switch and horizontal/vertical limits. Tracking changes only the extracted model pose; player orientation, camera and server state stay untouched.
 
 <p align="center">
   <img src="docs/screenshots/creative-glass.png" width="49%" alt="Hoverglass 0.3.2 — creative glass inventory with the player framed on the right">
@@ -59,7 +59,7 @@ Grab the jar that matches your game version from the [**Releases page**](../../r
 | 1.21.11 | `hoverglass-mc1.21.11-0.3.0.jar` | Glass Inventory | 21 | 0.141.6+1.21.11 |
 | 26.1 | `hoverglass-mc26.1-0.3.0.jar` | Spatial Container | 25 | 0.145.1+26.1 |
 | 26.1.1 | `hoverglass-mc26.1.1-0.3.0.jar` | Spatial Container | 25 | 0.145.4+26.1.1 |
-| 26.1.2 | `hoverglass-mc26.1.2-0.3.2.jar` | Spatial Container | 25 | 0.155.3+26.1.2 |
+| 26.1.2 | `hoverglass-mc26.1.2-0.3.3.jar` | Spatial Container | 25 | 0.155.3+26.1.2 |
 | 26.2 | `hoverglass-mc26.2-0.3.0.jar` | Spatial Container | 25 | 0.159.0+26.2 |
 | 26.3 | `hoverglass-mc26.3-0.3.0.jar` | Spatial Container | 25 | 0.163.0+26.3 |
 
@@ -130,6 +130,8 @@ Common fields, with an example:
   "cameraPitchOffset": 0.0,
   "cameraTransitionDurationMs": 420,
   "guiScale": 1.0,
+  "containerScale": 1.35,
+  "playerLookAtInventory": true,
   "guiDistance": 1.5,
   "guiVerticalOffset": 0.3
 }
