@@ -4,6 +4,7 @@ import dev.transparentinventory.client.anim.InventoryAnimator;
 import dev.transparentinventory.client.anim.SlideTracker;
 import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
+import dev.transparentinventory.client.motion.AvatarMotionMath;
 
 /**
  * Plain-Java regression tests for the mod's simulation and layout maths.
@@ -29,6 +30,7 @@ public final class InventoryRegressionTest {
         testCreativeGlassMigration();
         testInventoryCursorLook();
         testMotionUtilities();
+        testAvatarMotion();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -80,6 +82,75 @@ public final class InventoryRegressionTest {
         config.motion.firstPersonIntensity = Double.NaN; config.motion.cameraIntensity = 9; config.motion.particleMultiplier = -4;
         config.sanitize();
         check(config.motion.firstPersonIntensity == 0 && config.motion.cameraIntensity == 1 && config.motion.particleMultiplier == 0, "motion config clamps invalid values");
+    }
+
+    private static void testAvatarMotion() {
+        AvatarMotionMath.Style[] styles = {
+                AvatarMotionMath.Style.SWORD, AvatarMotionMath.Style.AXE, AvatarMotionMath.Style.TOOL,
+                AvatarMotionMath.Style.SPEAR, AvatarMotionMath.Style.UNARMED
+        };
+        for (AvatarMotionMath.Style style : styles) {
+            check(AvatarMotionMath.attack(style, 0, 1, 1, true) == AvatarMotionMath.Pose.NONE,
+                    "avatar attack starts at rest: " + style);
+            check(AvatarMotionMath.attack(style, 1, 1, 1, true) == AvatarMotionMath.Pose.NONE,
+                    "avatar attack ends at rest: " + style);
+            check(AvatarMotionMath.attack(style, .5F, 1, 0, true) == AvatarMotionMath.Pose.NONE,
+                    "zero avatar intensity is an exact no-op: " + style);
+            for (float t : new float[]{.01F, .25F, .5F, .75F, .99F}) {
+                AvatarMotionMath.Pose pose = AvatarMotionMath.attack(style, t, 1, 1, true);
+                check(finite(pose), "avatar attack is finite: " + style + " at " + t);
+                check(Math.abs(pose.body().pitch()) <= .3F && Math.abs(pose.body().yaw()) <= .3F
+                                && Math.abs(pose.head().pitch()) <= .3F && Math.abs(pose.head().yaw()) <= .3F
+                                && Math.abs(pose.rightArm().roll()) <= .3F
+                                && Math.abs(pose.leftArm().roll()) <= .3F,
+                        "avatar attack stays within the authored budget: " + style + " at " + t);
+            }
+        }
+        check(AvatarMotionMath.attack(AvatarMotionMath.Style.NONE, .5F, 1, 1, true) == AvatarMotionMath.Pose.NONE,
+                "no swing family is an exact no-op");
+
+        AvatarMotionMath.Pose right = AvatarMotionMath.attack(AvatarMotionMath.Style.SWORD, .25F, 1, 1, true);
+        AvatarMotionMath.Pose left = AvatarMotionMath.attack(AvatarMotionMath.Style.SWORD, .25F, -1, 1, true);
+        checkClose(right.body().yaw(), -left.body().yaw(), 1E-5, "avatar torso twist mirrors between hands");
+        checkClose(right.rightArm().roll(), -left.leftArm().roll(), 1E-5, "attack arm roll mirrors between hands");
+        checkClose(right.rightLeg().pitch(), -left.rightLeg().pitch(), 1E-5, "idle step mirrors between hands");
+
+        AvatarMotionMath.Pose full = AvatarMotionMath.attack(AvatarMotionMath.Style.SWORD, .5F, 1, 1, true);
+        AvatarMotionMath.Pose half = AvatarMotionMath.attack(AvatarMotionMath.Style.SWORD, .5F, 1, .5F, true);
+        checkClose(half.body().pitch(), full.body().pitch() * .5, 1E-6, "avatar intensity scales linearly");
+        AvatarMotionMath.Pose moving = AvatarMotionMath.attack(AvatarMotionMath.Style.SWORD, .5F, 1, 1, false);
+        check(moving.rightLeg().pitch() == 0 && moving.leftLeg().pitch() == 0,
+                "walking does not add a second idle step");
+        check(full.rightLeg().pitch() != 0, "standing attack includes a step");
+
+        for (float age = 0; age < 400; age += 7.3F) {
+            check(finite(AvatarMotionMath.crafting(age, .8F)), "crafting pose is finite at age " + age);
+        }
+        AvatarMotionMath.Pose craft = AvatarMotionMath.crafting(0, 1);
+        check(craft.rightArm().pitch() < -.5F && craft.leftArm().pitch() < -.5F,
+                "crafting raises both hands toward the bench");
+        check(craft.head().pitch() > 0, "crafting looks down at the bench");
+        check(AvatarMotionMath.crafting(0, 0) == AvatarMotionMath.Pose.NONE,
+                "zero crafting intensity is an exact no-op");
+        check(AvatarMotionMath.crafting(Float.NaN, 1) == AvatarMotionMath.Pose.NONE,
+                "invalid crafting time is rejected");
+
+        InventoryConfig config = new InventoryConfig();
+        config.motion.playerIntensity = 9;
+        config.sanitize();
+        checkClose(config.motion.playerIntensity, 1, 1E-9, "avatar intensity has a safe upper limit");
+        config.motion.playerIntensity = Double.NaN;
+        config.sanitize();
+        checkClose(config.motion.playerIntensity, 0, 1E-9, "invalid avatar intensity falls back to rest");
+    }
+
+    private static boolean finite(AvatarMotionMath.Pose pose) {
+        return finite(pose.body()) && finite(pose.head()) && finite(pose.rightArm())
+                && finite(pose.leftArm()) && finite(pose.rightLeg()) && finite(pose.leftLeg());
+    }
+
+    private static boolean finite(AvatarMotionMath.Limb limb) {
+        return Float.isFinite(limb.pitch()) && Float.isFinite(limb.yaw()) && Float.isFinite(limb.roll());
     }
 
     private static void testFrameRateIndependence() {

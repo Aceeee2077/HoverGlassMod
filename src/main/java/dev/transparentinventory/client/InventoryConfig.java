@@ -66,12 +66,20 @@ public final class InventoryConfig {
         public boolean blockBreakEffects = true;
         public boolean blockPlaceAnimation = true;
         public double particleMultiplier = 1;
+        /** Whole-body third-person combat and workstation poses. */
+        public boolean playerAnimations = true;
+        public boolean playerAttackAnimation = true;
+        /** Local-player hands-at-the-bench loop while a crafting table menu is open. */
+        public boolean craftingAnimation = true;
+        /** 0 disables the added pose, 1 uses the full authored range. */
+        public double playerIntensity = 0.8;
         public boolean reduceMotion;
 
         public void sanitize() {
             firstPersonIntensity = clamp(firstPersonIntensity, 0, 1);
             cameraIntensity = clamp(cameraIntensity, 0, 1);
             particleMultiplier = clamp(particleMultiplier, 0, 2);
+            playerIntensity = clamp(playerIntensity, 0, 1);
         }
     }
     /** Migration marker: seed the newly supported creative screen once, respecting overrides. */

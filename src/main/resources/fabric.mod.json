@@ -3,7 +3,7 @@
   "id": "transparent_inventory",
   "version": "${version}",
   "name": "Hoverglass",
-  "description": "Translucent glass inventories, menus and hotbar. Minecraft 26.x adds world-anchored containers, optional fluid first-person animations, subtle camera motion and block feedback with in-game settings.",
+  "description": "Translucent glass inventories, menus and hotbar. Minecraft 26.x adds world-anchored containers, optional fluid first-person and third-person avatar animations, subtle camera motion and block feedback with in-game settings.",
   "environment": "client",
   "entrypoints": { "client": ["dev.transparentinventory.client.ModClient", "dev.transparentinventory.client.motion.MotionClient"] },
   "mixins": ["${mixinConfig}"],

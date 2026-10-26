@@ -79,3 +79,39 @@ Existing uncommitted glass-menu and hotbar work from before this task was retain
 26.1.2: full vanilla/Fabric client and integrated-server test run passed, including all 25 original UI/container checks, glass menu/HUD checks and the new motion scenarios; 1032 plain-Java assertions passed. Tests cover rapid switching and unchanged real inventory, native sword swings, sprinting, bobbing off, screen effects off, normal/hard landing, confirmed/rejected attacks, actual server block break/place, minimal particles, map/drink/bow bypass, F8 per-feature/reduced-motion persistence, third person, spectator and world unload. Screenshots were inspected. See `TESTING.md` for exact final commands/results.
 
 Build checks passed for 26.1, 26.1.1, 26.2, 1.20.1 and 1.21.11. 26.2 also compiles both client test suites. 26.3 compiles/assembles and passes the 1032 math assertions on a plain JVM; its real client was not run because the offline environment lacks its LWJGL 3.4.3 native dependencies. Third-party modpacks/camera or hand-rendering mod combinations and separate remote-server latency conditions were not tested. Hit matching intentionally tracks only the most recent melee intent for one second.
+
+## Delivered Phase 2 — 0.6.0 avatar motion (2026-10-26)
+
+Scope: extend the 0.5.0 first-person layer with **third-person player-body motion** only. Inventory chrome, glass rendering, camera anchors, input mapping and the existing first-person item timeline were not changed.
+
+### What was added
+
+| Feature | Behaviour |
+| --- | --- |
+| Full-body weapon swing | Small additive torso twist/lean, head counter-rotation and off-hand/step offsets layered over vanilla `attackTime`. Sword, axe, spear, pickaxe/shovel/hoe and unarmed families use different budgets. Every visible player is covered because `attackTime`/`SwingDescription` is replicated. |
+| Workbench crafting loop | Local player only: while `Minecraft.player.containerMenu instanceof CraftingMenu`, both arms work at bench height, the head looks down and the torso leans in a reversible sine loop. No recipe or menu state is written. |
+| Armor follow | The hook is on `HumanoidModel.setupAnim(HumanoidRenderState)`, not only `PlayerModel`, so the equipment layer's separate armor models receive the same additive pose. The callback ignores non-`AvatarRenderState` humanoids. |
+| Configuration | New `playerAnimations`, `playerAttackAnimation`, `craftingAnimation` and `playerIntensity` (0–1, default 0.8) in the existing JSON. F8 gained a ninth page, **Avatar motion**; the master motion switch and **Reduce motion** still gate everything. |
+| Accessibility / safety | Skips spectator, invisible, dead, elytra, swimming, passenger, spin-attack, item-use and sleeping states. Values are finite and bounded; 0 intensity returns the exact identity pose. |
+
+### Hook and version boundary
+
+`PlayerModel.setupAnim(AvatarRenderState)` already delegates to `HumanoidModel.setupAnim(HumanoidRenderState)`. The shared hook injects at the tail of the latter, which covers both the player model and armor models without replacing vanilla walking/riding/use branches. `Model.setupAnim` resets poses before each call, so repeated layer/render setup cannot accumulate the additive rotation.
+
+26.1.x/26.2 expose `attackTime`, `attackArm` and `swingAnimationType`. 26.3 replaced them with `currentSwing` (`LivingEntity.SwingDescription`) and a 0–1 `swingAnimation`; `src/versions/26.3/.../AvatarAttackView.java` adapts those fields and clamps the one-frame 1→0 wrap. No runtime packet, renderer replacement or model state write was added.
+
+Crafting motion is intentionally local-only. A client-only mod has no visibility into another player's open menu, so remote crafting would require custom networking, which remains out of scope. The existing third-person container camera makes the local bench loop visible during normal crafting.
+
+### New source files
+
+- `motion/AvatarMotionMath.java` — pure-Java attack/crafting poses and intensity clamps.
+- `motion/AvatarWeaponStyle.java` — replicated swing type + item tags to motion family.
+- `motion/AvatarAttackView.java` — 26.1/26.2 swing fields; overridden in `src/versions/26.3/java` for 26.3.
+- `motion/PlayerAnimationController.java` — state gating and additive `ModelPart` application.
+- `mixin/PlayerAnimationMixin.java` — tail hook on `HumanoidModel.setupAnim`.
+
+Modified: `InventoryConfig`, `SpatialSettingsScreen`, the spatial mixin config, both language files, `fabric.mod.json`, `gradle.properties` (0.6.0), READMEs, architecture/testing docs and the plain-Java regression suite.
+
+### Verification scope
+
+Compiled for 26.1.2, 26.2 and 26.3. `physicsTest` on 26.2 passed **1,165 assertions**, including attack endpoints, finite/bounded poses, left/right symmetry, linear intensity, idle-step suppression, crafting loop continuity, invalid time and config clamping. No Minecraft client was launched for this phase, per the user's no-game-launch constraint; screenshots and live gameplay validation remain outstanding. Third-party custom player/armor models, multiplayer latency and shader combinations were not tested.

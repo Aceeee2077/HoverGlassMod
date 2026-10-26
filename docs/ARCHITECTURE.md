@@ -1,5 +1,15 @@
 # 空间界面架构
 
+## 0.6.0 第三人称人物动作
+
+`AvatarMotionMath` 只负责纯数学：`attack` 按原版挥动进度返回躯干、头部、双手和双腿的小幅附加旋转，`crafting` 返回工作台旁的双手循环。剑、斧、工具、长矛和空手使用不同权重；所有角度有界，强度为 0 时返回精确单位姿态。命中/攻击节奏仍由原版 `attackTime`（26.3 为 `swingAnimation`）驱动。
+
+`PlayerAnimationController` 位于 `client/motion`，仅在主开关、人物动作、减少动态效果等条件通过时运行，并跳过旁观、隐形、死亡、鞘翅、游泳、乘坐、旋转攻击、使用物品和睡眠状态。攻击动作对所有可见玩家生效，因为挥动状态由服务器同步。合成动作只对本地玩家生效：当 `Minecraft.player.containerMenu` 为 `CraftingMenu` 时驱动伏案循环；纯客户端无法读取其他玩家打开的菜单，因此不伪造远程状态。
+
+`PlayerAnimationMixin` 注入 `HumanoidModel.setupAnim(HumanoidRenderState)` 的 TAIL，而不是只注入 `PlayerModel`。这样玩家模型和装备层独立渲染的盔甲模型都会叠加同一姿态，避免手臂动作时盔甲脱节；回调通过 `instanceof AvatarRenderState` 排除僵尸、村民等其他人形。原版 `Model.setupAnim` 每次先重置姿态，因此同一帧内多次提交/盔甲层渲染不会累积附加角度。26.1/26.2 的 `attackTime/attackArm/swingAnimationType` 与 26.3 的 `currentSwing/swingAnimation` 由版本目录内的 `AvatarAttackView` 适配，共享控制器不接触版本字段。
+
+F8 新增第九页「人物动作设置」：总开关、攻击动作、工作台动作和 0–1 强度（默认 80%）。这些设置写入现有 JSON，并继续受主流畅动画开关与减少动态效果约束。此阶段未修改物品栏界面、玻璃渲染、镜头、锚点或输入映射。
+
 ## 0.5.0 流畅动效扩展
 
 兼容性审计见 `MOTION-AUDIT.md`。原有目录与 mod ID 保留；新增 `motion`、`effects` 包，纯数学继续放在 `anim`。`MotionClient` 仅在 26.x 注册原生攻击意图和破坏完成事件；legacy 资源处理移除该入口。

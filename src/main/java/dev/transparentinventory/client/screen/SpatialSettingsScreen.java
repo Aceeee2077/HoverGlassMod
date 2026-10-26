@@ -131,17 +131,24 @@ public final class SpatialSettingsScreen extends Screen {
             motionToggle(left, row + 66, contentWidth, "spatialui.motion.hit", () -> InventoryConfig.get().motion.hitShake, value -> InventoryConfig.get().motion.hitShake = value);
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.camera_intensity",
                     () -> InventoryConfig.get().motion.cameraIntensity, value -> InventoryConfig.get().motion.cameraIntensity = value, true));
-        } else {
+        } else if (page == 7) {
             motionToggle(left, row, contentWidth, "spatialui.motion.break", () -> InventoryConfig.get().motion.blockBreakEffects, value -> InventoryConfig.get().motion.blockBreakEffects = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.place", () -> InventoryConfig.get().motion.blockPlaceAnimation, value -> InventoryConfig.get().motion.blockPlaceAnimation = value);
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.motion.particle_multiplier",
                     () -> InventoryConfig.get().motion.particleMultiplier / 2, value -> InventoryConfig.get().motion.particleMultiplier = value * 2, false));
+        } else {
+            playerToggle(left, row, contentWidth, "spatialui.motion.player", () -> InventoryConfig.get().motion.playerAnimations, value -> InventoryConfig.get().motion.playerAnimations = value);
+            playerToggle(left, row + 22, contentWidth, "spatialui.motion.player_attack", () -> InventoryConfig.get().motion.playerAttackAnimation, value -> InventoryConfig.get().motion.playerAttackAnimation = value);
+            playerToggle(left, row + 44, contentWidth, "spatialui.motion.crafting", () -> InventoryConfig.get().motion.craftingAnimation, value -> InventoryConfig.get().motion.craftingAnimation = value);
+            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.motion.player_intensity",
+                    () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
         }
         addRenderableWidget(Button.builder(Component.translatable(page == 0 ? "spatialui.settings.more"
                 : page == 1 ? "spatialui.settings.entrance" : page == 2 ? "spatialui.settings.look"
                 : page == 3 ? "spatialui.settings.hotbar" : page == 4 ? "spatialui.settings.motion"
-                : page == 5 ? "spatialui.settings.camera_motion" : page == 6 ? "spatialui.settings.world_effects" : "spatialui.settings.opacity"), button -> {
-            page = (page + 1) % 8;
+                : page == 5 ? "spatialui.settings.camera_motion" : page == 6 ? "spatialui.settings.world_effects"
+                : page == 7 ? "spatialui.settings.player_motion" : "spatialui.settings.opacity"), button -> {
+            page = (page + 1) % 9;
             rebuildWidgets();
         }).bounds(left, row + 138, contentWidth / 2 - 2, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
@@ -157,6 +164,13 @@ public final class SpatialSettingsScreen extends Screen {
             write.accept(!read.getAsBoolean());
             dev.transparentinventory.client.motion.VisualMotionController.INSTANCE.reset();
             dev.transparentinventory.client.effects.BlockFeedback.clear();
+            button.setMessage(toggle(key, read.getAsBoolean()));
+        }).bounds(x, y, width, 20).build());
+    }
+
+    private void playerToggle(int x, int y, int width, String key, java.util.function.BooleanSupplier read, java.util.function.Consumer<Boolean> write) {
+        addRenderableWidget(Button.builder(toggle(key, read.getAsBoolean()), button -> {
+            write.accept(!read.getAsBoolean());
             button.setMessage(toggle(key, read.getAsBoolean()));
         }).bounds(x, y, width, 20).build());
     }
