@@ -140,7 +140,8 @@ public final class SpatialSettingsScreen extends Screen {
             playerToggle(left, row, contentWidth, "spatialui.motion.player", () -> InventoryConfig.get().motion.playerAnimations, value -> InventoryConfig.get().motion.playerAnimations = value);
             playerToggle(left, row + 22, contentWidth, "spatialui.motion.player_attack", () -> InventoryConfig.get().motion.playerAttackAnimation, value -> InventoryConfig.get().motion.playerAttackAnimation = value);
             playerToggle(left, row + 44, contentWidth, "spatialui.motion.crafting", () -> InventoryConfig.get().motion.craftingAnimation, value -> InventoryConfig.get().motion.craftingAnimation = value);
-            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.motion.player_intensity",
+            playerToggle(left, row + 66, contentWidth, "spatialui.motion.sprint_stride", () -> InventoryConfig.get().motion.sprintStride, value -> InventoryConfig.get().motion.sprintStride = value);
+            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
                     () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
         }
         addRenderableWidget(Button.builder(Component.translatable(page == 0 ? "spatialui.settings.more"

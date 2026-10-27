@@ -135,6 +135,43 @@ public final class InventoryRegressionTest {
         check(AvatarMotionMath.crafting(Float.NaN, 1) == AvatarMotionMath.Pose.NONE,
                 "invalid crafting time is rejected");
 
+        check(AvatarMotionMath.stride(0, 0, 1) == AvatarMotionMath.Pose.NONE,
+                "zero walk speed stops the sprint stride");
+        check(AvatarMotionMath.stride(0, 1, 0) == AvatarMotionMath.Pose.NONE,
+                "zero stride intensity is an exact no-op");
+        check(AvatarMotionMath.stride(0, .04F, 1) == AvatarMotionMath.Pose.NONE,
+                "a nearly stopped walk does not jitter the stride");
+        check(AvatarMotionMath.stride(Float.NaN, 1, 1) == AvatarMotionMath.Pose.NONE,
+                "invalid walk phase is rejected");
+        check(AvatarMotionMath.stride(0, Float.NaN, 1) == AvatarMotionMath.Pose.NONE,
+                "invalid walk speed is rejected");
+        for (float pos = 0; pos < 6.3F; pos += .45F) {
+            AvatarMotionMath.Pose pose = AvatarMotionMath.stride(pos, 1, 1);
+            check(finite(pose), "sprint stride is finite at phase " + pos);
+            check(Math.abs(pose.body().pitch()) <= .1F && Math.abs(pose.head().pitch()) <= .05F
+                            && Math.abs(pose.rightArm().pitch()) <= .3F && Math.abs(pose.leftArm().pitch()) <= .3F
+                            && Math.abs(pose.rightLeg().pitch()) <= .5F && Math.abs(pose.leftLeg().pitch()) <= .5F,
+                    "sprint stride stays within the authored budget at " + pos);
+        }
+        AvatarMotionMath.Pose sprint = AvatarMotionMath.stride(0, 1, 1);
+        checkClose(sprint.rightLeg().pitch(), -sprint.leftLeg().pitch(), 1E-6, "stride legs alternate");
+        checkClose(sprint.rightArm().pitch(), -sprint.leftArm().pitch(), 1E-6, "stride arms alternate");
+        check(sprint.rightLeg().pitch() * sprint.rightArm().pitch() < 0,
+                "each arm counters the same-side leg");
+        check(sprint.body().pitch() > 0, "sprint leans the torso forward");
+        check(sprint.head().pitch() < 0, "the head counteracts the sprint lean");
+        AvatarMotionMath.Pose flipped = AvatarMotionMath.stride((float) (Math.PI / .6662), 1, 1);
+        checkClose(flipped.rightLeg().pitch(), -sprint.rightLeg().pitch(), 1E-4,
+                "half a walk cycle flips the stride");
+        AvatarMotionMath.Pose halfStride = AvatarMotionMath.stride(0, 1, .5F);
+        checkClose(halfStride.rightLeg().pitch(), sprint.rightLeg().pitch() * .5, 1E-6,
+                "stride intensity scales linearly");
+        AvatarMotionMath.Pose slowStride = AvatarMotionMath.stride(0, .5F, 1);
+        checkClose(slowStride.rightLeg().pitch(), sprint.rightLeg().pitch() * .5, 1E-6,
+                "stride follows walk speed");
+        check(AvatarMotionMath.stride(0, 5, 1).rightLeg().pitch() == sprint.rightLeg().pitch(),
+                "stride speed is clamped");
+
         InventoryConfig config = new InventoryConfig();
         config.motion.playerIntensity = 9;
         config.sanitize();

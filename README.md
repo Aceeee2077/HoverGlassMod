@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.6.1 sprint stride:** Sprinting adds a full-body stride on top of vanilla walking — wider alternating legs, a counter-swinging arm pump, forward torso lean and a head counter-rotation. It applies to every visible sprinting player and follows the vanilla walk phase, so ordinary walking is untouched. Toggle it on the F8 **Avatar motion** page.
+
 **26.x · 0.6.0 avatar motion:** Full-body third-person sword, axe, spear and tool swings for every visible player, plus a hands-at-the-bench loop for the local player while a crafting table is open. The pose is added after vanilla animation, so walking, crouching, riding, item use and the vanilla arm swing remain intact; separate armor models receive the same pose so armor follows the body. Workbench motion is local-only because a client-only mod cannot read another player's open menu. Cycle F8 to **Avatar motion** for the master, attack and crafting toggles plus an 80% default intensity. See the [architecture audit and validation boundaries](docs/MOTION-AUDIT.md).
 
 **26.x · 0.5.0 fluid motion MVP:** Time-based held-item lowering/swapping/raising, modest sword/tool swing transforms, subtle sprint/jump/landing camera feedback, confirmed melee-hit response, extra material fragments and a 200 ms placement particle proxy. All effects are client-side; inventory, damage, cooldowns, movement and block rules stay vanilla.

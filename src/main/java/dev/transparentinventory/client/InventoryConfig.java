@@ -71,6 +71,8 @@ public final class InventoryConfig {
         public boolean playerAttackAnimation = true;
         /** Local-player hands-at-the-bench loop while a crafting table menu is open. */
         public boolean craftingAnimation = true;
+        /** Extra leg/arm stride while sprinting, layered over the vanilla walk cycle. */
+        public boolean sprintStride = true;
         /** 0 disables the added pose, 1 uses the full authored range. */
         public double playerIntensity = 0.8;
         public boolean reduceMotion;

@@ -115,3 +115,33 @@ Modified: `InventoryConfig`, `SpatialSettingsScreen`, the spatial mixin config, 
 ### Verification scope
 
 Compiled for 26.1.2, 26.2 and 26.3. `physicsTest` on 26.2 passed **1,165 assertions**, including attack endpoints, finite/bounded poses, left/right symmetry, linear intensity, idle-step suppression, crafting loop continuity, invalid time and config clamping. No Minecraft client was launched for this phase, per the user's no-game-launch constraint; screenshots and live gameplay validation remain outstanding. Third-party custom player/armor models, multiplayer latency and shader combinations were not tested.
+
+## Delivered Phase 3 — 0.6.1 sprint stride (2026-10-27)
+
+Scope: one additive layer on the 0.6.0 avatar hook. Inventory chrome, glass rendering, camera, anchors, input and the existing attack/crafting poses were not changed.
+
+### What was added
+
+| Feature | Behaviour |
+| --- | --- |
+| Sprint stride | While an avatar is sprinting, legs open wider in phase with the vanilla walk cycle, arms pump in counter-phase with a slight elbow-out roll, the torso leans forward and the head counter-rotates to keep the gaze level. |
+| All visible players | Sprint is a replicated entity flag; the controller resolves it from `ClientLevel.getEntity(state.id).isSprinting()` because `AvatarRenderState` has no sprint field. |
+| Running attacks | The attack pose owns the upper body, but the stride's leg offsets continue underneath, so spam-clicking while sprinting no longer drops the footwork back to vanilla. |
+| Configuration | `motion.sprintStride` (default true) on the F8 **Avatar motion** page. It shares `playerIntensity` (default 0.8); the master motion switch, avatar master switch and **Reduce motion** still gate it. |
+| Safety | Fades out below a small `walkAnimationSpeed` threshold; NaN phase/speed, zero speed or zero intensity return the exact identity pose. Swimming, riding, elytra, item use and sleep remain excluded by the existing gate. |
+
+### Implementation notes
+
+`AvatarMotionMath.stride(walkPos, walkSpeed, intensity)` is pure Java and uses the same `walkPos * 0.6662` phase as vanilla, so the added rotations reinforce the existing step rather than cancelling it. Amplitudes are bounded (legs 0.45, arms 0.28, torso lean 0.08 rad at full strength) and scale linearly with both walk speed and intensity. The controller priority is crafting > attack > stride; a sprinting attack applies the attack pose plus the stride legs only.
+
+No new mixin, packet, renderer replacement or entity write was added. The existing `HumanoidModel` hook and armor-model coverage are unchanged.
+
+### Files
+
+- `motion/AvatarMotionMath.java` — added `stride`.
+- `motion/PlayerAnimationController.java` — sprint lookup, priority and legs-only blending during attacks.
+- `InventoryConfig`, `SpatialSettingsScreen`, both language files, `gradle.properties` (0.6.1), READMEs, architecture/testing docs and the regression suite.
+
+### Verification scope
+
+26.2 `physicsTest` passed **1,209 assertions** (44 new stride checks). 26.1.2, 26.2 and 26.3 `compileJava --offline` passed. No Minecraft client was launched, per the user's no-game-launch constraint; third-person feel, remote-player sync and stacking with third-party animation mods remain untested. Ordinary walking, attacks and crafting keep their existing coverage.

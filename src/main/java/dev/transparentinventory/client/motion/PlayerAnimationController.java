@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.inventory.CraftingMenu;
 
@@ -46,15 +47,35 @@ public final class PlayerAnimationController {
                 && client.player.containerMenu instanceof CraftingMenu;
         if (crafting) {
             pose = AvatarMotionMath.crafting(state.ageInTicks, (float) config.motion.playerIntensity);
-        } else if (config.motion.playerAttackAnimation) {
-            AvatarAttackView.Attack attack = AvatarAttackView.of(state);
+        } else {
+            AvatarMotionMath.Pose stride = config.motion.sprintStride && sprinting(client, state)
+                    && state.walkAnimationSpeed > .12F
+                    ? AvatarMotionMath.stride(state.walkAnimationPos, state.walkAnimationSpeed,
+                            (float) config.motion.playerIntensity)
+                    : AvatarMotionMath.Pose.NONE;
+            AvatarAttackView.Attack attack = config.motion.playerAttackAnimation
+                    ? AvatarAttackView.of(state) : null;
             if (attack != null) {
                 boolean idle = state.walkAnimationSpeed < .15F;
                 pose = AvatarMotionMath.attack(attack.style(), attack.progress(), attack.side(),
                         (float) config.motion.playerIntensity, idle);
+                // Keep the footwork continuous during a running swing; the attack
+                // pose owns the upper body.
+                if (stride != AvatarMotionMath.Pose.NONE) applyLegs(model, stride);
+            } else if (stride != AvatarMotionMath.Pose.NONE) {
+                pose = stride;
             }
         }
         if (pose != AvatarMotionMath.Pose.NONE) apply(model, pose);
+    }
+
+    /**
+     * Sprint is server-replicated for every player, so nearby avatars stride too.
+     * The render state itself has no sprint flag, hence the entity lookup.
+     */
+    private static boolean sprinting(Minecraft client, AvatarRenderState state) {
+        if (client.level == null) return false;
+        return client.level.getEntity(state.id) instanceof Avatar avatar && avatar.isSprinting();
     }
 
     private static void apply(HumanoidModel<?> model, AvatarMotionMath.Pose pose) {
@@ -62,6 +83,11 @@ public final class PlayerAnimationController {
         add(model.head, pose.head());
         add(model.rightArm, pose.rightArm());
         add(model.leftArm, pose.leftArm());
+        add(model.rightLeg, pose.rightLeg());
+        add(model.leftLeg, pose.leftLeg());
+    }
+
+    private static void applyLegs(HumanoidModel<?> model, AvatarMotionMath.Pose pose) {
         add(model.rightLeg, pose.rightLeg());
         add(model.leftLeg, pose.leftLeg());
     }

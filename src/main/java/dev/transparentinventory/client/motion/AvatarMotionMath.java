@@ -80,6 +80,43 @@ public final class AvatarMotionMath {
     }
 
     /**
+     * Extra stride on top of vanilla's walk cycle while the avatar is sprinting.
+     *
+     * <p>Vanilla already swings the legs and arms from {@code walkAnimationPos}.
+     * This layer follows the same phase so the added motion reinforces the
+     * existing step instead of fighting it: legs open wider, arms pump with a
+     * slight elbow-out roll, and the torso leans into the run.
+     *
+     * @param walkPos    vanilla {@code walkAnimationPos}
+     * @param walkSpeed  vanilla {@code walkAnimationSpeed}; 0 stops the layer
+     * @param intensity  0..1 user strength
+     */
+    public static Pose stride(float walkPos, float walkSpeed, float intensity) {
+        if (!Float.isFinite(walkPos) || !Float.isFinite(walkSpeed)) return Pose.NONE;
+        double strength = clamp(intensity, 0, 1);
+        double amplitude = clamp(walkSpeed, 0, 1);
+        if (strength <= 0 || amplitude <= .05) return Pose.NONE;
+
+        double phase = walkPos * .6662;
+        double swing = Math.cos(phase);
+        double sway = Math.sin(phase);
+        double scale = amplitude * strength;
+
+        Limb body = new Limb(
+                (float) (.08 * scale),
+                (float) (.04 * sway * scale),
+                (float) (-.025 * sway * scale));
+        // Keep the gaze level against the forward lean.
+        Limb head = new Limb((float) (-.04 * scale), (float) (-.02 * sway * scale), 0);
+        // Same phase as vanilla's arm swing, so the pump is amplified rather than cancelled.
+        Limb rightArm = new Limb((float) (-.28 * swing * scale), 0, (float) (.03 * scale));
+        Limb leftArm = new Limb((float) (.28 * swing * scale), 0, (float) (-.03 * scale));
+        Limb rightLeg = new Limb((float) (.45 * swing * scale), 0, 0);
+        Limb leftLeg = new Limb((float) (-.45 * swing * scale), 0, 0);
+        return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
+    }
+
+    /**
      * A reversible "hands at the bench" loop. The player is stationary while a
      * crafting menu is open, so this only supplies the upper-body work.
      */
