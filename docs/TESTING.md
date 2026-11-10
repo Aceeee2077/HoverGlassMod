@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.72.0 粘贴二次确认
+
+- 粘贴原位替换整个配置，却不像重置、恢复那样要求确认。新增 `pasteConfirm` 与 `rebuildWidgets()` 中的 `disarm()`；第一次按下先解析剪贴板：无效则保持未武装、提示 `spatialui.transfer.invalid` 并恢复标签，有效则武装并把标签改为 `spatialui.transfer.confirm`，第二次才替换并保存。
+- 按钮新增 `.hint` 说明「会替换全部设置，需要点击两次」。语言文件各新增 1 个键，键集合相等（232 个键）。
+- 复用 `ConfirmPress` 既有测试；无效剪贴板不武装的分支依赖 `ConfigTransfer.parse`，本轮无新增纯逻辑，26.2 `physicsTest` 通过，共 **2,080 条断言**（计数不变）。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认标签从「导入设置」切换到「再次点击以确认」后的宽度。
+
 ## 2026-11-10 · 0.71.0 快照选择
 
 - `ConfigBackups.snapshots(Path)` 返回按文件名降序（即由新到旧）的快照列表，`epochMillis(Path)` 从单个快照文件名解析时间；`newestEpochMillis` 改为委托 `epochMillis(newest(config))`，行为不变。`ConfigLoader` 的 `loadNewestSnapshot` / `newestSnapshotMillis` 改为带索引的 `loadSnapshot(int)` / `snapshotMillis(int)`，0 表示最新一份；同时把原先放错位置的 Javadoc 移到 `loadSnapshot` 上。

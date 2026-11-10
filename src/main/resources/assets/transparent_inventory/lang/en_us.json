@@ -160,6 +160,7 @@
   "spatialui.compat.clear_opacity": "Reset all per-screen transparency",
   "spatialui.transfer.copy": "Copy settings to clipboard",
   "spatialui.transfer.paste": "Paste settings from clipboard",
+  "spatialui.transfer.paste.hint": "Replaces every setting with the clipboard contents; click twice",
   "spatialui.transfer.copied": "Hoverglass settings copied to the clipboard.",
   "spatialui.transfer.invalid": "The clipboard does not contain Hoverglass settings.",
   "spatialui.transfer.pasted": "Hoverglass settings pasted and saved.",

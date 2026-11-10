@@ -41,6 +41,7 @@ public final class SpatialSettingsScreen extends Screen {
     private String hotbarBorderTip;
     private final ConfirmPress resetConfirm = new ConfirmPress();
     private final ConfirmPress pageResetConfirm = new ConfirmPress();
+    private final ConfirmPress pasteConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
     private final ConfirmPress presetConfirm = new ConfirmPress();
@@ -448,17 +449,25 @@ public final class SpatialSettingsScreen extends Screen {
                 minecraft.keyboardHandler.setClipboard(ConfigTransfer.export(InventoryConfig.get()));
                 notify("spatialui.transfer.copied");
             }).bounds(left, row + 66, contentWidth / 2 - 2, 20).build());
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.paste"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable(pasteConfirm.armed()
+                    ? "spatialui.transfer.confirm" : "spatialui.transfer.paste"), button -> {
                 InventoryConfig parsed = ConfigTransfer.parse(minecraft.keyboardHandler.getClipboard());
                 if (parsed == null) {
+                    pasteConfirm.disarm();
+                    button.setMessage(Component.translatable("spatialui.transfer.paste"));
                     notify("spatialui.transfer.invalid");
+                    return;
+                }
+                if (!pasteConfirm.press()) {
+                    button.setMessage(Component.translatable("spatialui.transfer.confirm"));
                     return;
                 }
                 InventoryConfig.setInstance(parsed);
                 boolean saved = saveNow();
                 rebuildWidgets();
                 notify(saved ? "spatialui.transfer.pasted" : "spatialui.settings.save_failed");
-            }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build());
+            }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.transfer.paste.hint")));
             addRenderableWidget(Button.builder(Component.translatable(restoreConfirm.armed()
                     ? "spatialui.transfer.confirm" : "spatialui.transfer.restore"), button -> {
                 if (!restoreConfirm.press()) {
@@ -558,6 +567,7 @@ public final class SpatialSettingsScreen extends Screen {
     @Override protected void rebuildWidgets() {
         resetConfirm.disarm();
         pageResetConfirm.disarm();
+        pasteConfirm.disarm();
         restoreConfirm.disarm();
         snapshotConfirm.disarm();
         presetConfirm.disarm();

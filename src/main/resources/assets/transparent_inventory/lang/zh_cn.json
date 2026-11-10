@@ -160,6 +160,7 @@
   "spatialui.compat.clear_opacity": "重置全部独立透明度",
   "spatialui.transfer.copy": "复制设置到剪贴板",
   "spatialui.transfer.paste": "从剪贴板导入设置",
+  "spatialui.transfer.paste.hint": "用剪贴板内容替换全部设置；需要点击两次",
   "spatialui.transfer.copied": "Hoverglass 设置已复制到剪贴板。",
   "spatialui.transfer.invalid": "剪贴板中没有可用的 Hoverglass 设置。",
   "spatialui.transfer.pasted": "Hoverglass 设置已导入并保存。",

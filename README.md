@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.72.0 pasting asks twice:** **Paste settings from clipboard** now takes two clicks, like the full reset, the restores and the page reset. The first click checks that the clipboard actually holds Hoverglass settings and changes the label to the confirming text; an invalid clipboard still reports itself and never arms. The tooltip says that pasting replaces every setting, and changing pages or pressing a rebuilding action drops the pending paste.
+
 **26.x · 0.71.0 pick any snapshot, not just the newest:** The snapshot restore on the compatibility page now selects among the whole rotating history with **◀** and **▶** buttons, shows the position as *2/5*, and puts that snapshot's time in the tooltip. **Restore snapshot** still asks for a confirming second click, and both arrows grey out at the ends. This makes the older copies reachable after a save that looked fine at the time but turned out wrong later; before, only the newest one could be restored from the screen.
 
 **26.x · 0.70.0 page reset asks twice:** **↺** and Delete now arm the page reset instead of restoring immediately, matching the full reset and the restores. The first press changes the small button to **↺?** and its tooltip to the confirming text; the second restores the page, and changing pages or pressing an action that rebuilds the screen drops the pending press. The footer now reads **Del ×2 resets page**, and the compatibility page keeps its disabled button and its explanation.
