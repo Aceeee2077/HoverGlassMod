@@ -121,6 +121,8 @@ JSON `panelOpacity` 表示不透明度；UI 透明度滑块展示 `1 - panelOpac
 
 `creativeGlassDefaultsApplied` 记录创造玻璃默认值是否已迁移：首次清理配置时仅对缺少独立设置的创造界面添加 0.16 不透明度，后续选择“跟随全局”不会被保存时重新插入。预设会同时设置生存和创造物品栏，不改变其他容器覆盖值。设置标题包含实际加载的模组版本，便于核对 jar。
 
+每次 `ConfigLoader.save()` 在原子替换前把旧文件复制为 `transparent_inventory.json.bak`（`ConfigBackups`，仅保留一份）；兼容性页的「恢复上一次的设置」读取该文件后走同一条保存路径，因此再次点击等于换回刚才的版本。备份失败只记录为复制失败，不会阻止保存。
+
 `ConfigTransfer` 负责剪贴板导入导出：导出复用与磁盘一致的 pretty JSON；导入只接受能解析为对象的文本（超过 256 KB、空文本、`null`、数组与任意字符串均拒绝），随后统一走 `InventoryConfig.sanitize()`，因此越界数值和脏规则会被修正而不是原样写入。导入成功后立即经 `ConfigLoader.save()` 落盘并重建设置控件。
 
 渲染范围和矩阵都使用 `try/finally` 恢复，避免下一帧、HUD 或设置界面继承面板透明度。

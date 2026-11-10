@@ -81,6 +81,8 @@ def legacyKeep = [
         'dev/transparentinventory/client/ConfigLoader.java',
         // Used by ConfigLoader on every branch to quarantine unreadable files.
         'dev/transparentinventory/client/ConfigFileRecovery.java',
+        // Used by ConfigLoader on every branch to keep the previous config on save.
+        'dev/transparentinventory/client/ConfigBackups.java',
         'dev/transparentinventory/client/InventoryConfig.java',
         // Shared by both branches: the legacy InventoryConfig uses it for screen overrides.
         'dev/transparentinventory/client/ScreenRules.java',

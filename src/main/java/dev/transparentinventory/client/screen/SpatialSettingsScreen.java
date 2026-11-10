@@ -192,6 +192,17 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
                 notify("spatialui.transfer.pasted");
             }).bounds(left, row + 88, contentWidth, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.restore"), button -> {
+                InventoryConfig backup = ConfigLoader.loadBackup();
+                if (backup == null) {
+                    notify("spatialui.transfer.no_backup");
+                    return;
+                }
+                InventoryConfig.setInstance(backup);
+                ConfigLoader.save();
+                rebuildWidgets();
+                notify("spatialui.transfer.restored");
+            }).bounds(left, row + 110, contentWidth, 20).build());
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             page = SettingsPages.previous(page);

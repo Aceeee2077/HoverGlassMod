@@ -56,7 +56,29 @@ public final class ConfigLoader {
 
     public static synchronized boolean save() {
         InventoryConfig.get().sanitize();
-        return writeDefault(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME), InventoryConfig.get());
+        Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
+        // Keep the previous file so a bad edit or paste can be rolled back.
+        ConfigBackups.copy(path);
+        return writeDefault(path, InventoryConfig.get());
+    }
+
+    /**
+     * Reads the previous version written by the last save.
+     *
+     * @return a sanitized config, or {@code null} when there is no backup or it
+     *         cannot be parsed
+     */
+    public static synchronized InventoryConfig loadBackup() {
+        Path backup = ConfigBackups.backupPath(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+        if (backup == null || !Files.isRegularFile(backup)) return null;
+        try (Reader reader = Files.newBufferedReader(backup, StandardCharsets.UTF_8)) {
+            InventoryConfig config = GSON.fromJson(reader, InventoryConfig.class);
+            if (config == null) return null;
+            config.sanitize();
+            return config;
+        } catch (IOException | RuntimeException ignored) {
+            return null;
+        }
     }
 
     /**

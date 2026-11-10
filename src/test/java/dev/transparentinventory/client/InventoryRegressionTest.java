@@ -8,6 +8,9 @@ import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
 import dev.transparentinventory.client.screen.SettingsPages;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,6 +44,7 @@ public final class InventoryRegressionTest {
         testCompatibilityActions();
         testSettingsPages();
         testConfigTransfer();
+        testConfigBackups();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -893,6 +897,35 @@ public final class InventoryRegressionTest {
                 "airborne intensity scales linearly");
         check(AvatarMotionMath.airborne(5F, 1F).equals(AvatarMotionMath.airborne(0.6F, 1F)),
                 "extreme speed clamps to the authored range");
+    }
+
+    private static void testConfigBackups() {
+        try {
+            Path dir = Files.createTempDirectory("hoverglass-backup");
+            Path config = dir.resolve("config.json");
+            check(ConfigBackups.backupPath(config).getFileName().toString().equals("config.json.bak"),
+                    "the backup is a sibling with a .bak suffix");
+            check(!ConfigBackups.copy(config), "a missing config has nothing to back up");
+            check(!ConfigBackups.exists(config), "no backup exists before the first save");
+
+            Files.writeString(config, "first");
+            check(ConfigBackups.copy(config), "the save backs up the previous file");
+            check(ConfigBackups.exists(config), "the backup is readable after copying");
+            check(Files.readString(ConfigBackups.backupPath(config)).equals("first"),
+                    "the backup holds the previous contents");
+
+            Files.writeString(config, "second");
+            check(ConfigBackups.copy(config), "the next save refreshes the backup");
+            check(Files.readString(ConfigBackups.backupPath(config)).equals("second"),
+                    "only the latest previous version is kept");
+
+            Files.deleteIfExists(config);
+            check(ConfigBackups.exists(config), "the backup survives a missing config file");
+            Files.deleteIfExists(ConfigBackups.backupPath(config));
+            Files.deleteIfExists(dir);
+        } catch (IOException e) {
+            throw new AssertionError("config backup test could not use a temp directory", e);
+        }
     }
 
     private static void testInventoryCursorLook() {
