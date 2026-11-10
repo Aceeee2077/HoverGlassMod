@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.22.0 键盘翻页
+
+- 设置界面覆写 `keyPressed(KeyEvent)`：Page Up / Page Down 复用 `SettingsPages.previous` / `next` 并重建控件，Home 回到第一页，其余按键交给原版处理；断言数不变（沿用既有翻页断言）。26.2 `physicsTest` 通过，共 **1,484 条断言**。
+- 底部提示更新为「PgUp/PgDn · 实时预览 · F8/Esc 保存」，英中同步；提示仍与页码前缀共用一行。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认按键事件在设置覆盖层中的分发顺序。
+
 ## 2026-11-10 · 0.21.0 镜头角度
 
 - `testSettingsPages` 更新为 11 页：兼容性仍在索引 9，新页 `CAMERA_ANGLES = 10`；越界与循环断言随页数更新。`testLanguageKeys` 自动覆盖新页标题。

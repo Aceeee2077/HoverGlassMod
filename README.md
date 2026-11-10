@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.22.0 keyboard page navigation:** **Page Up** and **Page Down** cycle the eleven settings pages and **Home** jumps back to the transparency page, so reaching a distant page no longer means clicking through the cycle. The keys use the same wrap-around helpers as the arrow buttons, and the footer hint now names them along with the F8 / Esc save shortcut.
+
 **26.x · 0.21.0 camera angles:** An eleventh settings page, **Camera angles**, exposes two framing offsets that already existed in the config: **Camera side angle** (−60° to +60°) and **Camera height angle** (−45° to +45°). They rotate the settled framing sideways and vertically and blend in with the camera transition like the other camera values. The page keeps compatibility at index 9, so existing pages and the page cycle stay where they were. Both values clamp on load, so a hand-edited config cannot exceed the authored range.
 
 **26.x · 0.20.0 named page headers:** The settings header now says which page is open — "Fluid animations", "Compatibility" and so on. Previously it always described the container's transparency source, even while looking at camera or motion pages; that description is now limited to the transparency page. A new regression check loads both language files and fails the build when `en_us` and `zh_cn` disagree on a key or a settings page title is untranslated, so a missing translation can no longer ship as a raw key.

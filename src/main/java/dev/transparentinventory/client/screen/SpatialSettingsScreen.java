@@ -3,7 +3,9 @@ package dev.transparentinventory.client.screen;
 import dev.transparentinventory.client.ConfigLoader;
 import dev.transparentinventory.client.ConfigTransfer;
 import dev.transparentinventory.client.InventoryConfig;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -308,6 +310,25 @@ public final class SpatialSettingsScreen extends Screen {
         if (!saved && minecraft.player != null) minecraft.player.sendSystemMessage(Component.translatable("spatialui.settings.save_failed"));
         if (overlay) SpatialScreenManager.INSTANCE.closeSettings();
         else dev.transparentinventory.client.compat.MinecraftAccess.screen(minecraft, parent);
+    }
+
+    @Override public boolean keyPressed(KeyEvent key) {
+        if (key.key() == InputConstants.KEY_PAGEUP) {
+            page = SettingsPages.previous(page);
+            rebuildWidgets();
+            return true;
+        }
+        if (key.key() == InputConstants.KEY_PAGEDOWN) {
+            page = SettingsPages.next(page);
+            rebuildWidgets();
+            return true;
+        }
+        if (key.key() == InputConstants.KEY_HOME) {
+            page = 0;
+            rebuildWidgets();
+            return true;
+        }
+        return super.keyPressed(key);
     }
 
     @Override public boolean isPauseScreen() { return !overlay && parent != null && parent.isPauseScreen(); }

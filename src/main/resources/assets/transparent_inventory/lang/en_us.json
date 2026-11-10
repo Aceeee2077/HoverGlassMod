@@ -12,7 +12,7 @@
   "spatialui.settings.custom": "%s · Custom transparency",
   "spatialui.settings.inherited": "%s · Global transparency",
   "spatialui.settings.rule": "%s · Transparency from a screen rule",
-  "spatialui.settings.hint": "Live preview · F8 / Esc saves and returns",
+  "spatialui.settings.hint": "PgUp/PgDn · live preview · F8/Esc saves",
   "spatialui.settings.page": "Page %s / %s",
   "spatialui.settings.previous": "Previous page",
   "spatialui.settings.next": "Next page",
