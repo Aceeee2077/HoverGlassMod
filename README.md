@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.31.0 rotating config snapshots:** Save-time protection no longer stops at a single `.bak`. Every save also writes a timestamped copy into `config/transparent_inventory-backups/` and prunes that folder to the five newest, so several bad saves in a row can still be walked back by hand. The sibling `.bak`, the compatibility page's **Restore previous settings** behaviour and the "a failed copy never blocks the save" rule are unchanged, and the shared loader means both branches get the history.
+
 **26.x · 0.30.0 idle sway:** A standing avatar no longer freezes between actions. A new **Idle sway** switch on the avatar motion page adds a breathing layer — the chest rises, the arms drift outward, and the weight shifts slowly side to side — with amplitudes under three hundredths of a radian and scaling with **Avatar motion intensity**. It stops the moment the walk cycle or a landing takes over and leaves the legs entirely to vanilla; the switch beside it is now labelled **Airborne poses** to make room.
 
 **26.x · 0.29.0 rebindable settings key:** The screen support page now offers **Settings key**, which cycles the shortcut that opens these settings through F6–F10 (F8 stays the default). A conflict with another mod no longer leaves F8 as the only option. The stored `settingsKey` is validated on load and falls back to F8 if a hand-edited config names a gameplay key or anything else outside that set, and the footer hint no longer hard-codes the key.

@@ -1017,8 +1017,41 @@ public final class InventoryRegressionTest {
             check(Files.readString(ConfigBackups.backupPath(config)).equals("second"),
                     "only the latest previous version is kept");
 
+            Path rotation = ConfigBackups.rotationDirectory(config);
+            check(rotation != null && rotation.getFileName().toString().equals("transparent_inventory-backups"),
+                    "rotating snapshots live in a sibling folder");
+            check(ConfigBackups.rotate(dir.resolve("missing.json"), 1L) == -1,
+                    "a missing config has nothing to rotate");
+            try (var stream = Files.list(rotation)) {
+                check(stream.anyMatch(Files::isRegularFile), "a save records a rotating snapshot");
+            }
+            // Later than the system-clock snapshots above, so pruning has a fixed order.
+            long stamp = 4_000_000_000_000L;
+            int kept = 0;
+            for (int index = 0; index < ConfigBackups.KEEP + 2; index++) {
+                Files.writeString(config, "v" + index);
+                kept = ConfigBackups.rotate(config, stamp + index);
+            }
+            check(kept == ConfigBackups.KEEP, "rotation keeps exactly the newest snapshots");
+            try (var stream = Files.list(rotation)) {
+                var names = stream.filter(Files::isRegularFile)
+                        .map(path -> path.getFileName().toString()).sorted().toList();
+                check(names.size() == ConfigBackups.KEEP, "only five snapshots remain on disk");
+                check(names.get(names.size() - 1).contains(String.valueOf(stamp + ConfigBackups.KEEP + 1)),
+                        "the newest snapshot survives pruning");
+                check(names.stream().noneMatch(name -> name.contains(String.valueOf(stamp))),
+                        "the oldest snapshots are pruned first");
+                check(Files.readString(rotation.resolve(names.get(names.size() - 1)))
+                                .equals("v" + (ConfigBackups.KEEP + 1)),
+                        "the newest snapshot holds the latest previous contents");
+            }
+
             Files.deleteIfExists(config);
             check(ConfigBackups.exists(config), "the backup survives a missing config file");
+            try (var stream = Files.list(rotation)) {
+                for (Path snapshot : stream.toList()) Files.deleteIfExists(snapshot);
+            }
+            Files.deleteIfExists(rotation);
             Files.deleteIfExists(ConfigBackups.backupPath(config));
             Files.deleteIfExists(dir);
         } catch (IOException e) {
