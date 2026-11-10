@@ -35,6 +35,7 @@ public final class SpatialSettingsScreen extends Screen {
         int contentWidth = Math.min(320, width - 16);
         int left = (width - contentWidth) / 2;
         top = Math.max(6, (height - 220) / 2);
+        page = SettingsPages.clamp(page);
         int row = top + 34;
         inheritButton = null;
         if (page == 0) {
@@ -175,15 +176,19 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
             }).bounds(left, row + 44, contentWidth, 20).build());
         }
-        addRenderableWidget(Button.builder(Component.translatable(page == 0 ? "spatialui.settings.more"
-                : page == 1 ? "spatialui.settings.entrance" : page == 2 ? "spatialui.settings.look"
-                : page == 3 ? "spatialui.settings.hotbar" : page == 4 ? "spatialui.settings.motion"
-                : page == 5 ? "spatialui.settings.camera_motion" : page == 6 ? "spatialui.settings.world_effects"
-                : page == 7 ? "spatialui.settings.player_motion"
-                : page == 8 ? "spatialui.settings.compatibility" : "spatialui.settings.opacity"), button -> {
-            page = (page + 1) % 10;
+        var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
+            page = SettingsPages.previous(page);
             rebuildWidgets();
-        }).bounds(left, row + 138, contentWidth / 2 - 2, 20).build());
+        }).bounds(left, row + 138, 20, 20).build());
+        previous.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.previous")
+                .append(": ").append(Component.translatable(SettingsPages.previousLabelKey(page)))));
+        var forward = addRenderableWidget(Button.builder(
+                Component.translatable(SettingsPages.nextLabelKey(page)), button -> {
+            page = SettingsPages.next(page);
+            rebuildWidgets();
+        }).bounds(left + 22, row + 138, contentWidth / 2 - 24, 20).build());
+        forward.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.next")
+                .append(": ").append(Component.translatable(SettingsPages.nextLabelKey(page)))));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
                 .bounds(left + contentWidth / 2 + 2, row + 138, contentWidth / 2 - 2, 20).build());
     }
@@ -239,7 +244,8 @@ public final class SpatialSettingsScreen extends Screen {
                 }, parent.getTitle());
         graphics.centeredText(font, context, width / 2, top + 15, 0xFFCCD5E0);
         super.extractRenderState(graphics, mouseX, mouseY, tick);
-        graphics.centeredText(font, Component.translatable("spatialui.settings.hint"), width / 2, top + 200, 0xFFB9C7D4);
+        graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)
+                .append(" · ").append(Component.translatable("spatialui.settings.hint")), width / 2, top + 200, 0xFFB9C7D4);
     }
 
     @Override public void onClose() {

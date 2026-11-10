@@ -6,6 +6,7 @@ import dev.transparentinventory.client.anim.SlideTracker;
 import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
+import dev.transparentinventory.client.screen.SettingsPages;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ public final class InventoryRegressionTest {
         testCameraPolicy();
         testQuickReopen();
         testCompatibilityActions();
+        testSettingsPages();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -774,6 +776,34 @@ public final class InventoryRegressionTest {
         check(config.screenOpacities.isEmpty(), "clearing per-screen values removes exact and wildcard entries");
         checkClose(config.opacityFor(chest), config.panelOpacity, 1E-6,
                 "cleared screens fall back to the global opacity");
+    }
+
+    private static void testSettingsPages() {
+        check(SettingsPages.COUNT == 10, "the settings screen has ten pages");
+        check(SettingsPages.COMPATIBILITY == SettingsPages.COUNT - 1, "compatibility is the last page");
+        for (int page = 0; page < SettingsPages.COUNT; page++) {
+            check(SettingsPages.clamp(page) == page, "valid page indices are kept");
+            check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
+                    "next advances and wraps at the last page");
+            check(SettingsPages.previous(page) == (page + SettingsPages.COUNT - 1) % SettingsPages.COUNT,
+                    "previous steps back and wraps at the first page");
+            check(SettingsPages.titleKey(page).startsWith("spatialui.settings."),
+                    "every page has a settings title key");
+            check(SettingsPages.nextLabelKey(page).equals(SettingsPages.titleKey(SettingsPages.next(page))),
+                    "the next button names the upcoming page");
+            check(SettingsPages.previousLabelKey(page).equals(SettingsPages.titleKey(SettingsPages.previous(page))),
+                    "the previous button names the page it returns to");
+        }
+        check(SettingsPages.next(8) == SettingsPages.COMPATIBILITY,
+                "player motion is followed by compatibility");
+        check(SettingsPages.next(9) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == 9, "the first page wraps to the last");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.compatibility"),
+                "going back from the first page lands on compatibility");
+        check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
+                "out-of-range pages restart at the first page");
+        check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
+                "invalid titles fall back to the first page");
     }
 
     private static void testInventoryCursorLook() {
