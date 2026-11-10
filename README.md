@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.66.0 hotbar hints stay truthful:** The match buttons now track which hint they show separately from whether they are clickable, so flipping **Glass hotbar** off and on always leaves the right text: the "already matches" hint, the normal hint, or the turn-it-on hint. Before, a button that was disabled for both reasons at once could keep a stale tooltip after the switch changed.
+
 **26.x · 0.65.0 hotbar controls follow their switch:** With **Glass hotbar** turned off, the transparency and border sliders plus both match buttons on that page now grey out, and their tooltips say to turn the glass hotbar on first — instead of accepting drags and clicks that change values nothing renders. Turning the switch back on re-enables them on the next frame without leaving the page.
 
 **26.x · 0.64.0 panel depth and height sliders:** The preview layout page gains **Panel depth** and **Panel height offset** — the last two placement values that required hand-editing `guiDistance` and `guiVerticalOffset`. Depth controls how far in front of the camera readable containers sit (lower values look larger), height moves the spatial panels up or down in the world; both sit side by side on the last row, keep their sanitizer ranges, and Delete on the page restores them along with the avatar and panel placement.

@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.66.0 快捷栏提示状态
+
+- 0.65.0 只在按钮 `active` 变化时更新 tooltip，导致「因关闭开关而禁用」与「因已匹配而禁用」之间切换时提示不刷新。现在用 `matchRimTip` / `matchOpacityTip` 记录当前提示键，只有提示键变化才重建 `Tooltip`，可用状态每帧照常更新。
+- 初始化时的两步 tooltip 设置已移除，改由页面构建末尾的 `refreshMatchButtons()` 一次完成；页面重建时两个提示键归零，随后重新计算。
+- 本轮无纯逻辑改动，26.2 `physicsTest` 通过，共 **1,948 条断言**（计数不变）。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机验证开关切换后 tooltip 的即时更新。
+
 ## 2026-11-10 · 0.65.0 快捷栏控件联动
 
 - 快捷栏页保存两个滑条引用（`hotbarOpacitySlider`、`hotbarBorderSlider`），`refreshMatchButtons()` 每帧检查 `glassHotbar`：关闭时把两个滑条和两个匹配按钮置灰，并显示 `spatialui.hotbar.glass_off`；重新开启时恢复可用与原 tooltip。只在状态变化时更新控件与 tooltip，避免每帧分配。
