@@ -1151,6 +1151,20 @@ public final class InventoryRegressionTest {
             }
             check(ConfigBackups.newest(dir.resolve("nested").resolve("elsewhere.json")) == null,
                     "a config without a rotation folder has no newest snapshot");
+            check(ConfigBackups.newestEpochMillis(config) == stamp + ConfigBackups.KEEP + 1,
+                    "the newest snapshot reports when it was taken");
+            check(ConfigBackups.newestEpochMillis(dir.resolve("nested").resolve("elsewhere.json")) == -1,
+                    "a config without a rotation folder reports no snapshot time");
+            Path malformed = rotation.resolve(ConfigBackups.ROTATION_PREFIX + "not-a-stamp.json");
+            Files.writeString(malformed, "broken");
+            check(ConfigBackups.newestEpochMillis(config) == -1,
+                    "a snapshot whose name is not a timestamp reports no time");
+            Files.deleteIfExists(malformed);
+            Path notJson = rotation.resolve(ConfigBackups.ROTATION_PREFIX + "9999999999999999999");
+            Files.writeString(notJson, "raw");
+            check(ConfigBackups.newestEpochMillis(config) == -1,
+                    "a prefixed file without the .json suffix reports no time");
+            Files.deleteIfExists(notJson);
 
             Files.deleteIfExists(config);
             check(ConfigBackups.exists(config), "the backup survives a missing config file");

@@ -93,6 +93,11 @@ public final class ConfigLoader {
         return ConfigBackups.snapshotCount(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
     }
 
+    /** When the newest rotating snapshot was taken, or {@code -1} when there is none. */
+    public static synchronized long newestSnapshotMillis() {
+        return ConfigBackups.newestEpochMillis(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+    }
+
     public static synchronized InventoryConfig loadNewestSnapshot() {
         Path snapshot = ConfigBackups.newest(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
         if (snapshot == null) return null;

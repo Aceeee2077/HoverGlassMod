@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.56.0 snapshot time in the tooltip:** Hovering **Restore newest snapshot** now also says when that snapshot was taken, in the same local time the file manager shows, so restoring is an informed choice instead of grabbing the latest copy blindly. The timestamp is read from the snapshot's file name, a missing or unreadable history shows only the usual hint, and the count and the time always describe the same file.
+
 **26.x · 0.55.0 page resets cover every control:** Resetting the transparency page now also turns the **Liquid glass UI** theme back off, and resetting the screen support page turns the master effects switch back on — both sat on those pages but were left untouched by Delete and **↺**. Every page now restores exactly the controls it shows.
 
 **26.x · 0.54.0 master effects switch:** The screen support page now exposes **Hoverglass effects**, the config's master switch that previously required editing the file. Turned off, the glass panels, hotbar glass, menu theme and added avatar animations stop without clearing a single setting, and the configured settings key keeps working so the switch is always reachable to turn everything back on.

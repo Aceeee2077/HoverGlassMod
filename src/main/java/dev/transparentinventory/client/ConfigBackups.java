@@ -143,6 +143,26 @@ public final class ConfigBackups {
         }
     }
 
+    /**
+     * Time recorded in the newest snapshot's file name, so the settings screen can
+     * show when it was taken.
+     *
+     * @return epoch milliseconds, or {@code -1} when there is no snapshot or its
+     *         name is unreadable
+     */
+    public static long newestEpochMillis(Path config) {
+        Path newest = newest(config);
+        if (newest == null) return -1;
+        String name = newest.getFileName().toString();
+        if (!name.endsWith(".json")) return -1;
+        String stamp = name.substring(ROTATION_PREFIX.length(), name.length() - ".json".length());
+        try {
+            return Long.parseLong(stamp);
+        } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+            return -1;
+        }
+    }
+
     /** True when a backup file exists and can be read. */
     public static boolean exists(Path config) {
         Path target = backupPath(config);

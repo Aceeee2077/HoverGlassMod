@@ -418,8 +418,14 @@ public final class SpatialSettingsScreen extends Screen {
                 notify("spatialui.transfer.snapshot.restored");
             }).bounds(left, row + 110, contentWidth, 20).build());
             snapshotButton.active = snapshotCount > 0;
-            snapshotButton.setTooltip(Tooltip.create(Component.translatable(snapshotCount > 0
-                    ? "spatialui.transfer.snapshot.hint" : "spatialui.transfer.snapshot.none")));
+            long snapshotMillis = snapshotCount > 0 ? ConfigLoader.newestSnapshotMillis() : -1;
+            var snapshotHint = Component.translatable(snapshotCount > 0
+                    ? "spatialui.transfer.snapshot.hint" : "spatialui.transfer.snapshot.none");
+            if (snapshotMillis > 0) {
+                snapshotHint = snapshotHint.append(Component.literal("\n")).append(Component.translatable(
+                        "spatialui.transfer.snapshot.latest", snapshotStamp(snapshotMillis)));
+            }
+            snapshotButton.setTooltip(Tooltip.create(snapshotHint));
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             goTo(SettingsPages.previous(page));
@@ -498,6 +504,13 @@ public final class SpatialSettingsScreen extends Screen {
 
     private static Component toggle(String key, boolean enabled) {
         return Component.translatable(key).append(": ").append(Component.translatable(enabled ? "options.on" : "options.off"));
+    }
+
+    /** Formats a snapshot timestamp in the player's local time, to the minute. */
+    private static String snapshotStamp(long epochMillis) {
+        return java.time.Instant.ofEpochMilli(epochMillis)
+                .atZone(java.time.ZoneId.systemDefault())
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", java.util.Locale.ROOT));
     }
 
     private void motionToggle(int x, int y, int width, String key, java.util.function.BooleanSupplier read, java.util.function.Consumer<Boolean> write) {

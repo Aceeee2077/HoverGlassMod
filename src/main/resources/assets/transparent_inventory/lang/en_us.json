@@ -134,6 +134,7 @@
   "spatialui.transfer.snapshot": "Restore newest snapshot",
   "spatialui.transfer.snapshot.hint": "Each save keeps the previous file in a small rotating history; this restores the latest one",
   "spatialui.transfer.snapshot.none": "Hoverglass has no saved snapshot yet.",
+  "spatialui.transfer.snapshot.latest": "Newest snapshot: %s",
   "spatialui.transfer.snapshot.restored": "The newest Hoverglass snapshot was restored.",
   "spatialui.motion.player": "Third-person avatar motion",
   "spatialui.motion.player_attack": "Full-body sword / tool swings",

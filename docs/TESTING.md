@@ -1,5 +1,13 @@
 # 验证记录
 
+## 2026-11-10 · 0.56.0 快照时间提示
+
+- `ConfigBackups` 新增纯逻辑 `newestEpochMillis(Path)`：在最新快照文件名中截取时间戳并解析；缺少 `.json` 后缀、前缀之后不是数字、或根本没有快照目录时返回 -1。`ConfigLoader` 新增同步包装 `newestSnapshotMillis()`。
+- `SpatialSettingsScreen` 的空快照 tooltip 不变；有快照时在提示第二行追加「最新快照：yyyy-MM-dd HH:mm」，使用玩家本地时区，按分钟显示。计数与时间在同一次重建中读取，指向同一个文件。
+- 新增语言键 `spatialui.transfer.snapshot.latest`（中英各一），`testLanguageKeys` 继续校验两边键集合一致。
+- `testConfigBackups` 新增四条断言：最新快照的时间等于写入时间；缺少目录返回 -1；文件名不是时间戳返回 -1；缺少 `.json` 后缀返回 -1。26.2 `physicsTest` 通过，共 **1,920 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认 tooltip 第二行的换行与宽度表现，也未确认跨时区显示的本地化效果。
+
 ## 2026-11-10 · 0.55.0 本页重置覆盖所有控件
 
 - 审计每页控件与 `PageDefaults` 的对应关系后发现两处遗漏：透明度页的 **液态玻璃 UI** 开关（`liquidGlassUi`）与界面支持页的 **Hoverglass 效果** 总开关（`enabled`）都不在本页重置的写入列表中。分别补入 `case 0` 与 `case 12`，默认值与本页默认一致（关闭 / 开启）。

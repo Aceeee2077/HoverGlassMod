@@ -134,6 +134,7 @@
   "spatialui.transfer.snapshot": "恢复最新快照",
   "spatialui.transfer.snapshot.hint": "每次保存都会在轮换历史中留下上一份配置，此按钮恢复最新的一份",
   "spatialui.transfer.snapshot.none": "Hoverglass 还没有保存过快照。",
+  "spatialui.transfer.snapshot.latest": "最新快照：%s",
   "spatialui.transfer.snapshot.restored": "已恢复最新的 Hoverglass 快照。",
   "spatialui.motion.player": "第三人称人物动作",
   "spatialui.motion.player_attack": "剑与工具全身挥动",
