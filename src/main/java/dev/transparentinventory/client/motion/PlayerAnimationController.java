@@ -58,6 +58,9 @@ public final class PlayerAnimationController {
             AvatarMotionMath.Pose airborne = config.motion.airborneMotion
                     ? airborne(client, state, (float) config.motion.playerIntensity)
                     : AvatarMotionMath.Pose.NONE;
+            AvatarMotionMath.Pose climb = config.motion.airborneMotion
+                    ? climbing(client, state, (float) config.motion.playerIntensity)
+                    : AvatarMotionMath.Pose.NONE;
             if (attack != null) {
                 boolean idle = state.walkAnimationSpeed < .15F;
                 pose = AvatarMotionMath.attack(attack.style(), attack.progress(), attack.side(),
@@ -65,6 +68,9 @@ public final class PlayerAnimationController {
                 // Keep the footwork continuous during a running swing; the attack
                 // pose owns the upper body.
                 if (stride != AvatarMotionMath.Pose.NONE) applyLegs(model, stride);
+            } else if (climb != AvatarMotionMath.Pose.NONE) {
+                // Ladders reuse the walk cycle too; give them a reach instead.
+                pose = climb;
             } else if (airborne != AvatarMotionMath.Pose.NONE) {
                 // The walk cycle keeps running in the air; this replaces that read.
                 pose = airborne;
@@ -82,6 +88,13 @@ public final class PlayerAnimationController {
     private static boolean sprinting(Minecraft client, AvatarRenderState state) {
         Avatar avatar = avatar(client, state);
         return avatar != null && avatar.isSprinting();
+    }
+
+    /** Diagonal reach while the avatar is on a ladder or vine. */
+    private static AvatarMotionMath.Pose climbing(Minecraft client, AvatarRenderState state, float intensity) {
+        Avatar avatar = avatar(client, state);
+        if (avatar == null || !avatar.onClimbable()) return AvatarMotionMath.Pose.NONE;
+        return AvatarMotionMath.climb(state.ageInTicks, (float) avatar.getDeltaMovement().y, intensity);
     }
 
     /** Airborne pose for a jumping or falling avatar; ground contact and fluids stay vanilla. */

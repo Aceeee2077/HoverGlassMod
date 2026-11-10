@@ -63,7 +63,7 @@
   "spatialui.motion.player_attack": "剑与工具全身挥动",
   "spatialui.motion.crafting": "工作台合成动作（仅本地玩家）",
   "spatialui.motion.sprint_stride": "疾跑跨步动作",
-  "spatialui.motion.airborne": "跳跃与下落姿态",
+  "spatialui.motion.airborne": "跳跃、下落与攀爬姿态",
   "spatialui.motion.player_intensity": "人物动作强度",
   "spatialui.motion.enabled": "流畅动画与反馈",
   "spatialui.motion.reduce": "减少动态效果（停用新增动效）",

@@ -50,6 +50,7 @@ public final class InventoryRegressionTest {
         testMotionUtilities();
         testAvatarMotion();
         testAirbornePose();
+        testClimbPose();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -976,6 +977,38 @@ public final class InventoryRegressionTest {
         checkClose(config.hotbarBorderOpacity, 0.35, 1E-6,
                 "the hotbar rim is independent of the panel border");
         checkClose(config.borderOpacity, 0.9, 1E-6, "the panel border keeps its own value");
+    }
+
+    private static void testClimbPose() {
+        float reachTick = (float) (Math.PI / .7); // sin(age * .35) == 1
+        AvatarMotionMath.Pose reach = AvatarMotionMath.climb(reachTick, 0.2F, 1F);
+        check(reach != AvatarMotionMath.Pose.NONE, "climbing upward produces a pose");
+        check(finite(reach), "the climb pose is finite");
+        check(reach.rightArm().pitch() < 0 && reach.leftArm().pitch() < 0,
+                "both arms stay raised while climbing");
+        check(reach.rightArm().pitch() < reach.leftArm().pitch()
+                        && reach.leftLeg().pitch() < reach.rightLeg().pitch(),
+                "the reach is diagonal: right arm with left leg");
+
+        AvatarMotionMath.Pose pull = AvatarMotionMath.climb(reachTick, -0.2F, 1F);
+        check(pull.rightArm().pitch() > pull.leftArm().pitch()
+                        && pull.rightLeg().pitch() < pull.leftLeg().pitch(),
+                "climbing down mirrors the reach");
+        checkClose(reach.rightArm().pitch() + reach.leftArm().pitch(),
+                pull.rightArm().pitch() + pull.leftArm().pitch(), 1E-6,
+                "arm base angle does not change direction");
+
+        AvatarMotionMath.Pose half = AvatarMotionMath.climb(reachTick, 0.2F, .5F);
+        checkClose(half.rightArm().pitch(), reach.rightArm().pitch() * .5, 1E-6,
+                "climb intensity scales linearly");
+        check(AvatarMotionMath.climb(reachTick, 0F, 1F) == AvatarMotionMath.Pose.NONE,
+                "hanging still adds no climb pose");
+        check(AvatarMotionMath.climb(reachTick, 0.005F, 1F) == AvatarMotionMath.Pose.NONE,
+                "tiny movement stays vanilla");
+        check(AvatarMotionMath.climb(reachTick, 0.2F, 0F) == AvatarMotionMath.Pose.NONE,
+                "zero intensity adds no pose");
+        check(AvatarMotionMath.climb(Float.NaN, 0.2F, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid clock adds no pose");
     }
 
     private static void testInventoryCursorLook() {

@@ -158,6 +158,39 @@ public final class AvatarMotionMath {
     }
 
     /**
+     * Alternating reach while climbing a ladder or vine.
+     *
+     * <p>Vanilla keeps the ordinary walking cycle on ladders, so the avatar looks
+     * like it is jogging upward. This layer adds a diagonal reach: one arm and the
+     * opposite leg advance while the other pair pulls back, scaled by how fast the
+     * avatar is actually moving vertically.
+     *
+     * @param ageTicks       render age in ticks, used as the loop clock
+     * @param verticalSpeed  vertical movement in blocks per tick (+ up, - down)
+     * @param intensity      0..1 user strength
+     */
+    public static Pose climb(float ageTicks, float verticalSpeed, float intensity) {
+        if (!Float.isFinite(ageTicks) || !Float.isFinite(verticalSpeed)) return Pose.NONE;
+        double strength = clamp(intensity, 0, 1);
+        double motion = clamp(Math.abs(verticalSpeed) / .2, 0, 1);
+        if (strength <= 0 || motion <= .05) return Pose.NONE;
+
+        double phase = ageTicks * .35;
+        double reach = Math.sin(phase) * motion * strength;
+        double direction = verticalSpeed < 0 ? -1 : 1;
+        double pull = .30 * reach * direction;
+
+        Limb body = new Limb(0, (float) (.03 * reach), (float) (-.02 * reach));
+        Limb head = new Limb((float) (-.05 * motion * strength), 0, 0);
+        // Diagonal gait: the right arm reaches with the left leg and vice versa.
+        Limb rightArm = new Limb((float) (-.30 * motion * strength - pull), 0, (float) (-.06 * reach));
+        Limb leftArm = new Limb((float) (-.30 * motion * strength + pull), 0, (float) (.06 * reach));
+        Limb rightLeg = new Limb((float) (.18 * motion * strength + pull), 0, 0);
+        Limb leftLeg = new Limb((float) (.18 * motion * strength - pull), 0, 0);
+        return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
+    }
+
+    /**
      * A reversible "hands at the bench" loop. The player is stationary while a
      * crafting menu is open, so this only supplies the upper-body work.
      */

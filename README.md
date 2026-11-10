@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.19.0 climb pose:** The **Jump, fall and climb poses** switch now also covers ladders and vines. While an avatar moves vertically on a climbable block, the pose alternates a diagonal reach — right arm with left leg, then the opposite — instead of the walking cycle vanilla leaves running. The reach scales with actual climbing speed and with **Avatar motion intensity**, and reverses while descending; hanging still adds nothing. Nearby players get the same pose because vertical motion is replicated, and attacks still take priority.
+
 **26.x · 0.18.0 quick reopen window:** The entrance page now exposes the **Quick reopen window** slider (0–1500 ms, default 400 ms) that has governed the reopen shortcut since 0.10.0. Dragging it to 0 replays the full entrance on every open; a longer window keeps the shortcut active through slower container-swapping. The slider and the stored `reopenSnapWindowMs` value share one clamped mapping.
 
 **26.x · 0.17.0 hotbar rim:** The hotbar page gains a **Hotbar rim strength** slider, backed by a new `hotbarBorderOpacity` value (default 72%) that is independent of the inventory panel border. Dimming the HUD chrome no longer dulls the inventory rim, and a strong hotbar outline can be kept while the panel stays understated.
