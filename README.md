@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.69.0 every toggle explains itself too:** The remaining switches now carry tooltips as well — spatial camera, world anchors, the first-person side entrance, glass inventory, head tracking, glass hotbar, and all sixteen motion switches from the master animation toggle through reduce motion, item swap, swings, sprint, jump, landing, hit, block particles and the third-person body motions. The motion and avatar helpers attach the hint from the label key automatically, and the toggle list is pinned by the same language test as the sliders.
+
 **26.x · 0.68.0 every slider explains itself:** All remaining settings sliders now carry a tooltip describing what the value does — GUI scale, camera distance and transition, container size, panel tilt, slide duration, side framing, head ranges and follow speed, hotbar fill and rim, both motion intensities, the particle multiplier, and the camera angle offsets. The two hotbar sliders switch between their hint and the "turn on the glass hotbar" message with the switch, just like the match buttons. A new test keeps the hint list aligned with the language files, so a slider added without its explanation fails the build.
 
 **26.x · 0.67.0 glass material sliders explain themselves:** Every slider on the glass material page now has a tooltip saying what it actually draws — the fill behind empty cells, the panel outline, the per-cell outline, the cursor hover tint and the selected hotbar slot tint. Five values that read almost the same as labels are now distinguishable without trial and error.

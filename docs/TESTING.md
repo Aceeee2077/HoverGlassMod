@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.69.0 全部开关提示
+
+- 0.68.0 之外仍有 22 个开关没有 tooltip：空间镜头、世界锚点、第一人称侧移入场、玻璃背包、头部跟随、玻璃快捷栏，以及 `motionToggle` / `playerToggle` 创建的 16 个动效与人物开关。前者逐个链式挂载 `.hint`，后者由两个辅助方法按 `key + ".hint"` 自动挂载。
+- 说明文字依据实际读取字段的代码核对：`cameraEnabled` 由 `SpatialCameraController` 读取，`cinematicInventory` 控制侧移入场，`worldAnchoringEnabled` 决定面板是否锚定世界坐标，动效开关对应 `VisualMotionController` 与 `BlockFeedback` 的重置。
+- `testLanguageKeys` 新增 `SETTINGS_TOGGLES` 列表（22 个开关标签），每个断言中英文存在标签与 `.hint`，共 44 条新断言。26.2 `physicsTest` 通过，共 **2,074 条断言**。
+- 中英语言文件各新增 22 个键，键集合相等（226 个键）。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认长提示在窄窗口下的换行。
+
 ## 2026-11-10 · 0.68.0 全部滑条提示
 
 - 逐页对照后，剩余 20 个滑条没有任何 tooltip：透明度页的全局、本界面与遮罩，空间页的缩放、镜头距离与过渡、容器大小，入场页的倾角、时长、让位与快速重开，头部页的三项，快捷栏的两项，三个动效强度与粒子倍数，以及镜头角度页的两个偏角。现在除已有提示的滑条外全部补上 `.hint`，统一用 `hint(slider, key)` 辅助方法在注册时挂载。

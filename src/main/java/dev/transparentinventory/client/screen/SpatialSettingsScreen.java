@@ -136,11 +136,13 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled), button -> {
                 InventoryConfig.get().cameraEnabled = !InventoryConfig.get().cameraEnabled;
                 button.setMessage(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled));
-            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build());
+            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.camera.hint")));
             addRenderableWidget(Button.builder(toggle("spatialui.anchors", InventoryConfig.get().worldAnchoringEnabled), button -> {
                 InventoryConfig.get().worldAnchoringEnabled = !InventoryConfig.get().worldAnchoringEnabled;
                 button.setMessage(toggle("spatialui.anchors", InventoryConfig.get().worldAnchoringEnabled));
-            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build());
+            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.anchors.hint")));
             addRenderableWidget(hint(new SettingSlider(left, row + 90, contentWidth, "spatialui.container_scale",
                     () -> (InventoryConfig.get().containerScale - 0.75) / 1.25,
                     value -> InventoryConfig.get().containerScale = 0.75 + value * 1.25, false),
@@ -154,7 +156,8 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory), button -> {
                 InventoryConfig.get().cinematicInventory = !InventoryConfig.get().cinematicInventory;
                 button.setMessage(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory));
-            }).bounds(left, row, contentWidth / 2 - 2, 20).build());
+            }).bounds(left, row, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.cinematic.hint")));
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.close", InventoryConfig.get().closeAnimation), button -> {
                 InventoryConfig.get().closeAnimation = !InventoryConfig.get().closeAnimation;
                 button.setMessage(toggle("spatialui.inventory.close", InventoryConfig.get().closeAnimation));
@@ -171,7 +174,8 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory), button -> {
                 InventoryConfig.get().glassInventory = !InventoryConfig.get().glassInventory;
                 button.setMessage(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory));
-            }).bounds(left, row + 66, contentWidth, 20).build());
+            }).bounds(left, row + 66, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.glass.hint")));
             addRenderableWidget(hint(new SettingSlider(left, row + 88, contentWidth, "spatialui.inventory.side",
                     () -> InventoryConfig.get().inventoryCameraSide / 0.95,
                     value -> InventoryConfig.get().inventoryCameraSide = value * 0.95, true),
@@ -184,7 +188,8 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.look.enabled", InventoryConfig.get().playerLookAtInventory), button -> {
                 InventoryConfig.get().playerLookAtInventory = !InventoryConfig.get().playerLookAtInventory;
                 button.setMessage(toggle("spatialui.look.enabled", InventoryConfig.get().playerLookAtInventory));
-            }).bounds(left, row, contentWidth, 20).build());
+            }).bounds(left, row, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.look.enabled.hint")));
             addRenderableWidget(hint(new SettingSlider(left, row + 22, contentWidth, "spatialui.look.head_yaw",
                     () -> InventoryConfig.get().maxHeadYaw / 90.0,
                     value -> InventoryConfig.get().maxHeadYaw = (float) (value * 90), false),
@@ -201,7 +206,8 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.hotbar.glass", InventoryConfig.get().glassHotbar), button -> {
                 InventoryConfig.get().glassHotbar = !InventoryConfig.get().glassHotbar;
                 button.setMessage(toggle("spatialui.hotbar.glass", InventoryConfig.get().glassHotbar));
-            }).bounds(left, row, contentWidth, 20).build());
+            }).bounds(left, row, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.glass.hint")));
             hotbarOpacitySlider = addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.hotbar.transparency",
                     () -> 1 - InventoryConfig.get().hotbarOpacity,
                     value -> InventoryConfig.get().hotbarOpacity = (float) (1 - value), true));
@@ -649,14 +655,16 @@ public final class SpatialSettingsScreen extends Screen {
             dev.transparentinventory.client.motion.VisualMotionController.INSTANCE.reset();
             dev.transparentinventory.client.effects.BlockFeedback.clear();
             button.setMessage(toggle(key, read.getAsBoolean()));
-        }).bounds(x, y, width, 20).build());
+        }).bounds(x, y, width, 20).build())
+                .setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
     }
 
     private void playerToggle(int x, int y, int width, String key, java.util.function.BooleanSupplier read, java.util.function.Consumer<Boolean> write) {
         addRenderableWidget(Button.builder(toggle(key, read.getAsBoolean()), button -> {
             write.accept(!read.getAsBoolean());
             button.setMessage(toggle(key, read.getAsBoolean()));
-        }).bounds(x, y, width, 20).build());
+        }).bounds(x, y, width, 20).build())
+                .setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
     }
 
     @Override public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tick) {

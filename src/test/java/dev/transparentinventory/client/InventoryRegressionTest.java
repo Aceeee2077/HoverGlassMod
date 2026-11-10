@@ -1010,6 +1010,10 @@ public final class InventoryRegressionTest {
             check(english.contains(slider), "every settings slider is translated: " + slider);
             check(english.contains(slider + ".hint"), "every settings slider has a hint: " + slider);
         }
+        for (String toggle : SETTINGS_TOGGLES) {
+            check(english.contains(toggle), "every settings toggle is translated: " + toggle);
+            check(english.contains(toggle + ".hint"), "every settings toggle has a hint: " + toggle);
+        }
     }
 
     /** Slider labels on the settings pages, kept in sync by the hint coverage checks. */
@@ -1031,6 +1035,19 @@ public final class InventoryRegressionTest {
             "spatialui.feel.open_speed", "spatialui.feel.slide_brake", "spatialui.feel.bounce",
             "spatialui.feel.close_speed", "spatialui.feel.spring", "spatialui.feel.damping",
             "spatialui.feel.close_brake",
+    };
+
+    /** Toggle buttons on the settings pages, kept in sync by the hint coverage checks. */
+    private static final String[] SETTINGS_TOGGLES = {
+            "spatialui.camera", "spatialui.anchors",
+            "spatialui.inventory.cinematic", "spatialui.inventory.glass",
+            "spatialui.look.enabled", "spatialui.hotbar.glass",
+            "spatialui.motion.enabled", "spatialui.motion.reduce", "spatialui.motion.swap",
+            "spatialui.motion.attack", "spatialui.motion.sprint", "spatialui.motion.jump",
+            "spatialui.motion.landing", "spatialui.motion.hit", "spatialui.motion.break",
+            "spatialui.motion.place", "spatialui.motion.player", "spatialui.motion.player_attack",
+            "spatialui.motion.crafting", "spatialui.motion.sprint_stride",
+            "spatialui.motion.airborne", "spatialui.motion.idle",
     };
 
     private static java.util.Set<String> langKeys(String locale) {
