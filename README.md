@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.39.0 remembered page survives restarts:** The page memory from 0.32.0 is now saved as `settingsPage` in the config, so closing the game and reopening it returns to the same settings page instead of starting over at transparency. Navigating still updates the session immediately, an out-of-range hand-edited value clamps back to the first page, and leaving the settings screen performs the save as before.
+
 **26.x · 0.38.0 clear added screens:** The screen support page gains **Clear added screens**, which removes every screen previously opted in through the page — exact entries and wildcard rules alike — in one click. Hand-edited opt-ins in `additionalScreens` are cleared too, matching the existing clear buttons on the compatibility page, and the built-in container handling is untouched. The button sits below the settings-key control and refreshes the page immediately.
 
 **26.x · 0.37.0 restore newest snapshot:** The rotating history from 0.31.0 can now be used without opening a file manager. **Restore newest snapshot** on the compatibility page loads the latest timestamped copy in `transparent_inventory-backups/` and saves it, covering the case where several bad saves have already pushed the plain `.bak` out of reach. With no snapshot yet the button says so instead of failing silently, unrelated files in the folder are ignored, and copy/paste now share one row to make space.

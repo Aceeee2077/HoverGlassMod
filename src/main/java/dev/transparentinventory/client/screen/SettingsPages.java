@@ -1,5 +1,7 @@
 package dev.transparentinventory.client.screen;
 
+import dev.transparentinventory.client.InventoryConfig;
+
 /**
  * Ordering and titles of the F8 settings pages.
  *
@@ -47,14 +49,23 @@ public final class SettingsPages {
     private SettingsPages() {
     }
 
-    /** The page index that should be shown when the settings screen opens. */
+    /**
+     * The page index that should be shown when the settings screen opens. The
+     * session value wins once the player has navigated; before that, the page
+     * saved on the last close is used.
+     */
     public static int remembered() {
-        return clamp(remembered);
+        int session = remembered != 0 ? remembered : InventoryConfig.get().settingsPage;
+        return clamp(session);
     }
 
-    /** Stores the page for the next open, keeping it inside the valid range. */
+    /**
+     * Stores the page for the next open, keeping it inside the valid range. The
+     * value is mirrored into the config so it survives a restart once saved.
+     */
     public static int remember(int page) {
         remembered = clamp(page);
+        InventoryConfig.get().settingsPage = remembered;
         return remembered;
     }
 

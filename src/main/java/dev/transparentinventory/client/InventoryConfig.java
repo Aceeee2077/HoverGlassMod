@@ -38,6 +38,8 @@ public final class InventoryConfig {
             "key.keyboard.f9", "key.keyboard.f10");
     /** Function key that opens the settings screen, stored as an InputConstants name. */
     public String settingsKey = "key.keyboard.f8";
+    /** Settings page to reopen after a restart; kept in sync with the page cycle. */
+    public int settingsPage = 0;
     /** Legacy player-preview settings. */
     public boolean playerPreview = true;
     public boolean playerLookAtInventory = true;
@@ -363,6 +365,9 @@ public final class InventoryConfig {
         excludedScreens = ScreenRules.cleanList(excludedScreens);
         additionalScreens = ScreenRules.cleanList(additionalScreens);
         settingsKey = cleanSettingsKey(settingsKey);
+        // SettingsPages owns the page list; this only keeps saved indices sane for
+        // legacy builds where the settings screen does not exist.
+        settingsPage = Math.clamp(settingsPage, 0, 14);
         Map<String, Float> cleanedOpacities = new LinkedHashMap<>();
         if (screenOpacities != null) {
             for (Map.Entry<String, Float> entry : screenOpacities.entrySet()) {

@@ -909,11 +909,19 @@ public final class InventoryRegressionTest {
                         && SettingsPages.scrollStep(Double.NEGATIVE_INFINITY) == 0,
                 "infinite scroll amounts are ignored");
         check(SettingsPages.last() == SettingsPages.COUNT - 1, "End jumps to the last page");
+        SettingsPages.remember(0);
         check(SettingsPages.remembered() == 0, "the first open starts on the transparency page");
         check(SettingsPages.remember(7) == 7 && SettingsPages.remembered() == 7,
                 "the last opened page is remembered");
+        check(InventoryConfig.get().settingsPage == 7, "the remembered page is mirrored into the config");
         check(SettingsPages.remember(42) == 0 && SettingsPages.remembered() == 0,
                 "an invalid remembered page falls back to the first");
+        SettingsPages.remember(0);
+        InventoryConfig.get().settingsPage = 9;
+        check(SettingsPages.remembered() == 9, "a fresh session restores the saved page");
+        InventoryConfig.get().settingsPage = 40;
+        check(SettingsPages.remembered() == 0, "an invalid saved page falls back to the first");
+        InventoryConfig.get().settingsPage = 0;
         SettingsPages.remember(0);
     }
 

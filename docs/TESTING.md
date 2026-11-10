@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.39.0 页面记忆跨重启保留
+
+- `InventoryConfig` 新增 `settingsPage`（默认 0），`sanitize()` 夹紧到 0–14；`SettingsPages.remember()` 现在同时写入会话静态值与 `InventoryConfig.get().settingsPage`，`remembered()` 在本次会话尚未翻页时回退到配置值，因此重启后能恢复上次页面。
+- 本轮尚未翻页时读取配置值；一旦翻页，会话值优先，避免旧配置把当前浏览位置拉回去。越界的配置值仍由 `clamp()` 回落到第一页。
+- `testSettingsPages` 补上：翻页会同步写入配置、全新会话恢复配置中的第 9 页、越界配置回落第一页。26.2 `physicsTest` 通过，共 **1,802 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过；`InventoryConfig` 属共享类，1.21.x 分支只是多存一个无副作用的字段。按用户要求未启动 Minecraft 客户端，未实机确认退出设置时的保存顺序，也未确认会话内「打开设置但不翻页就关闭」是否会保留配置中的旧页面。
+
 ## 2026-11-10 · 0.38.0 清空已添加的界面
 
 - `InventoryConfig` 新增 `clearScreenOptIns()`，清空 `additionalScreens` 的全部条目（含通配规则），与兼容性页的清空按钮保持同样的直接语义；内置容器处理与 `defaultSpatialHandledScreens` 不受影响。
