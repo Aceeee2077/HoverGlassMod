@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.17.0 快捷栏描边
+
+- 新增 `testHotbarRim` 断言：`hotbarBorderOpacity` 默认 0.72；高于 1 与低于 0 均被夹紧；单独修改快捷栏描边不影响 `borderOpacity`，反之亦然。26.2 `physicsTest` 通过，共 **1,438 条断言**。
+- `GlassHotbarRenderer` 的底板边框与顶部高光改用 `hotbarBorderOpacity`；槽位描边继续使用全局 `slotBorderOpacity`，保持既有观感。F8 快捷栏页新增滑条，英中语言键同步新增 `spatialui.hotbar.border`。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机对比两处描边的相对亮度。
+
 ## 2026-11-10 · 0.16.0 头部跟随速度
 
 - `testLookTracker` 新增断言：同一目标下 40 的平滑速度在 10 帧后比 1 更接近目标；两者都不会越过 40°；新建跟踪器从 0 开始。26.2 `physicsTest` 通过，共 **1,433 条断言**。

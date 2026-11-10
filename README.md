@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.17.0 hotbar rim:** The hotbar page gains a **Hotbar rim strength** slider, backed by a new `hotbarBorderOpacity` value (default 72%) that is independent of the inventory panel border. Dimming the HUD chrome no longer dulls the inventory rim, and a strong hotbar outline can be kept while the panel stays understated.
+
 **26.x · 0.16.0 head follow speed:** The head-tracking page gains a **Head follow speed** slider (default about 26%, range 0–100%). It drives the existing exponential smoothing, so the preview can glide lazily after the cursor or catch up almost instantly; the update stays frame-rate independent at any FPS. Higher values never overshoot the requested angle.
 
 **26.x · 0.15.0 config backup:** Every save now copies the previous `config/transparent_inventory.json` to `transparent_inventory.json.bak` before writing the new file. The compatibility page gains **Restore previous settings**, which loads that backup and saves it; because the restore is itself a save, pressing it again swaps back to the version you just replaced. With no earlier save yet, the button reports that nothing can be restored instead of failing silently. Only one previous version is kept, and a failed copy never blocks the save itself.

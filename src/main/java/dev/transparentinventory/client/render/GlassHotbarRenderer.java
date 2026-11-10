@@ -38,8 +38,8 @@ public final class GlassHotbarRenderer {
         var config = InventoryConfig.get();
         g.fillGradient(x + 1, y + 2, x + w - 1, y + h - 1,
                 color(config.hotbarOpacity, 0xBFDDEB), color(config.hotbarOpacity, 0x47728B));
-        frame(g, x, y, w, h, color(config.borderOpacity, 0xEFFAFF));
-        g.fill(x + 4, y + 1, x + w - 4, y + 2, color(config.borderOpacity * 0.6, 0xFFFFFF));
+        frame(g, x, y, w, h, color(config.hotbarBorderOpacity, 0xEFFAFF));
+        g.fill(x + 4, y + 1, x + w - 4, y + 2, color(config.hotbarBorderOpacity * 0.6, 0xFFFFFF));
     }
 
     private static void slot(GuiGraphicsExtractor g, int x, int y) {

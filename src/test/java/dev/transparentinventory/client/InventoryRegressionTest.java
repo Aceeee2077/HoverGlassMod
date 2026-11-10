@@ -45,6 +45,7 @@ public final class InventoryRegressionTest {
         testSettingsPages();
         testConfigTransfer();
         testConfigBackups();
+        testHotbarRim();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -941,6 +942,25 @@ public final class InventoryRegressionTest {
         } catch (IOException e) {
             throw new AssertionError("config backup test could not use a temp directory", e);
         }
+    }
+
+    private static void testHotbarRim() {
+        InventoryConfig config = new InventoryConfig();
+        checkClose(config.hotbarBorderOpacity, 0.72, 1E-6,
+                "the hotbar rim defaults to the standard rim strength");
+        config.hotbarBorderOpacity = 3F;
+        config.sanitize();
+        checkClose(config.hotbarBorderOpacity, 1, 1E-6, "the hotbar rim clamps above 1");
+        config.hotbarBorderOpacity = -1F;
+        config.sanitize();
+        checkClose(config.hotbarBorderOpacity, 0, 1E-6, "the hotbar rim clamps below 0");
+
+        config.hotbarBorderOpacity = 0.35F;
+        config.borderOpacity = 0.9F;
+        config.sanitize();
+        checkClose(config.hotbarBorderOpacity, 0.35, 1E-6,
+                "the hotbar rim is independent of the panel border");
+        checkClose(config.borderOpacity, 0.9, 1E-6, "the panel border keeps its own value");
     }
 
     private static void testInventoryCursorLook() {

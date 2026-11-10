@@ -135,6 +135,9 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.hotbar.transparency",
                     () -> 1 - InventoryConfig.get().hotbarOpacity,
                     value -> InventoryConfig.get().hotbarOpacity = (float) (1 - value), true));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.hotbar.border",
+                    () -> InventoryConfig.get().hotbarBorderOpacity,
+                    value -> InventoryConfig.get().hotbarBorderOpacity = (float) value, true));
         } else if (page == 5) {
             motionToggle(left, row, contentWidth, "spatialui.motion.enabled", () -> InventoryConfig.get().motion.enabled, value -> InventoryConfig.get().motion.enabled = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.reduce", () -> InventoryConfig.get().motion.reduceMotion, value -> InventoryConfig.get().motion.reduceMotion = value);

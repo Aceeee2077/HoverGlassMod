@@ -52,6 +52,8 @@ public final class InventoryConfig {
     /** HUD hotbar chrome; item rendering and selection remain vanilla. */
     public boolean glassHotbar = true;
     public float hotbarOpacity = 0.16F;
+    /** HUD hotbar rim strength, independent of the inventory panel border. */
+    public float hotbarBorderOpacity = 0.72F;
     public MotionOptions motion = new MotionOptions();
 
     /** Optional 26.x visual extensions, stored inside the existing config file. */
@@ -280,6 +282,7 @@ public final class InventoryConfig {
         motion.sanitize();
         panelOpacity = clamp(panelOpacity, 0F, 1F);
         hotbarOpacity = clamp(hotbarOpacity, 0F, 1F);
+        hotbarBorderOpacity = clamp(hotbarBorderOpacity, 0F, 1F);
         slotOpacity = clamp(slotOpacity, 0F, 1F);
         borderOpacity = clamp(borderOpacity, 0F, 1F);
         slotBorderOpacity = clamp(slotBorderOpacity, 0F, 1F);

@@ -78,6 +78,7 @@
   "spatialui.motion.particle_multiplier": "额外粒子数量",
   "spatialui.hotbar.glass": "透明玻璃快捷栏",
   "spatialui.hotbar.transparency": "快捷栏透明度",
+  "spatialui.hotbar.border": "快捷栏描边强度",
   "spatialui.ui.liquid_glass": "液态玻璃 UI",
   "spatialui.ui.liquid_glass.hint": "为暂停菜单、选项和设置中的常规按钮及滑块启用圆角玻璃与悬停高光。实时切换，独立于玻璃背包。"
 }
