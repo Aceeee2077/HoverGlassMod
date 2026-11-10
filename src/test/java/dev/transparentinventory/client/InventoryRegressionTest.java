@@ -1006,7 +1006,32 @@ public final class InventoryRegressionTest {
         }
         check(english.contains("spatialui.settings.page"), "the page counter is translated");
         check(english.contains("spatialui.transfer.copy"), "the clipboard actions are translated");
+        for (String slider : SETTINGS_SLIDERS) {
+            check(english.contains(slider), "every settings slider is translated: " + slider);
+            check(english.contains(slider + ".hint"), "every settings slider has a hint: " + slider);
+        }
     }
+
+    /** Slider labels on the settings pages, kept in sync by the hint coverage checks. */
+    private static final String[] SETTINGS_SLIDERS = {
+            "spatialui.opacity.global", "spatialui.opacity.current", "spatialui.opacity.dim",
+            "spatialui.scale", "spatialui.camera.distance", "spatialui.camera.duration",
+            "spatialui.container_scale", "spatialui.inventory.tilt", "spatialui.inventory.duration",
+            "spatialui.inventory.side", "spatialui.inventory.reopen",
+            "spatialui.look.head_yaw", "spatialui.look.head_pitch", "spatialui.look.smoothing",
+            "spatialui.hotbar.transparency", "spatialui.hotbar.border",
+            "spatialui.motion.hand_intensity", "spatialui.motion.camera_intensity",
+            "spatialui.motion.particle_multiplier", "spatialui.motion.player_intensity",
+            "spatialui.camera.yaw_offset", "spatialui.camera.pitch_offset",
+            "spatialui.material.slot", "spatialui.material.panel_rim", "spatialui.material.slot_rim",
+            "spatialui.material.hover", "spatialui.material.selected",
+            "spatialui.layout.player_height", "spatialui.layout.player_x", "spatialui.layout.player_y",
+            "spatialui.layout.panel_x", "spatialui.layout.recipe_book",
+            "spatialui.layout.depth", "spatialui.layout.vertical",
+            "spatialui.feel.open_speed", "spatialui.feel.slide_brake", "spatialui.feel.bounce",
+            "spatialui.feel.close_speed", "spatialui.feel.spring", "spatialui.feel.damping",
+            "spatialui.feel.close_brake",
+    };
 
     private static java.util.Set<String> langKeys(String locale) {
         String path = "assets/transparent_inventory/lang/" + locale + ".json";

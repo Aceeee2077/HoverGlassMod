@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.68.0 every slider explains itself:** All remaining settings sliders now carry a tooltip describing what the value does — GUI scale, camera distance and transition, container size, panel tilt, slide duration, side framing, head ranges and follow speed, hotbar fill and rim, both motion intensities, the particle multiplier, and the camera angle offsets. The two hotbar sliders switch between their hint and the "turn on the glass hotbar" message with the switch, just like the match buttons. A new test keeps the hint list aligned with the language files, so a slider added without its explanation fails the build.
+
 **26.x · 0.67.0 glass material sliders explain themselves:** Every slider on the glass material page now has a tooltip saying what it actually draws — the fill behind empty cells, the panel outline, the per-cell outline, the cursor hover tint and the selected hotbar slot tint. Five values that read almost the same as labels are now distinguishable without trial and error.
 
 **26.x · 0.66.0 hotbar hints stay truthful:** The match buttons now track which hint they show separately from whether they are clickable, so flipping **Glass hotbar** off and on always leaves the right text: the "already matches" hint, the normal hint, or the turn-it-on hint. Before, a button that was disabled for both reasons at once could keep a stale tooltip after the switch changed.

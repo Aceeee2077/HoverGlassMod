@@ -36,6 +36,8 @@ public final class SpatialSettingsScreen extends Screen {
     private SettingSlider hotbarBorderSlider;
     private String matchRimTip;
     private String matchOpacityTip;
+    private String hotbarOpacityTip;
+    private String hotbarBorderTip;
     private final ConfirmPress resetConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
@@ -70,11 +72,14 @@ public final class SpatialSettingsScreen extends Screen {
         hotbarBorderSlider = null;
         matchRimTip = null;
         matchOpacityTip = null;
+        hotbarOpacityTip = null;
+        hotbarBorderTip = null;
         presetButtons.clear();
         cameraPresetButtons.clear();
         if (page == 0) {
-            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
-                    () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true));
+            addRenderableWidget(hint(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
+                    () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true),
+                    "spatialui.opacity.global.hint"));
             var current = addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.opacity.current",
                     () -> screenName == null ? 0 : 1 - InventoryConfig.get().opacityFor(screenName),
                     value -> {
@@ -84,8 +89,9 @@ public final class SpatialSettingsScreen extends Screen {
                     }, true));
             current.active = screenName != null;
             current.setTooltip(Tooltip.create(Component.translatable("spatialui.opacity.current.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.opacity.dim",
-                    () -> InventoryConfig.get().worldDimOpacity, value -> InventoryConfig.get().worldDimOpacity = (float) value, true));
+            addRenderableWidget(hint(new SettingSlider(left, row + 44, contentWidth, "spatialui.opacity.dim",
+                    () -> InventoryConfig.get().worldDimOpacity, value -> InventoryConfig.get().worldDimOpacity = (float) value, true),
+                    "spatialui.opacity.dim.hint"));
             inheritButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.opacity.inherit"), button -> {
                 if (screenName != null) InventoryConfig.get().screenOpacities.remove(screenName);
                 button.active = false;
@@ -117,13 +123,16 @@ public final class SpatialSettingsScreen extends Screen {
             }).bounds(left, row + 112, contentWidth, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.ui.liquid_glass.hint")));
         } else if (page == 1) {
-            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.scale",
-                    () -> (InventoryConfig.get().guiScale - 0.5), value -> InventoryConfig.get().guiScale = 0.5 + value, false));
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.distance",
-                    () -> InventoryConfig.get().cameraDistance / 8, value -> InventoryConfig.get().cameraDistance = value * 8, false));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.camera.duration",
+            addRenderableWidget(hint(new SettingSlider(left, row, contentWidth, "spatialui.scale",
+                    () -> (InventoryConfig.get().guiScale - 0.5), value -> InventoryConfig.get().guiScale = 0.5 + value, false),
+                    "spatialui.scale.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.distance",
+                    () -> InventoryConfig.get().cameraDistance / 8, value -> InventoryConfig.get().cameraDistance = value * 8, false),
+                    "spatialui.camera.distance.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 44, contentWidth, "spatialui.camera.duration",
                     () -> InventoryConfig.get().cameraTransitionDurationMs / 2000.0,
-                    value -> InventoryConfig.get().cameraTransitionDurationMs = (int) (value * 2000), false));
+                    value -> InventoryConfig.get().cameraTransitionDurationMs = (int) (value * 2000), false),
+                    "spatialui.camera.duration.hint"));
             addRenderableWidget(Button.builder(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled), button -> {
                 InventoryConfig.get().cameraEnabled = !InventoryConfig.get().cameraEnabled;
                 button.setMessage(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled));
@@ -132,9 +141,10 @@ public final class SpatialSettingsScreen extends Screen {
                 InventoryConfig.get().worldAnchoringEnabled = !InventoryConfig.get().worldAnchoringEnabled;
                 button.setMessage(toggle("spatialui.anchors", InventoryConfig.get().worldAnchoringEnabled));
             }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build());
-            addRenderableWidget(new SettingSlider(left, row + 90, contentWidth, "spatialui.container_scale",
+            addRenderableWidget(hint(new SettingSlider(left, row + 90, contentWidth, "spatialui.container_scale",
                     () -> (InventoryConfig.get().containerScale - 0.75) / 1.25,
-                    value -> InventoryConfig.get().containerScale = 0.75 + value * 1.25, false));
+                    value -> InventoryConfig.get().containerScale = 0.75 + value * 1.25, false),
+                    "spatialui.container_scale.hint"));
             addRenderableWidget(Button.builder(toggle("spatialui.camera.container", InventoryConfig.get().containerCameraEnabled), button -> {
                 InventoryConfig.get().containerCameraEnabled = !InventoryConfig.get().containerCameraEnabled;
                 button.setMessage(toggle("spatialui.camera.container", InventoryConfig.get().containerCameraEnabled));
@@ -150,19 +160,22 @@ public final class SpatialSettingsScreen extends Screen {
                 button.setMessage(toggle("spatialui.inventory.close", InventoryConfig.get().closeAnimation));
             }).bounds(left + contentWidth / 2 + 2, row, contentWidth / 2 - 2, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.close.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.inventory.tilt",
+            addRenderableWidget(hint(new SettingSlider(left, row + 22, contentWidth, "spatialui.inventory.tilt",
                     () -> (InventoryConfig.get().inventoryTiltDegrees + 12) / 24,
-                    value -> InventoryConfig.get().inventoryTiltDegrees = value * 24 - 12, false));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.inventory.duration",
+                    value -> InventoryConfig.get().inventoryTiltDegrees = value * 24 - 12, false),
+                    "spatialui.inventory.tilt.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 44, contentWidth, "spatialui.inventory.duration",
                     () -> InventoryConfig.get().openingAnimationDurationMs / 2000.0,
-                    value -> InventoryConfig.get().openingAnimationDurationMs = (int) (value * 2000), false));
+                    value -> InventoryConfig.get().openingAnimationDurationMs = (int) (value * 2000), false),
+                    "spatialui.inventory.duration.hint"));
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory), button -> {
                 InventoryConfig.get().glassInventory = !InventoryConfig.get().glassInventory;
                 button.setMessage(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory));
             }).bounds(left, row + 66, contentWidth, 20).build());
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.inventory.side",
+            addRenderableWidget(hint(new SettingSlider(left, row + 88, contentWidth, "spatialui.inventory.side",
                     () -> InventoryConfig.get().inventoryCameraSide / 0.95,
-                    value -> InventoryConfig.get().inventoryCameraSide = value * 0.95, true));
+                    value -> InventoryConfig.get().inventoryCameraSide = value * 0.95, true),
+                    "spatialui.inventory.side.hint"));
             var reopen = addRenderableWidget(new SettingSlider(left, row + 110, contentWidth, "spatialui.inventory.reopen",
                     () -> InventoryConfig.get().reopenWindowFraction(),
                     value -> InventoryConfig.get().setReopenWindowFraction(value), false));
@@ -172,15 +185,18 @@ public final class SpatialSettingsScreen extends Screen {
                 InventoryConfig.get().playerLookAtInventory = !InventoryConfig.get().playerLookAtInventory;
                 button.setMessage(toggle("spatialui.look.enabled", InventoryConfig.get().playerLookAtInventory));
             }).bounds(left, row, contentWidth, 20).build());
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.look.head_yaw",
+            addRenderableWidget(hint(new SettingSlider(left, row + 22, contentWidth, "spatialui.look.head_yaw",
                     () -> InventoryConfig.get().maxHeadYaw / 90.0,
-                    value -> InventoryConfig.get().maxHeadYaw = (float) (value * 90), false));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.look.head_pitch",
+                    value -> InventoryConfig.get().maxHeadYaw = (float) (value * 90), false),
+                    "spatialui.look.head_yaw.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 44, contentWidth, "spatialui.look.head_pitch",
                     () -> InventoryConfig.get().maxHeadPitch / 90.0,
-                    value -> InventoryConfig.get().maxHeadPitch = (float) (value * 90), false));
-            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.look.smoothing",
+                    value -> InventoryConfig.get().maxHeadPitch = (float) (value * 90), false),
+                    "spatialui.look.head_pitch.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 66, contentWidth, "spatialui.look.smoothing",
                     () -> (InventoryConfig.get().lookSmoothing - 1) / 39.0,
-                    value -> InventoryConfig.get().lookSmoothing = 1 + value * 39, false));
+                    value -> InventoryConfig.get().lookSmoothing = 1 + value * 39, false),
+                    "spatialui.look.smoothing.hint"));
         } else if (page == 4) {
             addRenderableWidget(Button.builder(toggle("spatialui.hotbar.glass", InventoryConfig.get().glassHotbar), button -> {
                 InventoryConfig.get().glassHotbar = !InventoryConfig.get().glassHotbar;
@@ -206,20 +222,23 @@ public final class SpatialSettingsScreen extends Screen {
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.reduce", () -> InventoryConfig.get().motion.reduceMotion, value -> InventoryConfig.get().motion.reduceMotion = value);
             motionToggle(left, row + 44, contentWidth, "spatialui.motion.swap", () -> InventoryConfig.get().motion.itemSwap, value -> InventoryConfig.get().motion.itemSwap = value);
             motionToggle(left, row + 66, contentWidth, "spatialui.motion.attack", () -> InventoryConfig.get().motion.attackAnimation, value -> InventoryConfig.get().motion.attackAnimation = value);
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.hand_intensity",
-                    () -> InventoryConfig.get().motion.firstPersonIntensity, value -> InventoryConfig.get().motion.firstPersonIntensity = value, true));
+            addRenderableWidget(hint(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.hand_intensity",
+                    () -> InventoryConfig.get().motion.firstPersonIntensity, value -> InventoryConfig.get().motion.firstPersonIntensity = value, true),
+                    "spatialui.motion.hand_intensity.hint"));
         } else if (page == 6) {
             motionToggle(left, row, contentWidth, "spatialui.motion.sprint", () -> InventoryConfig.get().motion.sprintSway, value -> InventoryConfig.get().motion.sprintSway = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.jump", () -> InventoryConfig.get().motion.jumpMotion, value -> InventoryConfig.get().motion.jumpMotion = value);
             motionToggle(left, row + 44, contentWidth, "spatialui.motion.landing", () -> InventoryConfig.get().motion.landingMotion, value -> InventoryConfig.get().motion.landingMotion = value);
             motionToggle(left, row + 66, contentWidth, "spatialui.motion.hit", () -> InventoryConfig.get().motion.hitShake, value -> InventoryConfig.get().motion.hitShake = value);
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.camera_intensity",
-                    () -> InventoryConfig.get().motion.cameraIntensity, value -> InventoryConfig.get().motion.cameraIntensity = value, true));
+            addRenderableWidget(hint(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.camera_intensity",
+                    () -> InventoryConfig.get().motion.cameraIntensity, value -> InventoryConfig.get().motion.cameraIntensity = value, true),
+                    "spatialui.motion.camera_intensity.hint"));
         } else if (page == 7) {
             motionToggle(left, row, contentWidth, "spatialui.motion.break", () -> InventoryConfig.get().motion.blockBreakEffects, value -> InventoryConfig.get().motion.blockBreakEffects = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.place", () -> InventoryConfig.get().motion.blockPlaceAnimation, value -> InventoryConfig.get().motion.blockPlaceAnimation = value);
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.motion.particle_multiplier",
-                    () -> InventoryConfig.get().motion.particleMultiplier / 2, value -> InventoryConfig.get().motion.particleMultiplier = value * 2, false));
+            addRenderableWidget(hint(new SettingSlider(left, row + 44, contentWidth, "spatialui.motion.particle_multiplier",
+                    () -> InventoryConfig.get().motion.particleMultiplier / 2, value -> InventoryConfig.get().motion.particleMultiplier = value * 2, false),
+                    "spatialui.motion.particle_multiplier.hint"));
         } else if (page == 8) {
             playerToggle(left, row, contentWidth, "spatialui.motion.player", () -> InventoryConfig.get().motion.playerAnimations, value -> InventoryConfig.get().motion.playerAnimations = value);
             playerToggle(left, row + 22, contentWidth, "spatialui.motion.player_attack", () -> InventoryConfig.get().motion.playerAttackAnimation, value -> InventoryConfig.get().motion.playerAttackAnimation = value);
@@ -227,15 +246,18 @@ public final class SpatialSettingsScreen extends Screen {
             playerToggle(left, row + 66, contentWidth, "spatialui.motion.sprint_stride", () -> InventoryConfig.get().motion.sprintStride, value -> InventoryConfig.get().motion.sprintStride = value);
             playerToggle(left, row + 110, contentWidth / 2 - 2, "spatialui.motion.airborne", () -> InventoryConfig.get().motion.airborneMotion, value -> InventoryConfig.get().motion.airborneMotion = value);
             playerToggle(left + contentWidth / 2 + 2, row + 110, contentWidth / 2 - 2, "spatialui.motion.idle", () -> InventoryConfig.get().motion.idleSway, value -> InventoryConfig.get().motion.idleSway = value);
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
-                    () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
+            addRenderableWidget(hint(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
+                    () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true),
+                    "spatialui.motion.player_intensity.hint"));
         } else if (page == SettingsPages.CAMERA_ANGLES) {
-            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.camera.yaw_offset",
+            addRenderableWidget(hint(new SettingSlider(left, row, contentWidth, "spatialui.camera.yaw_offset",
                     () -> (InventoryConfig.get().cameraYawOffset + 60) / 120.0,
-                    value -> InventoryConfig.get().cameraYawOffset = value * 120 - 60, false));
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.pitch_offset",
+                    value -> InventoryConfig.get().cameraYawOffset = value * 120 - 60, false),
+                    "spatialui.camera.yaw_offset.hint"));
+            addRenderableWidget(hint(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.pitch_offset",
                     () -> (InventoryConfig.get().cameraPitchOffset + 45) / 90.0,
-                    value -> InventoryConfig.get().cameraPitchOffset = value * 90 - 45, false));
+                    value -> InventoryConfig.get().cameraPitchOffset = value * 90 - 45, false),
+                    "spatialui.camera.pitch_offset.hint"));
             CameraPresets.Preset[] framing = CameraPresets.Preset.values();
             int gap = 4;
             int presetWidth = (contentWidth - gap * (framing.length - 1)) / framing.length;
@@ -570,13 +592,21 @@ public final class SpatialSettingsScreen extends Screen {
     private void refreshMatchButtons() {
         var config = InventoryConfig.get();
         boolean on = config.glassHotbar;
-        if (hotbarOpacitySlider != null && hotbarOpacitySlider.active != on) {
+        if (hotbarOpacitySlider != null) {
             hotbarOpacitySlider.active = on;
-            hotbarOpacitySlider.setTooltip(on ? null : Tooltip.create(Component.translatable("spatialui.hotbar.glass_off")));
+            String tip = on ? "spatialui.hotbar.transparency.hint" : "spatialui.hotbar.glass_off";
+            if (!tip.equals(hotbarOpacityTip)) {
+                hotbarOpacityTip = tip;
+                hotbarOpacitySlider.setTooltip(Tooltip.create(Component.translatable(tip)));
+            }
         }
-        if (hotbarBorderSlider != null && hotbarBorderSlider.active != on) {
+        if (hotbarBorderSlider != null) {
             hotbarBorderSlider.active = on;
-            hotbarBorderSlider.setTooltip(on ? null : Tooltip.create(Component.translatable("spatialui.hotbar.glass_off")));
+            String tip = on ? "spatialui.hotbar.border.hint" : "spatialui.hotbar.glass_off";
+            if (!tip.equals(hotbarBorderTip)) {
+                hotbarBorderTip = tip;
+                hotbarBorderSlider.setTooltip(Tooltip.create(Component.translatable(tip)));
+            }
         }
         if (matchRimButton != null) {
             boolean matched = config.hotbarRimMatches();
@@ -598,6 +628,12 @@ public final class SpatialSettingsScreen extends Screen {
                 matchOpacityButton.setTooltip(Tooltip.create(Component.translatable(tip)));
             }
         }
+    }
+
+    /** Attaches a static hint to a slider while returning it for widget registration. */
+    private static SettingSlider hint(SettingSlider slider, String key) {
+        slider.setTooltip(Tooltip.create(Component.translatable(key)));
+        return slider;
     }
 
     /** Formats a snapshot timestamp in the player's local time, to the minute. */
