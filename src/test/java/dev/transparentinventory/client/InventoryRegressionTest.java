@@ -8,6 +8,7 @@ import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
 import dev.transparentinventory.client.render.Opacity;
 import dev.transparentinventory.client.screen.SettingsPages;
+import dev.transparentinventory.client.screen.SliderFormat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,6 +64,7 @@ public final class InventoryRegressionTest {
         testLandingPose();
         testIdleSway();
         testOpacityFade();
+        testSliderFormat();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -1644,6 +1646,96 @@ public final class InventoryRegressionTest {
         check(Opacity.multiply(0xFF000000, Opacity.fade(1, 0)) == 0x00000000, "hidden dim renders nothing");
         check(Opacity.multiply(0xFF000000, Opacity.fade(1, 1)) == 0xFF000000, "full dim renders opaque black");
         check(Opacity.multiply(0x80000000, Double.NaN) == 0x80000000, "invalid opacity keeps the authored alpha");
+    }
+
+    private static void testSliderFormat() {
+        check(SliderFormat.value("spatialui.feel.open_speed", 0, false).equals("600 px/s"),
+                "the slowest opening speed reads as its pixel speed");
+        check(SliderFormat.value("spatialui.feel.open_speed", 1, false).equals("6000 px/s"),
+                "the fastest opening speed reads as its pixel speed");
+        check(SliderFormat.value("spatialui.feel.open_speed", 0.5, false).equals("3300 px/s"),
+                "the middle of the opening speed range is reported in px/s");
+        check(SliderFormat.value("spatialui.feel.close_speed", 0.5, false).equals("3300 px/s"),
+                "the closing speed shares the opening speed's units");
+        check(SliderFormat.value("spatialui.feel.bounce", 0, false).equals("0%"),
+                "zero bounce reads as a plain stop");
+        check(SliderFormat.value("spatialui.feel.bounce", 0.5, false).equals("30%"),
+                "bounce is shown as a percentage of the slider range");
+        check(SliderFormat.value("spatialui.feel.bounce", 1, false).equals("60%"),
+                "maximum bounce reads as sixty percent");
+        check(SliderFormat.value("spatialui.feel.spring", 0, false).equals("40"),
+                "minimum settle stiffness shows its raw strength");
+        check(SliderFormat.value("spatialui.feel.spring", 1, false).equals("900"),
+                "maximum settle stiffness shows its raw strength");
+        check(SliderFormat.value("spatialui.feel.damping", 0, false).equals("5"),
+                "minimum settle damping shows its raw value");
+        check(SliderFormat.value("spatialui.feel.damping", 1, false).equals("90"),
+                "maximum settle damping shows its raw value");
+
+        check(SliderFormat.value("spatialui.layout.player_height", 0, false).equals("25%"),
+                "the shortest preview reads as twenty-five percent");
+        check(SliderFormat.value("spatialui.layout.player_height", 1, false).equals("70%"),
+                "the tallest preview reads as seventy percent");
+        check(SliderFormat.value("spatialui.layout.player_x", 0, false).equals("50%"),
+                "the leftmost preview position reads as fifty percent");
+        check(SliderFormat.value("spatialui.layout.player_x", 1, false).equals("95%"),
+                "the rightmost preview position reads as ninety-five percent");
+        check(SliderFormat.value("spatialui.layout.player_y", 0, false).equals("30%"),
+                "the highest preview position reads as thirty percent");
+        check(SliderFormat.value("spatialui.layout.player_y", 1, false).equals("80%"),
+                "the lowest preview position reads as eighty percent");
+        check(SliderFormat.value("spatialui.layout.panel_x", 0, false).equals("20%"),
+                "the leftmost panel position reads as twenty percent");
+        check(SliderFormat.value("spatialui.layout.panel_x", 1, false).equals("65%"),
+                "the rightmost panel position reads as sixty-five percent");
+        check(SliderFormat.value("spatialui.layout.recipe_book", 0.5, false).equals("80 px"),
+                "the recipe book offset is reported in pixels");
+
+        check(SliderFormat.value("spatialui.container_scale", 0, false).equals("75%"),
+                "the smallest container scale keeps its percentage");
+        check(SliderFormat.value("spatialui.container_scale", 1, false).equals("200%"),
+                "the largest container scale keeps its percentage");
+        check(SliderFormat.value("spatialui.camera.distance", 0, false).equals("0.00"),
+                "camera distance keeps two decimals");
+        check(SliderFormat.value("spatialui.camera.distance", 1, false).equals("8.00"),
+                "the far camera distance reads as eight blocks");
+        check(SliderFormat.value("spatialui.camera.duration", 0.5, false).equals("500 ms"),
+                "camera transitions are reported in milliseconds");
+        check(SliderFormat.value("spatialui.inventory.duration", 0.5, false).equals("500 ms"),
+                "the entrance duration is reported in milliseconds");
+        check(SliderFormat.value("spatialui.inventory.tilt", 0.5, false).equals("0.0°"),
+                "the neutral tilt reads as zero degrees");
+        check(SliderFormat.value("spatialui.inventory.reopen", 0.5, false).equals("750 ms"),
+                "the quick reopen window is reported in milliseconds");
+        check(SliderFormat.value("spatialui.camera.yaw_offset", 0.5, false).equals("0°"),
+                "the neutral yaw offset reads as zero degrees");
+        check(SliderFormat.value("spatialui.camera.pitch_offset", 1, false).equals("45°"),
+                "the highest pitch offset reads as forty-five degrees");
+        check(SliderFormat.value("spatialui.look.head_yaw", 0.5, false).equals("45°"),
+                "head yaw covers a ninety degree range");
+        check(SliderFormat.value("spatialui.look.smoothing", 0.5, false).equals("50%"),
+                "look smoothing keeps its percentage");
+        check(SliderFormat.value("spatialui.motion.particle_multiplier", 0.5, false).equals("1.00×"),
+                "the particle multiplier keeps its times sign");
+        check(SliderFormat.value("spatialui.scale", 0.5, false).equals("1.00"),
+                "the GUI scale sits between half and one and a half");
+        check(SliderFormat.value("spatialui.opacity.global", 0.4, true).equals("40%"),
+                "percentage sliders show the edited fraction");
+        check(SliderFormat.value("spatialui.scale", 0.5, true).equals("50%"),
+                "the percentage flag wins over the key's own unit");
+
+        check(SliderFormat.value("spatialui.feel.open_speed", 2, false).equals("6000 px/s"),
+                "an over-driven slider clamps to its fastest speed");
+        check(SliderFormat.value("spatialui.feel.open_speed", -1, false).equals("600 px/s"),
+                "an under-driven slider clamps to its slowest speed");
+        check(SliderFormat.value("spatialui.feel.spring", Double.NaN, false).equals("40"),
+                "an invalid value falls back to the minimum");
+        check(SliderFormat.value("spatialui.feel.spring", Double.POSITIVE_INFINITY, false).equals("40"),
+                "an infinite value falls back to the minimum");
+        check(SliderFormat.value((String) null, 0, false).equals("0.50"),
+                "a missing label falls back to a plain decimal");
+        check(SliderFormat.value("dev.custom.slider", 0.25, false).equals("0.75"),
+                "unknown sliders keep the legacy half-offset readout");
     }
 
     private static void check(boolean condition, String message) {

@@ -547,17 +547,7 @@ public final class SpatialSettingsScreen extends Screen {
             updateMessage();
         }
         @Override protected void updateMessage() {
-            String number = label.endsWith("container_scale") ? Math.round((0.75 + value * 1.25) * 100) + "%"
-                    : label.endsWith("particle_multiplier") ? String.format(java.util.Locale.ROOT, "%.2f×", value * 2)
-                    : label.endsWith("head_yaw") || label.endsWith("head_pitch") ? Math.round(value * 90) + "°"
-                    : percentage || label.endsWith("smoothing") ? Math.round(value * 100) + "%"
-                    : label.endsWith("yaw_offset") ? Math.round(value * 120 - 60) + "°"
-                    : label.endsWith("pitch_offset") ? Math.round(value * 90 - 45) + "°"
-                    : label.endsWith("reopen") ? Math.round(value * 1500) + " ms"
-                    : label.endsWith("duration") ? Math.round(value * 1000) + " ms"
-                    : label.endsWith("tilt") ? String.format(java.util.Locale.ROOT, "%.1f°", value * 24 - 12)
-                    : String.format(java.util.Locale.ROOT, "%.2f", label.endsWith("distance") ? value * 8 : value + 0.5);
-            setMessage(Component.translatable(label).append(": " + number));
+            setMessage(Component.translatable(label).append(": " + SliderFormat.value(label, value, percentage)));
         }
         @Override protected void applyValue() { write.accept(percentage ? Math.round(value * 100) / 100.0 : value); }
         @Override public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int x, int y, float tick) {

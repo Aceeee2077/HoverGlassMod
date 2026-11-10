@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.45.0 sliders show real units:** The panel feel and preview layout pages no longer report raw slider positions. Opening and closing speed now read in px/s, bounce as a percentage, settle stiffness and damping as their plain strengths, preview placement as percentages of the screen, and the recipe book offset in pixels — matching what each tooltip already promised. Out-of-range values still clamp, invalid values still fall back safely, every other slider's readout is unchanged, and the formatting lives in a small pure-Java helper the tests walk key by key.
+
 **26.x · 0.44.0 reset-page button:** A **↺** button beside the page arrows resets the open page to its factory values, so the per-page reset no longer depends on knowing the Delete shortcut. It calls the same `PageDefaults` mapping as the key, greys itself out on the compatibility page where a reset would discard hand-written rules, and the footer hint still names Delete for keyboard users.
 
 **26.x · 0.43.0 camera framing presets:** The camera angles page gains **Subtle**, **Balanced** and **Cinematic** buttons that set the whole framing in one click — pull-back distance, sideways offset, panel tilt, both angle offsets and the transition duration move together, so the settled view and the sweep into it stay matched. **Balanced** is exactly the stock config and doubles as a restore; the button matching the current framing is disabled, and Delete on the page now restores all six values rather than just the two angles.
