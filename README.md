@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.9.0 container camera:** A new **Container camera** switch on the F8 camera page (on by default) lets chests, furnaces, merchants and other world containers stay in first person while their glass panel, per-screen opacity and world anchoring still apply. The player inventory keeps its own entrance camera, and the master **Spatial camera** switch still overrides both. The choice is saved as `containerCameraEnabled` in the config file, next to the other camera fields.
+
 **26.x · 0.8.1 config recovery:** If `config/transparent_inventory.json` cannot be parsed, the mod now moves it aside as `transparent_inventory.json.corrupt-<UTC timestamp>` before using defaults. Previously the in-memory defaults would replace the unreadable file on the next save, destroying any hand edits worth recovering. Backup names use a Windows-safe UTC timestamp, never collide, and are length-capped; if the move itself fails, the original is left untouched and defaults are used for that session only.
 
 **26.x · 0.8.0 reduced motion:** The existing **Reduce motion** switch now covers the container UI itself. With it on, the glass panel appears and disappears at its resting pose — no slide, overshoot, landing flash or fade — and the camera snaps straight to the container framing instead of sweeping into it. When the switch is off, the F8 durations still apply. A zero-length camera transition now lands on the new view in the same frame instead of one frame later, so dragging the camera-duration slider to 0 also snaps cleanly. Reduced motion is persisted with the rest of the config and applies on both branches.
@@ -138,6 +140,7 @@ Common fields, with an example:
   "worldAnchoringEnabled": true,
   "fallbackToScreenSpace": true,
   "cameraEnabled": true,
+  "containerCameraEnabled": true,
   "thirdPersonOnOpen": true,
   "cinematicInventory": true,
   "glassInventory": true,
@@ -161,7 +164,7 @@ Common fields, with an example:
 - `worldDimOpacity` (0–1): how strongly the world background darkens.
 - `playerPreview` / `playerSlideRatio` / `playerCenterXRatio` / `playerCenterYRatio` / `playerHeightRatio`: player preview toggle, slide distance and position (Glass Inventory branch).
 - `inventoryTiltDegrees` (−12–12): the resting tilt of the inventory.
-- `cameraEnabled` / `cameraDistance` / `cameraTransitionDurationMs`: camera toggle, distance and transition duration.
+- `cameraEnabled` / `containerCameraEnabled` / `cameraDistance` / `cameraTransitionDurationMs`: the master camera toggle, whether containers may use the camera (the inventory keeps its own framing), distance and transition duration.
 - `openingAnimationDurationMs` / `closeAnimation`: open/close animation length and the close animation toggle.
 - The file also keeps several tuning fields for slot border opacities, slide physics (`slideSpeed` / `slideBrake` / `bounce`) and visual ratios; all are clamped to safe ranges and can be edited as needed.
 

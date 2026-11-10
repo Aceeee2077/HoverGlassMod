@@ -9,6 +9,8 @@
 
 > 把原版容器界面变成可透视的玻璃面板，并让它在镜头下拉时从侧面滑入。
 
+**26.x · 0.9.0 新增容器镜头开关**：F8 的镜头设置页新增 **容器镜头** 开关（默认开启）。关闭后，箱子、熔炉、村民交易等世界容器保持第一人称视角，但玻璃面板、独立透明度与世界锚点照常生效；玩家物品栏仍使用自己的入场镜头，总开关 **空间镜头** 依旧可以同时停用两者。该选项以 `containerCameraEnabled` 保存在配置文件中，与其他镜头字段并列。
+
 **26.x · 0.8.1 损坏配置恢复**：当 `config/transparent_inventory.json` 无法解析时，现在会先把它改名保存为 `transparent_inventory.json.corrupt-<UTC 时间戳>`，再使用默认值。此前内存中的默认值会在下一次保存时覆盖无法读取的文件，手工修改的内容因此丢失。备份名使用 Windows 安全的时间戳，不会互相覆盖，并限制长度；如果改名本身失败，原文件保持不动，仅本次会话使用默认值。
 
 **26.x · 0.8.0 减少动态覆盖界面**：已有的 **减少动态效果** 开关现在也作用于容器界面。开启后，玻璃面板直接以停留姿态出现和消失，没有滑入、回弹、落地闪光或淡入淡出，镜头也直接切换到容器构图，不再平移。关闭开关时 F8 中的时长设置照常生效。时长为 0 的镜头过渡现在在同一帧到达目标视角，而不是晚一帧，因此把镜头过渡滑条拖到 0 也会干净地瞬切。该设置与其他配置一起保存，并在两个分支上生效。
@@ -144,6 +146,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
   "worldAnchoringEnabled": true,
   "fallbackToScreenSpace": true,
   "cameraEnabled": true,
+  "containerCameraEnabled": true,
   "thirdPersonOnOpen": true,
   "cinematicInventory": true,
   "glassInventory": true,
@@ -167,7 +170,7 @@ Hoverglass 是一个 Fabric **客户端**模组，纯客户端生效，**服务�
 - `worldDimOpacity`（0–1）：世界背景变暗强度。
 - `playerPreview` / `playerSlideRatio` / `playerCenterXRatio` / `playerCenterYRatio` / `playerHeightRatio`：玩家预览的开关、滑入距离与位置（玻璃背包分支）。
 - `inventoryTiltDegrees`（−12–12）：背包停留倾角。
-- `cameraEnabled` / `cameraDistance` / `cameraTransitionDurationMs`：镜头开关、距离与过渡时间。
+- `cameraEnabled` / `containerCameraEnabled` / `cameraDistance` / `cameraTransitionDurationMs`：总镜头开关、容器是否使用镜头（物品栏保留自己的入场构图）、距离与过渡时间。
 - `openingAnimationDurationMs` / `closeAnimation`：开关动画时长与关闭动画开关。
 - 文件中还保留了若干槽位描边透明度、滑入物理（`slideSpeed` / `slideBrake` / `bounce`）和视觉比例的调参字段，均会被夹取到安全范围，可按需修改。
 

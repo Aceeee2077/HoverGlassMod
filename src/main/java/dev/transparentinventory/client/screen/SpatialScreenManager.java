@@ -73,6 +73,8 @@ public final class SpatialScreenManager {
     public SpatialAnchor anchor() { return anchor; }
     public SpatialSettingsScreen settings() { return settings; }
     public boolean cinematicInventory() { return firstPersonInventory && InventoryConfig.get().cinematicInventory; }
+    /** True when the open screen uses the player preview (the inventory) rather than a world anchor. */
+    public boolean playerAnchored() { return profile != null && profile.anchor() == dev.transparentinventory.client.anchor.AnchorType.PLAYER; }
     public boolean mapsInput() { return presentedSpatial && dev.transparentinventory.client.compat.MinecraftAccess.screen(Minecraft.getInstance()) == screen && settings == null; }
     public boolean blocksInput() { return closing() && settings == null; }
     public Screen inputTarget(Screen original) { return settings == null ? original : settings; }

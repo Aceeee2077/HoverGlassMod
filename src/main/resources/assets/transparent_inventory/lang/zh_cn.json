@@ -17,6 +17,8 @@
   "spatialui.camera.distance": "镜头距离",
   "spatialui.camera.duration": "镜头过渡时间",
   "spatialui.camera": "空间镜头",
+  "spatialui.camera.container": "容器镜头",
+  "spatialui.camera.container.hint": "关闭后，箱子等容器保持第一人称视角，物品栏仍使用入场镜头。",
   "spatialui.anchors": "世界锚点",
   "spatialui.settings.entrance": "背包入场动画",
   "spatialui.inventory.cinematic": "第一人称侧移入场",

@@ -34,6 +34,7 @@ public final class InventoryRegressionTest {
         testScreenRules();
         testReducedMotion();
         testConfigRecovery();
+        testCameraPolicy();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -684,6 +685,29 @@ public final class InventoryRegressionTest {
         String oversized = "x".repeat(200);
         String backup = ConfigFileRecovery.backupName(oversized, 0L);
         check(backup.startsWith("x".repeat(128) + ".corrupt-"), "backup base names are length-capped");
+    }
+
+    private static void testCameraPolicy() {
+        var config = new InventoryConfig();
+        check(config.containerCameraEnabled, "container camera is on by default");
+        check(dev.transparentinventory.client.camera.CameraPolicy.enabled(config, true),
+                "the inventory may use its camera by default");
+        check(dev.transparentinventory.client.camera.CameraPolicy.enabled(config, false),
+                "containers may use the camera by default");
+        config.containerCameraEnabled = false;
+        check(dev.transparentinventory.client.camera.CameraPolicy.enabled(config, true),
+                "turning containers off keeps the inventory entrance");
+        check(!dev.transparentinventory.client.camera.CameraPolicy.enabled(config, false),
+                "containers stay in first person when disabled");
+        config.cameraEnabled = false;
+        check(!dev.transparentinventory.client.camera.CameraPolicy.enabled(config, true),
+                "the master camera switch still wins");
+        config.cameraEnabled = true;
+        config.containerCameraEnabled = true;
+        check(dev.transparentinventory.client.camera.CameraPolicy.enabled(config, false),
+                "re-enabling restores the container camera");
+        check(!dev.transparentinventory.client.camera.CameraPolicy.enabled(null, true),
+                "a missing config disables the camera");
     }
 
     private static void testInventoryCursorLook() {

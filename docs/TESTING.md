@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.9.0 容器镜头开关
+
+- 新增 `CameraPolicy` 纯 Java 断言：默认同时允许物品栏与容器；关闭 `containerCameraEnabled` 只停用容器、物品栏入口镜头保留；`cameraEnabled` 总开关优先于两者；重新开启恢复容器镜头；null 配置关闭镜头。26.2 `physicsTest` 通过，共 **1,284 条断言**。
+- `SpatialCameraController` 通过 `SpatialScreenManager.playerAnchored()` 区分玩家背包与世界容器；关闭时不再切换第三人称、不叠加距离/角度/侧移，玻璃面板与世界锚点渲染路径不变。
+- F8 镜头页新增全宽「容器镜头」按钮与悬停说明；英中语言键同步新增。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。
+- 按用户要求未启动 Minecraft 客户端，因此没有实机确认容器在第一人称下的面板透视与构图；相关坐标仍沿用既有投影路径。
+
 ## 2026-11-10 · 0.8.1 损坏配置恢复
 
 - 新增 `ConfigFileRecovery` 纯 Java 断言：备份名确定且 Windows 安全（无 `:`），UTC 时间戳精确到秒；不同时间生成不同名称；路径前缀被剥离；null 文件名回退为 `config`；`a:b?.json` 等保留字符被移除；超长文件名截断到 128 字符。26.2 `physicsTest` 通过，共 **1,276 条断言**。

@@ -80,6 +80,11 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 90, contentWidth, "spatialui.container_scale",
                     () -> (InventoryConfig.get().containerScale - 0.75) / 1.25,
                     value -> InventoryConfig.get().containerScale = 0.75 + value * 1.25, false));
+            addRenderableWidget(Button.builder(toggle("spatialui.camera.container", InventoryConfig.get().containerCameraEnabled), button -> {
+                InventoryConfig.get().containerCameraEnabled = !InventoryConfig.get().containerCameraEnabled;
+                button.setMessage(toggle("spatialui.camera.container", InventoryConfig.get().containerCameraEnabled));
+            }).bounds(left, row + 112, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.camera.container.hint")));
         } else if (page == 2) {
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory), button -> {
                 InventoryConfig.get().cinematicInventory = !InventoryConfig.get().cinematicInventory;

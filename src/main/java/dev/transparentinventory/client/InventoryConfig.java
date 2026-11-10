@@ -41,6 +41,8 @@ public final class InventoryConfig {
     public boolean worldAnchoringEnabled = true;
     public boolean fallbackToScreenSpace = true;
     public boolean cameraEnabled = true;
+    /** Whether chests and other containers may pull the camera back; the player inventory keeps its own framing. */
+    public boolean containerCameraEnabled = true;
     public boolean thirdPersonOnOpen = true;
     public boolean cinematicInventory = true;
     /** Replace survival and creative inventory textures with outlined glass. */

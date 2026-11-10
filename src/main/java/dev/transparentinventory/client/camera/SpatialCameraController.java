@@ -23,7 +23,8 @@ public final class SpatialCameraController {
         manager.synchronize();
         if (client.level == null || client.player == null) { reset(); return; }
         InventoryConfig config = InventoryConfig.get();
-        boolean open = manager.active() && !manager.closing() && config.cameraEnabled && !client.player.isSleeping();
+        boolean open = manager.active() && !manager.closing()
+                && CameraPolicy.enabled(config, manager.playerAnchored()) && !client.player.isSleeping();
         if (open && original == null) {
             original = client.options.getCameraType();
             cinematic = original.isFirstPerson() && manager.cinematicInventory() && config.thirdPersonOnOpen;

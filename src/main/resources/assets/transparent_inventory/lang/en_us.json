@@ -17,6 +17,8 @@
   "spatialui.camera.distance": "Camera distance",
   "spatialui.camera.duration": "Camera transition",
   "spatialui.camera": "Spatial camera",
+  "spatialui.camera.container": "Container camera",
+  "spatialui.camera.container.hint": "When off, chests and other containers keep the first-person view; the inventory keeps its entrance camera.",
   "spatialui.anchors": "World anchors",
   "spatialui.settings.entrance": "Inventory entrance",
   "spatialui.inventory.cinematic": "First-person side entrance",
