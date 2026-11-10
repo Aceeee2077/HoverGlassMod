@@ -59,6 +59,27 @@ public final class CameraPresets {
         config.cameraTransitionDurationMs = preset.durationMs;
     }
 
+    /** True when both angle offsets are zero, i.e. the camera is level. */
+    public static boolean isLevel(InventoryConfig config) {
+        return config != null && config.cameraYawOffset == 0 && config.cameraPitchOffset == 0;
+    }
+
+    /**
+     * Zeroes both angle offsets while leaving distance, side, tilt and transition
+     * duration alone.
+     *
+     * @return true when the config actually changed
+     */
+    public static boolean level(InventoryConfig config) {
+        if (config == null) {
+            return false;
+        }
+        boolean changed = config.cameraYawOffset != 0 || config.cameraPitchOffset != 0;
+        config.cameraYawOffset = 0;
+        config.cameraPitchOffset = 0;
+        return changed;
+    }
+
     /** True when the config still carries exactly this preset's six values. */
     public static boolean matches(InventoryConfig config, Preset preset) {
         return close(config.cameraDistance, preset.distance)

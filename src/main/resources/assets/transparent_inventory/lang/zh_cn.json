@@ -108,6 +108,8 @@
   "spatialui.camera.preset.balanced.hint": "默认的取景与过渡时长",
   "spatialui.camera.preset.cinematic": "电影感",
   "spatialui.camera.preset.cinematic.hint": "拉得更远，镜头移动更慢",
+  "spatialui.camera.level": "镜头回正",
+  "spatialui.camera.level.hint": "把两个角度偏角归零，不改动距离、侧移与倾斜",
   "spatialui.compat.exclude": "排除当前容器",
   "spatialui.compat.included": "重新启用当前容器",
   "spatialui.compat.excluded_rule": "已被界面规则排除",

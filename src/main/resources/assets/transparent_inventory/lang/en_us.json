@@ -108,6 +108,8 @@
   "spatialui.camera.preset.balanced.hint": "The default framing and timing",
   "spatialui.camera.preset.cinematic": "Cinematic",
   "spatialui.camera.preset.cinematic.hint": "A wider pull-back with a slower sweep",
+  "spatialui.camera.level": "Level the camera",
+  "spatialui.camera.level.hint": "Zeroes both angle offsets and leaves distance, side and tilt as they are",
   "spatialui.compat.exclude": "Exclude this container",
   "spatialui.compat.included": "Re-include this container",
   "spatialui.compat.excluded_rule": "Excluded by a screen rule",

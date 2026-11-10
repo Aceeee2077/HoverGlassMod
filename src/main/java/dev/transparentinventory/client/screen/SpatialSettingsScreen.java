@@ -29,6 +29,7 @@ public final class SpatialSettingsScreen extends Screen {
     private Button inheritButton;
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
     private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
+    private Button levelCameraButton;
     private final ScrollAccumulator scroll = new ScrollAccumulator();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
@@ -49,6 +50,7 @@ public final class SpatialSettingsScreen extends Screen {
         page = SettingsPages.remembered();
         int row = top + 34;
         inheritButton = null;
+        levelCameraButton = null;
         presetButtons.clear();
         cameraPresetButtons.clear();
         if (page == 0) {
@@ -218,6 +220,13 @@ public final class SpatialSettingsScreen extends Screen {
                 button.setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
                 cameraPresetButtons.add(addRenderableWidget(button));
             }
+            var levelCamera = addRenderableWidget(Button.builder(Component.translatable("spatialui.camera.level"), button -> {
+                CameraPresets.level(InventoryConfig.get());
+                rebuildWidgets();
+            }).bounds(left, row + 66, contentWidth, 20).build());
+            levelCamera.active = !CameraPresets.isLevel(InventoryConfig.get());
+            levelCamera.setTooltip(Tooltip.create(Component.translatable("spatialui.camera.level.hint")));
+            levelCameraButton = levelCamera;
         } else if (page == SettingsPages.GLASS_MATERIAL) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.material.slot",
                     () -> InventoryConfig.get().slotOpacity,
@@ -501,6 +510,9 @@ public final class SpatialSettingsScreen extends Screen {
         CameraPresets.Preset[] framing = CameraPresets.Preset.values();
         for (int index = 0; index < cameraPresetButtons.size() && index < framing.length; index++) {
             cameraPresetButtons.get(index).active = !CameraPresets.matches(InventoryConfig.get(), framing[index]);
+        }
+        if (levelCameraButton != null) {
+            levelCameraButton.active = !CameraPresets.isLevel(InventoryConfig.get());
         }
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)

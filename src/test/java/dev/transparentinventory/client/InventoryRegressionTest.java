@@ -804,6 +804,26 @@ public final class InventoryRegressionTest {
                 "applying a framing preset is idempotent");
         config.cameraDistance = 4.5;
         check(CameraPresets.current(config) == null, "hand-tuned framing matches no preset");
+
+        CameraPresets.apply(config, CameraPresets.Preset.CINEMATIC);
+        config.cameraYawOffset = 18;
+        config.cameraPitchOffset = -9;
+        check(!CameraPresets.isLevel(config), "hand-tuned angles are not level");
+        check(CameraPresets.level(config), "leveling reports that it changed the angles");
+        checkClose(config.cameraYawOffset, 0, 1E-9, "leveling zeroes the side angle");
+        checkClose(config.cameraPitchOffset, 0, 1E-9, "leveling zeroes the height angle");
+        checkClose(config.cameraDistance, CameraPresets.Preset.CINEMATIC.distance(), 1E-9,
+                "leveling keeps the pull-back distance");
+        checkClose(config.inventoryCameraSide, CameraPresets.Preset.CINEMATIC.side(), 1E-9,
+                "leveling keeps the sideways framing");
+        checkClose(config.inventoryTiltDegrees, CameraPresets.Preset.CINEMATIC.tilt(), 1E-9,
+                "leveling keeps the panel tilt");
+        check(config.cameraTransitionDurationMs == CameraPresets.Preset.CINEMATIC.durationMs(),
+                "leveling keeps the transition duration");
+        check(CameraPresets.isLevel(config), "a leveled camera reports level");
+        check(!CameraPresets.level(config), "leveling an already level camera is a no-op");
+        check(!CameraPresets.isLevel(null), "a missing config is not reported as level");
+        check(!CameraPresets.level(null), "a missing config cannot be leveled");
     }
 
     private static void testQuickReopen() {

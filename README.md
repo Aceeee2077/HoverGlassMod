@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.49.0 level the camera:** The camera angles page gains **Level the camera**, which zeroes both angle offsets in one click while keeping the pull-back distance, sideways framing, panel tilt and transition duration exactly as they are — handy after trying angles without wanting to snap back to a whole framing preset. It greys out once both offsets are zero and re-enables as soon as either slider moves, and Delete on the page still restores every camera value.
+
 **26.x · 0.48.0 trackpad scrolling:** The settings pages can now be changed with a trackpad or a fine-grained wheel. Previously every scroll event had to carry at least half a notch by itself, so devices reporting many small deltas never flipped a page; the screen now keeps a running total and moves once the deltas add up, while a normal wheel notch still turns exactly one page. Opposite-direction jitter cancels out instead of adding up, a fast flick is capped at one page, and partial scroll is dropped whenever the page changes by any other means.
 
 **26.x · 0.47.0 match the panel fill:** The hotbar page gains **Match panel opacity**, the companion to **Match inventory rim**. It copies the glass panel's current fill opacity onto the hotbar's independent value in one click, so a HUD that should read as part of the same surface can be aligned without dragging two sliders. Like the rim match it is a one-off copy, the panel's own value is untouched, the hotbar rim stays as it was, and either slider can still be tuned afterwards.
