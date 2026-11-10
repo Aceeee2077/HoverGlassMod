@@ -113,6 +113,10 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.inventory.side",
                     () -> InventoryConfig.get().inventoryCameraSide / 0.95,
                     value -> InventoryConfig.get().inventoryCameraSide = value * 0.95, true));
+            var reopen = addRenderableWidget(new SettingSlider(left, row + 110, contentWidth, "spatialui.inventory.reopen",
+                    () -> InventoryConfig.get().reopenWindowFraction(),
+                    value -> InventoryConfig.get().setReopenWindowFraction(value), false));
+            reopen.setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.reopen.hint")));
         } else if (page == 3) {
             addRenderableWidget(Button.builder(toggle("spatialui.look.enabled", InventoryConfig.get().playerLookAtInventory), button -> {
                 InventoryConfig.get().playerLookAtInventory = !InventoryConfig.get().playerLookAtInventory;
@@ -313,6 +317,7 @@ public final class SpatialSettingsScreen extends Screen {
                     : label.endsWith("particle_multiplier") ? String.format(java.util.Locale.ROOT, "%.2f×", value * 2)
                     : label.endsWith("head_yaw") || label.endsWith("head_pitch") ? Math.round(value * 90) + "°"
                     : percentage || label.endsWith("smoothing") ? Math.round(value * 100) + "%"
+                    : label.endsWith("reopen") ? Math.round(value * 1500) + " ms"
                     : label.endsWith("duration") ? Math.round(value * 1000) + " ms"
                     : label.endsWith("tilt") ? String.format(java.util.Locale.ROOT, "%.1f°", value * 24 - 12)
                     : String.format(java.util.Locale.ROOT, "%.2f", label.endsWith("distance") ? value * 8 : value + 0.5);

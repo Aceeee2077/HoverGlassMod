@@ -30,6 +30,8 @@
   "spatialui.inventory.duration": "界面开关时间",
   "spatialui.inventory.glass": "透明玻璃背包",
   "spatialui.inventory.side": "人物向右让位幅度",
+  "spatialui.inventory.reopen": "快速重开窗口",
+  "spatialui.inventory.reopen.hint": "在此时间内重新打开容器会跳过入场与镜头动画；0 表示关闭该捷径。",
   "spatialui.inventory.preset": "应用参考图玻璃效果（透明度 84%）",
   "spatialui.container_scale": "箱子等容器显示大小",
   "spatialui.settings.look": "人物头部跟随设置",

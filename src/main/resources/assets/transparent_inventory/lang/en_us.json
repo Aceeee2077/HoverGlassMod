@@ -30,6 +30,8 @@
   "spatialui.inventory.duration": "GUI animation duration",
   "spatialui.inventory.glass": "Glass inventory",
   "spatialui.inventory.side": "Player rightward framing",
+  "spatialui.inventory.reopen": "Quick reopen window",
+  "spatialui.inventory.reopen.hint": "Reopening a container inside this window skips the entrance and camera animation. 0 disables the shortcut.",
   "spatialui.inventory.preset": "Apply reference glass style (84% transparent)",
   "spatialui.container_scale": "Chest / container size",
   "spatialui.settings.look": "Player head tracking",

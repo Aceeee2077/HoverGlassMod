@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.18.0 quick reopen window:** The entrance page now exposes the **Quick reopen window** slider (0–1500 ms, default 400 ms) that has governed the reopen shortcut since 0.10.0. Dragging it to 0 replays the full entrance on every open; a longer window keeps the shortcut active through slower container-swapping. The slider and the stored `reopenSnapWindowMs` value share one clamped mapping.
+
 **26.x · 0.17.0 hotbar rim:** The hotbar page gains a **Hotbar rim strength** slider, backed by a new `hotbarBorderOpacity` value (default 72%) that is independent of the inventory panel border. Dimming the HUD chrome no longer dulls the inventory rim, and a strong hotbar outline can be kept while the panel stays understated.
 
 **26.x · 0.16.0 head follow speed:** The head-tracking page gains a **Head follow speed** slider (default about 26%, range 0–100%). It drives the existing exponential smoothing, so the preview can glide lazily after the cursor or catch up almost instantly; the update stays frame-rate independent at any FPS. Higher values never overshoot the requested angle.

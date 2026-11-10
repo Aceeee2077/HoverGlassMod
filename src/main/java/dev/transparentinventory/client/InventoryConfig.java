@@ -247,6 +247,14 @@ public final class InventoryConfig {
     /** True when the user asked for fewer moving effects. */
     public boolean reducedMotion() { return motion != null && motion.reduceMotion; }
 
+    /** The quick-reopen window as a slider fraction of its 1500 ms maximum. */
+    public double reopenWindowFraction() { return reopenSnapWindowMs / 1500.0; }
+
+    /** Sets the quick-reopen window from a slider fraction, clamped to 0–1500 ms. */
+    public void setReopenWindowFraction(double fraction) {
+        reopenSnapWindowMs = (int) clamp(fraction * 1500.0, 0, 1500);
+    }
+
     /**
      * Opening/closing animation length after the reduced-motion preference.
      * Zero means the panel appears and disappears at its resting pose without a slide.

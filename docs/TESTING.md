@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.18.0 快速重开窗口
+
+- `testQuickReopen` 新增断言：默认 400 ms 对应的滑条比例为 400/1500；比例 1 → 1500 ms、0 → 0 ms；越界比例 2 与 -1 分别夹到 1500 与 0；比例 0.5 → 750 ms 且读取回来仍为 0.5。26.2 `physicsTest` 通过，共 **1,444 条断言**。
+- `InventoryConfig.reopenWindowFraction()` / `setReopenWindowFraction()` 与 F8 入场页滑条共用同一映射；滑条标签按 1500 ms 显示，并带说明提示（0 关闭捷径）。英中语言键同步新增 `spatialui.inventory.reopen` 与 `.hint`。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机拖动滑条确认提示换行。
+
 ## 2026-11-10 · 0.17.0 快捷栏描边
 
 - 新增 `testHotbarRim` 断言：`hotbarBorderOpacity` 默认 0.72；高于 1 与低于 0 均被夹紧；单独修改快捷栏描边不影响 `borderOpacity`，反之亦然。26.2 `physicsTest` 通过，共 **1,438 条断言**。

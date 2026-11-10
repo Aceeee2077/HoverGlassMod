@@ -768,6 +768,21 @@ public final class InventoryRegressionTest {
         config.reopenSnapWindowMs = 400;
         config.motion.reduceMotion = true;
         check(config.effectiveOpeningDurationMs() == 0, "reduced motion still snaps every open");
+
+        config.motion.reduceMotion = false;
+        checkClose(config.reopenWindowFraction(), 400 / 1500.0, 1E-9,
+                "the default window is a fraction of the slider range");
+        config.setReopenWindowFraction(1);
+        check(config.reopenSnapWindowMs == 1500, "the slider maximum selects the full window");
+        config.setReopenWindowFraction(0);
+        check(config.reopenSnapWindowMs == 0, "the slider minimum disables the shortcut");
+        config.setReopenWindowFraction(2);
+        check(config.reopenSnapWindowMs == 1500, "an out-of-range fraction clamps high");
+        config.setReopenWindowFraction(-1);
+        check(config.reopenSnapWindowMs == 0, "an out-of-range fraction clamps low");
+        config.setReopenWindowFraction(0.5);
+        check(config.reopenSnapWindowMs == 750 && Math.abs(config.reopenWindowFraction() - 0.5) < 1E-9,
+                "the slider fraction round-trips");
     }
 
     private static void testCompatibilityActions() {
