@@ -343,6 +343,15 @@ public final class SpatialSettingsScreen extends Screen {
                     () -> InventoryConfig.get().recipeBookOffset / 160.0,
                     value -> InventoryConfig.get().recipeBookOffset = value * 160.0, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.recipe_book.hint")));
+            int half = contentWidth / 2 - 2;
+            addRenderableWidget(new SettingSlider(left, row + 110, half, "spatialui.layout.depth",
+                    () -> (InventoryConfig.get().guiDistance - 0.5) / 5.5,
+                    value -> InventoryConfig.get().guiDistance = 0.5 + value * 5.5, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.depth.hint")));
+            addRenderableWidget(new SettingSlider(left + half + 4, row + 110, half, "spatialui.layout.vertical",
+                    () -> (InventoryConfig.get().guiVerticalOffset + 2) / 5.0,
+                    value -> InventoryConfig.get().guiVerticalOffset = value * 5.0 - 2, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.vertical.hint")));
         } else if (page == SettingsPages.PANEL_FEEL) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.feel.open_speed",
                     () -> (InventoryConfig.get().slideSpeed - 600) / 5400.0,

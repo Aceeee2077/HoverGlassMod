@@ -1582,12 +1582,16 @@ public final class InventoryRegressionTest {
         config.playerCenterYRatio = .40;
         config.panelCenterRatio = .55;
         config.recipeBookOffset = 0;
+        config.guiDistance = 6;
+        config.guiVerticalOffset = -2;
         check(PageDefaults.reset(config, SettingsPages.PREVIEW_LAYOUT), "the preview layout page resets");
         checkClose(config.playerHeightRatio, .47, 1E-6, "page reset restores the preview height");
         checkClose(config.playerCenterXRatio, .77, 1E-6, "page reset restores the preview horizontal position");
         checkClose(config.playerCenterYRatio, .55, 1E-6, "page reset restores the preview vertical position");
         checkClose(config.panelCenterRatio, .42, 1E-6, "page reset restores the panel position");
         checkClose(config.recipeBookOffset, 77, 1E-6, "page reset restores the recipe book offset");
+        checkClose(config.guiDistance, 1.5, 1E-6, "page reset restores the panel depth");
+        checkClose(config.guiVerticalOffset, .3, 1E-6, "page reset restores the panel height offset");
 
         config.slideSpeed = 6000;
         config.slideBrake = 200;
@@ -1793,6 +1797,16 @@ public final class InventoryRegressionTest {
                 "the rightmost panel position reads as sixty-five percent");
         check(SliderFormat.value("spatialui.layout.recipe_book", 0.5, false).equals("80 px"),
                 "the recipe book offset is reported in pixels");
+        check(SliderFormat.value("spatialui.layout.depth", 0, false).equals("0.50"),
+                "the nearest panel depth is a plain decimal");
+        check(SliderFormat.value("spatialui.layout.depth", 0.5, false).equals("3.25"),
+                "the middle of the depth range is reported");
+        check(SliderFormat.value("spatialui.layout.depth", 1, false).equals("6.00"),
+                "the farthest panel depth is reported");
+        check(SliderFormat.value("spatialui.layout.vertical", 0, false).equals("-2.00"),
+                "the lowest panel offset keeps its sign");
+        check(SliderFormat.value("spatialui.layout.vertical", 1, false).equals("+3.00"),
+                "the highest panel offset is shown with a plus sign");
 
         check(SliderFormat.value("spatialui.container_scale", 0, false).equals("75%"),
                 "the smallest container scale keeps its percentage");

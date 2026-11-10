@@ -115,6 +115,8 @@ public final class PageDefaults {
                 config.playerCenterYRatio = 0.55;
                 config.panelCenterRatio = 0.42;
                 config.recipeBookOffset = 77.0;
+                config.guiDistance = 1.5;
+                config.guiVerticalOffset = 0.3;
             }
             case 14 -> {
                 config.slideSpeed = 2600.0;

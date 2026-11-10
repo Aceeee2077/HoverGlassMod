@@ -48,6 +48,8 @@ public final class SliderFormat {
             case "spatialui.layout.player_y" -> Math.round((0.30 + value * 0.50) * 100) + "%";
             case "spatialui.layout.panel_x" -> Math.round((0.20 + value * 0.45) * 100) + "%";
             case "spatialui.layout.recipe_book" -> Math.round(value * 160) + " px";
+            case "spatialui.layout.depth" -> String.format(Locale.ROOT, "%.2f", 0.5 + value * 5.5);
+            case "spatialui.layout.vertical" -> String.format(Locale.ROOT, "%+.2f", value * 5 - 2);
 
             // ------------------------------------------------------------------
             // Camera and entrance
