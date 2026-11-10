@@ -1077,7 +1077,15 @@ public final class InventoryRegressionTest {
                 check(Files.readString(rotation.resolve(names.get(names.size() - 1)))
                                 .equals("v" + (ConfigBackups.KEEP + 1)),
                         "the newest snapshot holds the latest previous contents");
+                Path newest = ConfigBackups.newest(config);
+                check(newest != null && newest.getFileName().toString().equals(names.get(names.size() - 1)),
+                        "the newest snapshot is the last one written");
+                Files.writeString(rotation.resolve("notes.txt"), "unrelated");
+                check(ConfigBackups.newest(config).equals(newest), "unrelated files are not snapshots");
+                Files.deleteIfExists(rotation.resolve("notes.txt"));
             }
+            check(ConfigBackups.newest(dir.resolve("nested").resolve("elsewhere.json")) == null,
+                    "a config without a rotation folder has no newest snapshot");
 
             Files.deleteIfExists(config);
             check(ConfigBackups.exists(config), "the backup survives a missing config file");
@@ -1085,6 +1093,7 @@ public final class InventoryRegressionTest {
                 for (Path snapshot : stream.toList()) Files.deleteIfExists(snapshot);
             }
             Files.deleteIfExists(rotation);
+            check(ConfigBackups.newest(config) == null, "a missing rotation folder has no newest snapshot");
             Files.deleteIfExists(ConfigBackups.backupPath(config));
             Files.deleteIfExists(dir);
         } catch (IOException e) {

@@ -108,6 +108,24 @@ public final class ConfigBackups {
         }
     }
 
+    /**
+     * The newest rotating snapshot, or {@code null} when the folder is missing,
+     * empty or unreadable. Sortable names make lexicographic order chronological.
+     */
+    public static Path newest(Path config) {
+        Path directory = rotationDirectory(config);
+        if (directory == null || !Files.isDirectory(directory)) return null;
+        try (var stream = Files.list(directory)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(ROTATION_PREFIX))
+                    .max(Comparator.comparing(path -> path.getFileName().toString()))
+                    .orElse(null);
+        } catch (IOException | RuntimeException ignored) {
+            return null;
+        }
+    }
+
     /** True when a backup file exists and can be read. */
     public static boolean exists(Path config) {
         Path target = backupPath(config);

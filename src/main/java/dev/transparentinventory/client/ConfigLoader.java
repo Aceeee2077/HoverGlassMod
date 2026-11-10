@@ -82,6 +82,26 @@ public final class ConfigLoader {
     }
 
     /**
+     * Reads the newest rotating snapshot, which covers the case where several bad
+     * saves have already pushed the plain {@code .bak} out of reach.
+     *
+     * @return a sanitized config, or {@code null} when no snapshot exists or it
+     *         cannot be parsed
+     */
+    public static synchronized InventoryConfig loadNewestSnapshot() {
+        Path snapshot = ConfigBackups.newest(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+        if (snapshot == null) return null;
+        try (Reader reader = Files.newBufferedReader(snapshot, StandardCharsets.UTF_8)) {
+            InventoryConfig config = GSON.fromJson(reader, InventoryConfig.class);
+            if (config == null) return null;
+            config.sanitize();
+            return config;
+        } catch (IOException | RuntimeException ignored) {
+            return null;
+        }
+    }
+
+    /**
      * Moves an unreadable config aside so defaults can be written without destroying
      * the user's file. If the move fails the original is left untouched and only
      * defaults are used for this session.

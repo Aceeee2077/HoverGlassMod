@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.37.0 恢复最新快照
+
+- `ConfigBackups.newest(Path)` 按零填充文件名的字典序取最新快照；目录缺失、不可读或没有匹配前缀时返回 `null`，无关文件被忽略。`ConfigLoader.loadNewestSnapshot()` 复用与 `.bak` 恢复相同的解析与 `sanitize()` 路径。
+- 兼容性页把复制/粘贴改为同一行左右两半，空出的一行新增 **恢复最新快照**；没有快照时提示 `spatialui.transfer.snapshot.none`，成功后立即保存并重建页面。
+- `testConfigBackups` 补上：快照存在时 `newest()` 指向最后写入的一份；目录中的 `notes.txt` 不会被当快照；不存在的轮换目录返回 `null`；清理目录后再次返回 `null`。26.2 `physicsTest` 通过，共 **1,795 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认按钮与轮换快照的实际读写顺序，也未确认恢复后再次点击会像 `.bak` 恢复一样来回切换。
+
 ## 2026-11-10 · 0.36.0 面板手感设置页
 
 - `SettingsPages` 扩到 15 页，新增 `PANEL_FEEL = 14` 与标题键；`PageDefaults` 支持第 15 页，重置 `slideSpeed`、`bounce`、`closeSpeed`、`spring`、`damping` 五项。

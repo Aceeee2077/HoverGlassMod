@@ -308,7 +308,7 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.copy"), button -> {
                 minecraft.keyboardHandler.setClipboard(ConfigTransfer.export(InventoryConfig.get()));
                 notify("spatialui.transfer.copied");
-            }).bounds(left, row + 66, contentWidth, 20).build());
+            }).bounds(left, row + 66, contentWidth / 2 - 2, 20).build());
             addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.paste"), button -> {
                 InventoryConfig parsed = ConfigTransfer.parse(minecraft.keyboardHandler.getClipboard());
                 if (parsed == null) {
@@ -319,7 +319,7 @@ public final class SpatialSettingsScreen extends Screen {
                 ConfigLoader.save();
                 rebuildWidgets();
                 notify("spatialui.transfer.pasted");
-            }).bounds(left, row + 88, contentWidth, 20).build());
+            }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build());
             addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.restore"), button -> {
                 InventoryConfig backup = ConfigLoader.loadBackup();
                 if (backup == null) {
@@ -330,7 +330,19 @@ public final class SpatialSettingsScreen extends Screen {
                 ConfigLoader.save();
                 rebuildWidgets();
                 notify("spatialui.transfer.restored");
-            }).bounds(left, row + 110, contentWidth, 20).build());
+            }).bounds(left, row + 88, contentWidth, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.snapshot"), button -> {
+                InventoryConfig snapshot = ConfigLoader.loadNewestSnapshot();
+                if (snapshot == null) {
+                    notify("spatialui.transfer.snapshot.none");
+                    return;
+                }
+                InventoryConfig.setInstance(snapshot);
+                ConfigLoader.save();
+                rebuildWidgets();
+                notify("spatialui.transfer.snapshot.restored");
+            }).bounds(left, row + 110, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.transfer.snapshot.hint")));
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             goTo(SettingsPages.previous(page));
