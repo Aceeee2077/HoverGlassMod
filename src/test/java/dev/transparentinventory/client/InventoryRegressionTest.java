@@ -7,6 +7,7 @@ import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
 import dev.transparentinventory.client.render.Opacity;
+import dev.transparentinventory.client.screen.ScrollAccumulator;
 import dev.transparentinventory.client.screen.SettingsPages;
 import dev.transparentinventory.client.screen.SliderFormat;
 
@@ -65,6 +66,7 @@ public final class InventoryRegressionTest {
         testIdleSway();
         testOpacityFade();
         testSliderFormat();
+        testScrollAccumulator();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -933,16 +935,6 @@ public final class InventoryRegressionTest {
         check(SettingsPages.shift(0, -1) == SettingsPages.last(), "stepping back from the first page wraps");
         check(SettingsPages.shift(5, 2 * SettingsPages.COUNT) == 5, "a full cycle of steps returns to the same page");
         check(SettingsPages.shift(5, -2 * SettingsPages.COUNT) == 5, "a full cycle backwards returns to the same page");
-        check(SettingsPages.scrollStep(1) == -1, "scrolling up moves to the previous page");
-        check(SettingsPages.scrollStep(-1) == 1, "scrolling down moves to the next page");
-        check(SettingsPages.scrollStep(0) == 0, "no scrolling does not change pages");
-        check(SettingsPages.scrollStep(0.49) == 0 && SettingsPages.scrollStep(-0.49) == 0,
-                "sub-notch scroll amounts are ignored");
-        check(SettingsPages.scrollStep(0.5) == -1, "a half-notch scroll still counts");
-        check(SettingsPages.scrollStep(Double.NaN) == 0, "invalid scroll amounts are ignored");
-        check(SettingsPages.scrollStep(Double.POSITIVE_INFINITY) == 0
-                        && SettingsPages.scrollStep(Double.NEGATIVE_INFINITY) == 0,
-                "infinite scroll amounts are ignored");
         check(SettingsPages.last() == SettingsPages.COUNT - 1, "End jumps to the last page");
         SettingsPages.remember(0);
         check(SettingsPages.remembered() == 0, "the first open starts on the transparency page");
@@ -1756,6 +1748,42 @@ public final class InventoryRegressionTest {
                 "a missing label falls back to a plain decimal");
         check(SliderFormat.value("dev.custom.slider", 0.25, false).equals("0.75"),
                 "unknown sliders keep the legacy half-offset readout");
+    }
+
+    private static void testScrollAccumulator() {
+        ScrollAccumulator up = new ScrollAccumulator();
+        check(up.accept(1) == -1, "one wheel notch up moves to the previous page");
+        checkClose(up.pending(), 0, 1E-9, "a full notch leaves nothing pending");
+        ScrollAccumulator down = new ScrollAccumulator();
+        check(down.accept(-1) == 1, "one wheel notch down moves to the next page");
+        check(down.accept(0) == 0, "a zero scroll amount changes nothing");
+
+        ScrollAccumulator fine = new ScrollAccumulator();
+        check(fine.accept(0.2) == 0 && fine.accept(0.2) == 0,
+                "small trackpad deltas do not flip pages on their own");
+        checkClose(fine.pending(), 0.4, 1E-9, "small deltas accumulate");
+        check(fine.accept(0.2) == -1, "accumulated trackpad deltas eventually flip one page");
+        checkClose(fine.pending(), 0, 1E-9, "the step consumes the accumulated distance");
+
+        ScrollAccumulator cancel = new ScrollAccumulator();
+        cancel.accept(0.3);
+        check(cancel.accept(-0.3) == 0, "opposite partial scrolls cancel out");
+        checkClose(cancel.pending(), 0, 1E-9, "cancelled scroll leaves no residue");
+
+        ScrollAccumulator flick = new ScrollAccumulator();
+        check(flick.accept(4) == -1, "a large flick still moves a single page");
+        checkClose(flick.pending(), 0, 1E-9, "overshoot past a full notch is discarded");
+        check(flick.accept(1) == -1, "the next notch after a flick flips again");
+
+        ScrollAccumulator invalid = new ScrollAccumulator();
+        invalid.accept(0.25);
+        check(invalid.accept(Double.NaN) == 0 && invalid.accept(Double.POSITIVE_INFINITY) == 0
+                        && invalid.accept(Double.NEGATIVE_INFINITY) == 0,
+                "invalid scroll amounts are ignored");
+        checkClose(invalid.pending(), 0.25, 1E-9, "invalid input leaves the accumulated distance alone");
+        invalid.reset();
+        checkClose(invalid.pending(), 0, 1E-9, "reset drops the partial scroll");
+        check(invalid.accept(0.5) == -1, "a half notch alone still counts after a reset");
     }
 
     private static void check(boolean condition, String message) {

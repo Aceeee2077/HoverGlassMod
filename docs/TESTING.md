@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.48.0 触控板累计滚动翻页
+
+- 新增纯 Java `ScrollAccumulator`：保留累计滚动量 `pending`，每事件累加后一旦达到 `THRESHOLD = 0.5` 就返回 -1（向上/上一页）或 +1（向下/下一页）并把累计量清零，越过量直接丢弃，因此一次快速滑动最多翻一页。非有限值被忽略且不清空累计量，`reset()` 丢弃残留。
+- 删除 `SettingsPages.scrollStep`（每次事件都必须单独达到半格的旧逻辑），`SpatialSettingsScreen` 改为持有 `ScrollAccumulator` 字段，`mouseScrolled` 调用 `accept`，`goTo()` 在翻页后清空累计量，避免用按钮或键盘翻页后残留量叠加。
+- `testSettingsPages` 移除旧的 `scrollStep` 断言，新增 `testScrollAccumulator`：单格上/下各翻一页、小增量累计到半格翻一页并清零、反向部分量互相抵消、快速滑动只翻一页且后续仍正常、零值/NaN/无穷被忽略且不影响累计、`reset()` 清空。26.2 `physicsTest` 通过，共 **1,891 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未在真实触控板上确认累计手感；也未实机确认在不同滚轮速度下是否会出现「一格翻两页」的观感。
+
 ## 2026-11-10 · 0.47.0 快捷栏填充匹配面板
 
 - `InventoryConfig.matchHotbarOpacity()` 把 `panelOpacity` 一次性复制到 `hotbarOpacity`，不建立联动；快捷栏页在边框匹配按钮下方新增同名按钮（`row + 88`），点击后重建页面让透明度滑条立即反映新值。

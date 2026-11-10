@@ -94,16 +94,6 @@ public final class SettingsPages {
         return Math.floorMod(clamp(page) + steps, COUNT);
     }
 
-    /**
-     * Page direction for a vertical scroll amount: scrolling up goes to the
-     * previous page, scrolling down to the next one. Sub-notch and invalid
-     * input is ignored so trackpad jitter cannot flip pages.
-     */
-    public static int scrollStep(double scrollY) {
-        if (!Double.isFinite(scrollY) || Math.abs(scrollY) < 0.5) return 0;
-        return scrollY > 0 ? -1 : 1;
-    }
-
     /** Translation key of a page's own title. */
     public static String titleKey(int page) {
         return TITLES[clamp(page)];

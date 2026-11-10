@@ -29,6 +29,7 @@ public final class SpatialSettingsScreen extends Screen {
     private Button inheritButton;
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
     private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
+    private final ScrollAccumulator scroll = new ScrollAccumulator();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -409,6 +410,7 @@ public final class SpatialSettingsScreen extends Screen {
     /** Changes page, remembers it for the next open and rebuilds the controls. */
     private void goTo(int page) {
         this.page = SettingsPages.remember(page);
+        scroll.reset();
         rebuildWidgets();
     }
 
@@ -513,7 +515,7 @@ public final class SpatialSettingsScreen extends Screen {
     }
 
     @Override public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int step = SettingsPages.scrollStep(scrollY);
+        int step = scroll.accept(scrollY);
         if (step == 0) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         goTo(SettingsPages.shift(page, step));
         return true;
