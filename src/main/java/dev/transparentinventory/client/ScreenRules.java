@@ -19,6 +19,12 @@ public final class ScreenRules {
 
     /** Longest rule accepted from a config file; keeps matching and logs bounded. */
     public static final int MAX_NAME_LENGTH = 256;
+    /**
+     * Most entries kept in one rule list or override map. Rules are scanned for
+     * every screen open (opacity lookups scan override keys), so a hand-edited or
+     * pasted config with thousands of entries would otherwise slow the UI down.
+     */
+    public static final int MAX_ENTRIES = 256;
 
     private ScreenRules() {
     }
@@ -130,11 +136,15 @@ public final class ScreenRules {
         return trimmed.isEmpty() || trimmed.length() > MAX_NAME_LENGTH ? null : trimmed;
     }
 
-    /** Trimmed, de-duplicated, blank-free copy of a rule list. */
+    /**
+     * Trimmed, de-duplicated, blank-free copy of a rule list, capped at
+     * {@link #MAX_ENTRIES}. Earlier entries win, matching save order.
+     */
     public static List<String> cleanList(List<String> values) {
         if (values == null) return new ArrayList<>();
         LinkedHashSet<String> unique = new LinkedHashSet<>();
         for (String value : values) {
+            if (unique.size() >= MAX_ENTRIES) break;
             String clean = cleanName(value);
             if (clean != null) unique.add(clean);
         }

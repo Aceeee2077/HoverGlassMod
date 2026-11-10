@@ -373,18 +373,19 @@ public final class InventoryConfig {
         // legacy builds where the settings screen does not exist.
         settingsPage = Math.clamp(settingsPage, 0, 14);
         Map<String, Float> cleanedOpacities = new LinkedHashMap<>();
+        if (!creativeGlassDefaultsApplied) {
+            cleanedOpacities.put("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen", 0.16F);
+            creativeGlassDefaultsApplied = true;
+        }
         if (screenOpacities != null) {
             for (Map.Entry<String, Float> entry : screenOpacities.entrySet()) {
+                if (cleanedOpacities.size() >= ScreenRules.MAX_ENTRIES) break;
                 String name = ScreenRules.cleanName(entry.getKey());
                 if (name == null || entry.getValue() == null) continue;
                 cleanedOpacities.put(name, clamp(entry.getValue(), 0F, 1F));
             }
         }
         screenOpacities = cleanedOpacities;
-        if (!creativeGlassDefaultsApplied) {
-            screenOpacities.putIfAbsent("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen", 0.16F);
-            creativeGlassDefaultsApplied = true;
-        }
 
         slideSpeed = clamp(slideSpeed, 600.0, 6000.0);
         slideBrake = clamp(slideBrake, 200.0, 8000.0);

@@ -15,7 +15,9 @@ import dev.transparentinventory.client.screen.SliderFormat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -627,6 +629,24 @@ public final class InventoryRegressionTest {
         check(ScreenRules.bestKey(overrides, null) == null, "no key is resolved for a null name");
         check(ScreenRules.matchesAny(java.util.List.of("a*", "b"), "abc"), "matchesAny accepts patterns");
         check(!ScreenRules.matchesAny(java.util.List.of("a*", "b"), "cde"), "matchesAny rejects non-matches");
+
+        List<String> many = new ArrayList<>();
+        for (int index = 0; index < ScreenRules.MAX_ENTRIES + 40; index++) many.add("com.example.Screen" + index);
+        many.add(40, "   ");
+        many.add(41, "com.example.Screen0");
+        List<String> cleanedMany = ScreenRules.cleanList(many);
+        check(cleanedMany.size() == ScreenRules.MAX_ENTRIES, "rule lists are capped");
+        check(cleanedMany.get(0).equals("com.example.Screen0"), "capping keeps the earliest entries");
+        check(ScreenRules.cleanList(null).isEmpty(), "a missing rule list cleans to empty");
+
+        InventoryConfig crowded = new InventoryConfig();
+        for (int index = 0; index < ScreenRules.MAX_ENTRIES + 50; index++) {
+            crowded.screenOpacities.put("com.example.Screen" + index, 0.5F);
+        }
+        crowded.sanitize();
+        check(crowded.screenOpacities.size() == ScreenRules.MAX_ENTRIES, "opacity overrides are capped");
+        check(crowded.screenOpacities.containsKey("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen"),
+                "the creative default survives the cap");
         check(!ScreenRules.matchesAny(null, "abc"), "a missing rule list matches nothing");
 
         var config = new InventoryConfig();
