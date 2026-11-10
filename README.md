@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.73.0 the previous-file restore says when that file was written:** Hovering **Restore previous settings** now explains that it replaces every setting and, when the backup is readable, shows the local time the previous file was saved. With the snapshot picker from 0.71.0, both recovery paths are informed ones: you can see what will be restored and how old it is before the confirming click.
+
 **26.x · 0.72.0 pasting asks twice:** **Paste settings from clipboard** now takes two clicks, like the full reset, the restores and the page reset. The first click checks that the clipboard actually holds Hoverglass settings and changes the label to the confirming text; an invalid clipboard still reports itself and never arms. The tooltip says that pasting replaces every setting, and changing pages or pressing a rebuilding action drops the pending paste.
 
 **26.x · 0.71.0 pick any snapshot, not just the newest:** The snapshot restore on the compatibility page now selects among the whole rotating history with **◀** and **▶** buttons, shows the position as *2/5*, and puts that snapshot's time in the tooltip. **Restore snapshot** still asks for a confirming second click, and both arrows grey out at the ends. This makes the older copies reachable after a save that looked fine at the time but turned out wrong later; before, only the newest one could be restored from the screen.

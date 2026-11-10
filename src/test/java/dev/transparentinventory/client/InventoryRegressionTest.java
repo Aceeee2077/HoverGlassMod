@@ -1185,6 +1185,10 @@ public final class InventoryRegressionTest {
             check(ConfigBackups.exists(config), "the backup is readable after copying");
             check(Files.readString(ConfigBackups.backupPath(config)).equals("first"),
                     "the backup holds the previous contents");
+            check(ConfigBackups.backupMillis(config) > 0,
+                    "an existing backup reports when it was written");
+            check(ConfigBackups.backupMillis(dir.resolve("nested").resolve("elsewhere.json")) == -1,
+                    "a config without a backup reports no time");
 
             Files.writeString(config, "second");
             check(ConfigBackups.copy(config), "the next save refreshes the backup");

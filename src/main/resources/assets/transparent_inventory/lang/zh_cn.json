@@ -166,6 +166,8 @@
   "spatialui.transfer.pasted": "Hoverglass 设置已导入并保存。",
   "spatialui.transfer.confirm": "再次点击以确认",
   "spatialui.transfer.restore": "恢复上一次的设置",
+  "spatialui.transfer.restore.hint": "用上一次保存写下的文件替换全部设置；需要点击两次",
+  "spatialui.transfer.restore.taken": "上一份文件保存于：%s",
   "spatialui.transfer.restored": "已恢复上一次的 Hoverglass 设置。",
   "spatialui.transfer.no_backup": "暂无可恢复的上一次设置。",
   "spatialui.transfer.snapshot": "恢复快照",

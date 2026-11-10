@@ -484,7 +484,8 @@ public final class SpatialSettingsScreen extends Screen {
                 boolean saved = saveNow();
                 rebuildWidgets();
                 notify(saved ? "spatialui.transfer.restored" : "spatialui.settings.save_failed");
-            }).bounds(left, row + 88, contentWidth, 20).build());
+            }).bounds(left, row + 88, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(restoreHint()));
             int snapshotCount = ConfigLoader.snapshotCount();
             if (snapshotPick >= snapshotCount) snapshotPick = Math.max(0, snapshotCount - 1);
             var olderSnapshot = addRenderableWidget(Button.builder(Component.literal("◀"), button -> {
@@ -691,6 +692,17 @@ public final class SpatialSettingsScreen extends Screen {
     private static SettingSlider hint(SettingSlider slider, String key) {
         slider.setTooltip(Tooltip.create(Component.translatable(key)));
         return slider;
+    }
+
+    /** Explains the previous-file restore and, when known, when that file was saved. */
+    private static Component restoreHint() {
+        var hint = Component.translatable("spatialui.transfer.restore.hint");
+        long millis = ConfigLoader.backupMillis();
+        if (millis > 0) {
+            return hint.append(Component.literal("\n")).append(Component.translatable(
+                    "spatialui.transfer.restore.taken", snapshotStamp(millis)));
+        }
+        return hint;
     }
 
     /** Formats a snapshot timestamp in the player's local time, to the minute. */

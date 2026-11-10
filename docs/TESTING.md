@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.73.0 上一份文件的时间
+
+- 「恢复上一次的设置」此前没有 tooltip，也看不出备份文件有多旧。新增 `ConfigBackups.backupMillis(Path)`（读取 `.bak` 的最后修改时间，缺失或不可读时返回 -1）、`ConfigLoader.backupMillis()`，以及 `restoreHint()`：tooltip 先说明会替换全部设置，再用与快照相同的时间格式附上「上一份文件保存于」。
+- 新增 2 条断言：存在备份时时间大于 0、没有备份时返回 -1。26.2 `physicsTest` 通过，共 **2,082 条断言**。
+- 语言文件各新增 2 个键，键集合相等（234 个键）。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认 tooltip 两行文字在窄窗口下的换行与时间格式。
+
 ## 2026-11-10 · 0.72.0 粘贴二次确认
 
 - 粘贴原位替换整个配置，却不像重置、恢复那样要求确认。新增 `pasteConfirm` 与 `rebuildWidgets()` 中的 `disarm()`；第一次按下先解析剪贴板：无效则保持未武装、提示 `spatialui.transfer.invalid` 并恢复标签，有效则武装并把标签改为 `spatialui.transfer.confirm`，第二次才替换并保存。

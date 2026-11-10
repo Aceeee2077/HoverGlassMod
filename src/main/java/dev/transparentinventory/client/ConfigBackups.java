@@ -192,6 +192,22 @@ public final class ConfigBackups {
         return epochMillis(newest(config));
     }
 
+    /**
+     * When the previous version was written, so the settings screen can show how
+     * old the file behind "restore previous" is.
+     *
+     * @return epoch milliseconds, or {@code -1} when there is no readable backup
+     */
+    public static long backupMillis(Path config) {
+        Path target = backupPath(config);
+        if (target == null || !Files.isRegularFile(target)) return -1;
+        try {
+            return Files.getLastModifiedTime(target).toMillis();
+        } catch (IOException | RuntimeException ignored) {
+            return -1;
+        }
+    }
+
     /** True when a backup file exists and can be read. */
     public static boolean exists(Path config) {
         Path target = backupPath(config);

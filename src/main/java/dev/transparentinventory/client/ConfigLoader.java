@@ -91,6 +91,11 @@ public final class ConfigLoader {
         }
     }
 
+    /** When the previous version was written, or {@code -1} when there is none. */
+    public static synchronized long backupMillis() {
+        return ConfigBackups.backupMillis(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+    }
+
     /** Number of rotating snapshots available to restore; zero when there are none. */
     public static synchronized int snapshotCount() {
         return ConfigBackups.snapshotCount(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));

@@ -166,6 +166,8 @@
   "spatialui.transfer.pasted": "Hoverglass settings pasted and saved.",
   "spatialui.transfer.confirm": "Click again to confirm",
   "spatialui.transfer.restore": "Restore previous settings",
+  "spatialui.transfer.restore.hint": "Replaces every setting with the file written by the last save; click twice",
+  "spatialui.transfer.restore.taken": "Previous file saved: %s",
   "spatialui.transfer.restored": "Previous Hoverglass settings restored.",
   "spatialui.transfer.no_backup": "No previous Hoverglass settings are available yet.",
   "spatialui.transfer.snapshot": "Restore snapshot",
