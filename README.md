@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.20.0 named page headers:** The settings header now says which page is open — "Fluid animations", "Compatibility" and so on. Previously it always described the container's transparency source, even while looking at camera or motion pages; that description is now limited to the transparency page. A new regression check loads both language files and fails the build when `en_us` and `zh_cn` disagree on a key or a settings page title is untranslated, so a missing translation can no longer ship as a raw key.
+
 **26.x · 0.19.0 climb pose:** The **Jump, fall and climb poses** switch now also covers ladders and vines. While an avatar moves vertically on a climbable block, the pose alternates a diagonal reach — right arm with left leg, then the opposite — instead of the walking cycle vanilla leaves running. The reach scales with actual climbing speed and with **Avatar motion intensity**, and reverses while descending; hanging still adds nothing. Nearby players get the same pose because vertical motion is replicated, and attacks still take priority.
 
 **26.x · 0.18.0 quick reopen window:** The entrance page now exposes the **Quick reopen window** slider (0–1500 ms, default 400 ms) that has governed the reopen shortcut since 0.10.0. Dragging it to 0 replays the full entrance on every open; a longer window keeps the shortcut active through slower container-swapping. The slider and the stored `reopenSnapWindowMs` value share one clamped mapping.

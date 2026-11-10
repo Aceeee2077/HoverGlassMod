@@ -280,8 +280,11 @@ public final class SpatialSettingsScreen extends Screen {
 
     @Override public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tick) {
         graphics.centeredText(font, title, width / 2, top, 0xFFFFFFFF);
-        var source = screenName == null ? null : InventoryConfig.get().opacitySource(screenName);
-        Component context = source == null ? Component.translatable("spatialui.settings.global.hint")
+        // The transparency page explains the current screen; every other page names itself,
+        // so the header always answers "where am I?" even when opened from the HUD.
+        var source = screenName == null || page != 0 ? null : InventoryConfig.get().opacitySource(screenName);
+        Component context = source == null
+                ? Component.translatable(page == 0 ? "spatialui.settings.global.hint" : SettingsPages.titleKey(page))
                 : Component.translatable(switch (source) {
                     case EXACT -> "spatialui.settings.custom";
                     case RULE -> "spatialui.settings.rule";

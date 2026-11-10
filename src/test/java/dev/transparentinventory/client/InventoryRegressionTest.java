@@ -43,6 +43,7 @@ public final class InventoryRegressionTest {
         testQuickReopen();
         testCompatibilityActions();
         testSettingsPages();
+        testLanguageKeys();
         testConfigTransfer();
         testConfigBackups();
         testHotbarRim();
@@ -842,6 +843,32 @@ public final class InventoryRegressionTest {
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
                 "invalid titles fall back to the first page");
+    }
+
+    private static void testLanguageKeys() {
+        var english = langKeys("en_us");
+        var chinese = langKeys("zh_cn");
+        check(!english.isEmpty() && !chinese.isEmpty(), "both language files load from the classpath");
+        check(english.equals(chinese), "en_us and zh_cn define exactly the same keys");
+        for (int page = 0; page < SettingsPages.COUNT; page++) {
+            String key = SettingsPages.titleKey(page);
+            check(english.contains(key), "every settings page title is translated: " + key);
+        }
+        check(english.contains("spatialui.settings.page"), "the page counter is translated");
+        check(english.contains("spatialui.transfer.copy"), "the clipboard actions are translated");
+    }
+
+    private static java.util.Set<String> langKeys(String locale) {
+        String path = "assets/transparent_inventory/lang/" + locale + ".json";
+        try (var stream = InventoryRegressionTest.class.getClassLoader().getResourceAsStream(path)) {
+            if (stream == null) return java.util.Set.of();
+            var reader = new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8);
+            var keys = new java.util.TreeSet<String>();
+            com.google.gson.JsonParser.parseReader(reader).getAsJsonObject().keySet().forEach(keys::add);
+            return keys;
+        } catch (IOException | RuntimeException e) {
+            throw new AssertionError("could not read " + path, e);
+        }
     }
 
     private static void testConfigTransfer() {
