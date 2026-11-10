@@ -55,6 +55,7 @@ public final class InventoryRegressionTest {
         testAvatarMotion();
         testAirbornePose();
         testClimbPose();
+        testLandingPose();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -1066,6 +1067,49 @@ public final class InventoryRegressionTest {
                 "zero intensity adds no pose");
         check(AvatarMotionMath.climb(Float.NaN, 0.2F, 1F) == AvatarMotionMath.Pose.NONE,
                 "an invalid clock adds no pose");
+    }
+
+    private static void testLandingPose() {
+        AvatarMotionMath.Pose start = AvatarMotionMath.landing(0F, .9F, 1F);
+        check(start != AvatarMotionMath.Pose.NONE, "a real fall produces a landing pose");
+        check(finite(start), "the landing pose is finite");
+        check(start.rightLeg().pitch() > 0 && start.rightLeg().pitch() == start.leftLeg().pitch(),
+                "both knees absorb the landing symmetrically");
+        check(start.rightArm().roll() < 0 && start.leftArm().roll() > 0,
+                "the arms spread outward for balance");
+        check(start.body().pitch() > 0, "the torso folds into the landing");
+        check(start.head().pitch() < 0, "the head counter-rotates to stay level");
+        for (AvatarMotionMath.Limb limb : new AvatarMotionMath.Limb[]{start.body(), start.head(),
+                start.rightArm(), start.leftArm(), start.rightLeg(), start.leftLeg()}) {
+            check(Math.abs(limb.pitch()) <= .5 && Math.abs(limb.yaw()) <= .5 && Math.abs(limb.roll()) <= .5,
+                    "landing rotations stay bounded");
+        }
+
+        AvatarMotionMath.Pose middle = AvatarMotionMath.landing(3F, .9F, 1F);
+        AvatarMotionMath.Pose end = AvatarMotionMath.landing(AvatarMotionMath.LANDING_TICKS, .9F, 1F);
+        check(end == AvatarMotionMath.Pose.NONE, "the recovery ends exactly on the last tick");
+        check(middle.rightLeg().pitch() < start.rightLeg().pitch(), "the crouch fades out over time");
+        check(middle.rightLeg().pitch() > 0, "the crouch is still visible mid-recovery");
+
+        check(AvatarMotionMath.landing(0F, .2F, 1F) == AvatarMotionMath.Pose.NONE,
+                "step-downs stay vanilla");
+        check(AvatarMotionMath.landing(0F, .9F, 0F) == AvatarMotionMath.Pose.NONE,
+                "zero intensity adds no pose");
+        check(AvatarMotionMath.landing(-1F, .9F, 1F) == AvatarMotionMath.Pose.NONE,
+                "a negative age adds no pose");
+        check(AvatarMotionMath.landing(Float.NaN, .9F, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid age adds no pose");
+        check(AvatarMotionMath.landing(0F, Float.NaN, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid impact adds no pose");
+
+        AvatarMotionMath.Pose half = AvatarMotionMath.landing(0F, .9F, .5F);
+        checkClose(half.rightLeg().pitch(), start.rightLeg().pitch() * .5, 1E-6,
+                "landing intensity scales linearly");
+
+        AvatarMotionMath.Pose heavy = AvatarMotionMath.landing(0F, 1.5F, 1F);
+        AvatarMotionMath.Pose light = AvatarMotionMath.landing(0F, .5F, 1F);
+        check(heavy.rightLeg().pitch() >= light.rightLeg().pitch(), "harder falls absorb deeper");
+        check(heavy.rightLeg().pitch() <= .4, "the hardest landing stays a small crouch");
     }
 
     private static void testGlassMaterials() {

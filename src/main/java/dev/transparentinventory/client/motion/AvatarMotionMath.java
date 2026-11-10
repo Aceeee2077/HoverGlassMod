@@ -157,6 +157,48 @@ public final class AvatarMotionMath {
         return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
     }
 
+    /** How long the landing recovery lasts, in ticks. */
+    public static final float LANDING_TICKS = 6F;
+
+    /** Landing speed below which the drop reads as a step-down, not a fall. */
+    public static final float LANDING_MIN_SPEED = .32F;
+
+    /**
+     * Short recovery after touching down: knees absorb, arms swing out for balance.
+     *
+     * <p>Vanilla snaps straight back to the walk cycle on the landing tick, which
+     * makes a real fall look weightless. This layer eases a crouch in and out over
+     * {@link #LANDING_TICKS} ticks, scaled by the downward speed measured just
+     * before landing and by the avatar strength setting. Small step-downs stay
+     * vanilla.
+     *
+     * @param ageTicks    ticks elapsed since the landing tick
+     * @param impactSpeed downward speed at the landing tick, in blocks per tick (positive)
+     * @param intensity   0..1 user strength
+     */
+    public static Pose landing(float ageTicks, float impactSpeed, float intensity) {
+        if (!Float.isFinite(ageTicks) || !Float.isFinite(impactSpeed)) return Pose.NONE;
+        double strength = clamp(intensity, 0, 1);
+        double impact = clamp(impactSpeed, 0, 1);
+        if (strength <= 0 || impact < LANDING_MIN_SPEED || ageTicks < 0 || ageTicks >= LANDING_TICKS) {
+            return Pose.NONE;
+        }
+        double t = clamp(ageTicks / LANDING_TICKS, 0, 1);
+        double falloff = 1 - t * t * (3 - 2 * t);
+        double scale = clamp((impact - LANDING_MIN_SPEED) / .58, 0, 1) * strength * falloff;
+        if (scale <= .001) return Pose.NONE;
+
+        // Knees drive forward, the torso folds a little, the head stays level.
+        Limb body = new Limb((float) (.12 * scale), 0, 0);
+        Limb head = new Limb((float) (-.06 * scale), 0, 0);
+        // Arms swing slightly back and out to absorb the drop.
+        Limb rightArm = new Limb((float) (.16 * scale), 0, (float) (-.14 * scale));
+        Limb leftArm = new Limb((float) (.16 * scale), 0, (float) (.14 * scale));
+        Limb rightLeg = new Limb((float) (.28 * scale), 0, 0);
+        Limb leftLeg = new Limb((float) (.28 * scale), 0, 0);
+        return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
+    }
+
     /**
      * Alternating reach while climbing a ladder or vine.
      *

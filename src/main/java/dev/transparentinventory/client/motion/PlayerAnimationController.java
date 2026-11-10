@@ -9,6 +9,9 @@ import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.inventory.CraftingMenu;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Third-person avatar animation layer.
  *
@@ -22,7 +25,20 @@ import net.minecraft.world.inventory.CraftingMenu;
 public final class PlayerAnimationController {
     public static final PlayerAnimationController INSTANCE = new PlayerAnimationController();
 
+    /** Bounded per-entity landing state; a busy server cannot grow this without limit. */
+    private static final int MAX_TRACKED = 256;
+
+    private final Map<Integer, Flight> flights = new HashMap<>();
+    private Object trackedLevel;
+
     private PlayerAnimationController() {
+    }
+
+    /** Remembers whether an avatar was off the ground and how fast it came down. */
+    private static final class Flight {
+        boolean wasAirborne;
+        float descentSpeed;
+        float landedAtAge = Float.NaN;
     }
 
     public void apply(HumanoidModel<?> model, AvatarRenderState state) {
@@ -61,6 +77,9 @@ public final class PlayerAnimationController {
             AvatarMotionMath.Pose climb = config.motion.airborneMotion
                     ? climbing(client, state, (float) config.motion.playerIntensity)
                     : AvatarMotionMath.Pose.NONE;
+            AvatarMotionMath.Pose landing = config.motion.landingMotion
+                    ? landing(client, state, (float) config.motion.playerIntensity)
+                    : AvatarMotionMath.Pose.NONE;
             if (attack != null) {
                 boolean idle = state.walkAnimationSpeed < .15F;
                 pose = AvatarMotionMath.attack(attack.style(), attack.progress(), attack.side(),
@@ -74,6 +93,9 @@ public final class PlayerAnimationController {
             } else if (airborne != AvatarMotionMath.Pose.NONE) {
                 // The walk cycle keeps running in the air; this replaces that read.
                 pose = airborne;
+            } else if (landing != AvatarMotionMath.Pose.NONE) {
+                // Grounded again; absorb the drop before handing back to the walk cycle.
+                pose = landing;
             } else if (stride != AvatarMotionMath.Pose.NONE) {
                 pose = stride;
             }
@@ -105,6 +127,42 @@ public final class PlayerAnimationController {
             return AvatarMotionMath.Pose.NONE;
         }
         return AvatarMotionMath.airborne((float) avatar.getDeltaMovement().y, intensity);
+    }
+
+    /**
+     * Landing recovery, driven by a small per-entity history because the render
+     * state only reports the current tick. Descent speed is sampled while airborne
+     * and replayed for a few ticks after the avatar touches down.
+     */
+    private AvatarMotionMath.Pose landing(Minecraft client, AvatarRenderState state, float intensity) {
+        Avatar avatar = avatar(client, state);
+        if (avatar == null) return AvatarMotionMath.Pose.NONE;
+        if (client.level != trackedLevel) {
+            flights.clear();
+            trackedLevel = client.level;
+        }
+        if (flights.size() > MAX_TRACKED) flights.clear();
+        Flight flight = flights.computeIfAbsent(state.id, id -> new Flight());
+        boolean grounded = avatar.onGround() && !avatar.isInWater() && !avatar.isInLava()
+                && !avatar.onClimbable();
+        if (!grounded) {
+            flight.wasAirborne = true;
+            flight.descentSpeed = (float) Math.max(0, -avatar.getDeltaMovement().y);
+            return AvatarMotionMath.Pose.NONE;
+        }
+        if (flight.wasAirborne) {
+            flight.wasAirborne = false;
+            if (flight.descentSpeed >= AvatarMotionMath.LANDING_MIN_SPEED) {
+                flight.landedAtAge = state.ageInTicks;
+            }
+        }
+        if (Float.isNaN(flight.landedAtAge)) return AvatarMotionMath.Pose.NONE;
+        float age = state.ageInTicks - flight.landedAtAge;
+        if (age < 0 || age >= AvatarMotionMath.LANDING_TICKS) {
+            flight.landedAtAge = Float.NaN;
+            return AvatarMotionMath.Pose.NONE;
+        }
+        return AvatarMotionMath.landing(age, flight.descentSpeed, intensity);
     }
 
     private static Avatar avatar(Minecraft client, AvatarRenderState state) {

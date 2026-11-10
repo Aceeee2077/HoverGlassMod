@@ -87,7 +87,7 @@
   "spatialui.motion.hand_intensity": "手部动效强度",
   "spatialui.motion.sprint": "疾跑轻微摇摆",
   "spatialui.motion.jump": "起跳视角反馈",
-  "spatialui.motion.landing": "落地视角反馈",
+  "spatialui.motion.landing": "落地反馈",
   "spatialui.motion.hit": "命中轻微反馈",
   "spatialui.motion.camera_intensity": "视角动效强度",
   "spatialui.motion.break": "破坏方块材质碎片",
