@@ -1051,6 +1051,7 @@ public final class InventoryRegressionTest {
                     "the backup is a sibling with a .bak suffix");
             check(!ConfigBackups.copy(config), "a missing config has nothing to back up");
             check(!ConfigBackups.exists(config), "no backup exists before the first save");
+            check(ConfigBackups.snapshotCount(config) == 0, "a fresh install has no snapshots to count");
 
             Files.writeString(config, "first");
             check(ConfigBackups.copy(config), "the save backs up the previous file");
@@ -1079,6 +1080,8 @@ public final class InventoryRegressionTest {
                 kept = ConfigBackups.rotate(config, stamp + index);
             }
             check(kept == ConfigBackups.KEEP, "rotation keeps exactly the newest snapshots");
+            check(ConfigBackups.snapshotCount(config) == ConfigBackups.KEEP,
+                    "the snapshot count matches the files on disk");
             try (var stream = Files.list(rotation)) {
                 var names = stream.filter(Files::isRegularFile)
                         .map(path -> path.getFileName().toString()).sorted().toList();
@@ -1107,6 +1110,7 @@ public final class InventoryRegressionTest {
             }
             Files.deleteIfExists(rotation);
             check(ConfigBackups.newest(config) == null, "a missing rotation folder has no newest snapshot");
+            check(ConfigBackups.snapshotCount(config) == 0, "a missing rotation folder counts no snapshots");
             Files.deleteIfExists(ConfigBackups.backupPath(config));
             Files.deleteIfExists(dir);
         } catch (IOException e) {

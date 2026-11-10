@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.41.0 恢复按钮显示快照数量
+
+- `ConfigBackups.snapshotCount(Path)` 统计轮换目录中带前缀的普通文件，目录缺失或不可读时返回 0；`ConfigLoader.snapshotCount()` 封装真实配置路径。兼容性页的恢复按钮标签追加 `(N)`，`N == 0` 时按钮禁用并把 tooltip 换成「还没有快照」。
+- `testConfigBackups` 补上：全新安装计数为 0；裁剪后计数等于 `KEEP`；删除轮换目录后再次为 0。26.2 `physicsTest` 通过，共 **1,807 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认禁用按钮是否仍显示 tooltip，也未确认标签加计数后在窄窗口下是否截断。
+
 ## 2026-11-10 · 0.40.0 移除已失效的配置键
 
 - 删除四个已无引用的字段及其清洗行：`lookDistance`、`maxBodyYaw`、`bodyYawRatio`、`playerSlideSmoothing`。全仓库检索确认删除前没有任何渲染、布局或动画代码读取它们；`playerSlideRatio`、`playerPreview` 仍被 1.21.x 分支使用，因此保留。

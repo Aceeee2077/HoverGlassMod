@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.41.0 snapshot count on the restore button:** **Restore newest snapshot** now shows how many snapshots are kept next to its label, and greys itself out with an explanatory tooltip when the history is empty. The count refreshes every time the page is rebuilt, so restoring or saving is reflected immediately, and a failed read is treated as zero rather than a guess.
+
 **26.x · 0.40.0 retired config keys removed:** Four values that no longer drove anything — `lookDistance`, `maxBodyYaw`, `bodyYawRatio` and `playerSlideSmoothing` — are gone from the saved file, so the config no longer advertises knobs that silently do nothing. Existing files that still name them keep loading: unknown keys are ignored, the remaining values are read normally, and the next save drops the stale entries.
 
 **26.x · 0.39.0 remembered page survives restarts:** The page memory from 0.32.0 is now saved as `settingsPage` in the config, so closing the game and reopening it returns to the same settings page instead of starting over at transparency. Navigating still updates the session immediately, an out-of-range hand-edited value clamps back to the first page, and leaving the settings screen performs the save as before.

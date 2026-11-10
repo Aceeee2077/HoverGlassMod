@@ -336,7 +336,9 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
                 notify("spatialui.transfer.restored");
             }).bounds(left, row + 88, contentWidth, 20).build());
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.snapshot"), button -> {
+            int snapshotCount = ConfigLoader.snapshotCount();
+            var snapshotButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.snapshot")
+                            .append(" (" + snapshotCount + ")"), button -> {
                 InventoryConfig snapshot = ConfigLoader.loadNewestSnapshot();
                 if (snapshot == null) {
                     notify("spatialui.transfer.snapshot.none");
@@ -346,8 +348,10 @@ public final class SpatialSettingsScreen extends Screen {
                 ConfigLoader.save();
                 rebuildWidgets();
                 notify("spatialui.transfer.snapshot.restored");
-            }).bounds(left, row + 110, contentWidth, 20).build())
-                    .setTooltip(Tooltip.create(Component.translatable("spatialui.transfer.snapshot.hint")));
+            }).bounds(left, row + 110, contentWidth, 20).build());
+            snapshotButton.active = snapshotCount > 0;
+            snapshotButton.setTooltip(Tooltip.create(Component.translatable(snapshotCount > 0
+                    ? "spatialui.transfer.snapshot.hint" : "spatialui.transfer.snapshot.none")));
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             goTo(SettingsPages.previous(page));

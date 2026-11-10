@@ -109,6 +109,23 @@ public final class ConfigBackups {
     }
 
     /**
+     * Number of rotating snapshots currently kept; zero when the folder is
+     * missing or unreadable.
+     */
+    public static int snapshotCount(Path config) {
+        Path directory = rotationDirectory(config);
+        if (directory == null || !Files.isDirectory(directory)) return 0;
+        try (var stream = Files.list(directory)) {
+            return (int) stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(ROTATION_PREFIX))
+                    .count();
+        } catch (IOException | RuntimeException ignored) {
+            return 0;
+        }
+    }
+
+    /**
      * The newest rotating snapshot, or {@code null} when the folder is missing,
      * empty or unreadable. Sortable names make lexicographic order chronological.
      */

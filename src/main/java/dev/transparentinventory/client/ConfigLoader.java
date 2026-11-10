@@ -88,6 +88,11 @@ public final class ConfigLoader {
      * @return a sanitized config, or {@code null} when no snapshot exists or it
      *         cannot be parsed
      */
+    /** Number of rotating snapshots available to restore; zero when there are none. */
+    public static synchronized int snapshotCount() {
+        return ConfigBackups.snapshotCount(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+    }
+
     public static synchronized InventoryConfig loadNewestSnapshot() {
         Path snapshot = ConfigBackups.newest(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
         if (snapshot == null) return null;
