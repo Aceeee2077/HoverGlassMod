@@ -49,6 +49,7 @@ public final class InventoryRegressionTest {
         testConfigBackups();
         testHotbarRim();
         testGlassMaterials();
+        testGlassMaterialPresets();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -1086,6 +1087,52 @@ public final class InventoryRegressionTest {
         checkClose(config.slotBorderOpacity, 0, 1E-6, "a NaN slot rim falls back to its lower bound");
         checkClose(config.hoverOpacity, 1, 1E-6, "the hover highlight clamps above 1");
         checkClose(config.selectedOpacity, 0, 1E-6, "the selected highlight clamps below 0");
+    }
+
+    private static void testGlassMaterialPresets() {
+        InventoryConfig config = new InventoryConfig();
+        check(GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.FROSTED),
+                "fresh defaults match the frosted preset");
+        check(!GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.CLEAR),
+                "fresh defaults are not the clear preset");
+        for (GlassMaterialPresets.Preset preset : GlassMaterialPresets.Preset.values()) {
+            GlassMaterialPresets.apply(config, preset);
+            check(GlassMaterialPresets.matches(config, preset), "applying " + preset + " matches it back");
+            check(GlassMaterialPresets.current(config) == preset, "current() reports " + preset);
+            checkClose(config.slotOpacity, preset.slotOpacity(), 1E-6, preset + " slot fill");
+            checkClose(config.borderOpacity, preset.borderOpacity(), 1E-6, preset + " panel rim");
+            checkClose(config.slotBorderOpacity, preset.slotBorderOpacity(), 1E-6, preset + " slot rim");
+            checkClose(config.hoverOpacity, preset.hoverOpacity(), 1E-6, preset + " hover highlight");
+            checkClose(config.selectedOpacity, preset.selectedOpacity(), 1E-6, preset + " selected highlight");
+            for (float alpha : new float[]{config.slotOpacity, config.borderOpacity, config.slotBorderOpacity,
+                    config.hoverOpacity, config.selectedOpacity}) {
+                check(alpha >= 0 && alpha <= 1, preset + " alphas stay inside [0, 1]");
+            }
+            check(preset.hoverOpacity() < preset.selectedOpacity(), preset + " keeps selection stronger than hover");
+        }
+        GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.CLEAR);
+        check(GlassMaterialPresets.Preset.CLEAR.slotOpacity() < GlassMaterialPresets.Preset.FROSTED.slotOpacity()
+                        && GlassMaterialPresets.Preset.FROSTED.slotOpacity() < GlassMaterialPresets.Preset.VIVID.slotOpacity(),
+                "slot fill thickens from clear to vivid");
+        check(GlassMaterialPresets.Preset.CLEAR.borderOpacity() < GlassMaterialPresets.Preset.FROSTED.borderOpacity()
+                        && GlassMaterialPresets.Preset.FROSTED.borderOpacity() < GlassMaterialPresets.Preset.VIVID.borderOpacity(),
+                "panel rim strengthens from clear to vivid");
+        check(GlassMaterialPresets.Preset.CLEAR.slotBorderOpacity() < GlassMaterialPresets.Preset.FROSTED.slotBorderOpacity()
+                        && GlassMaterialPresets.Preset.FROSTED.slotBorderOpacity() < GlassMaterialPresets.Preset.VIVID.slotBorderOpacity(),
+                "slot rim strengthens from clear to vivid");
+        check(GlassMaterialPresets.Preset.CLEAR.hoverOpacity() < GlassMaterialPresets.Preset.FROSTED.hoverOpacity()
+                        && GlassMaterialPresets.Preset.FROSTED.hoverOpacity() < GlassMaterialPresets.Preset.VIVID.hoverOpacity(),
+                "hover highlight strengthens from clear to vivid");
+        check(GlassMaterialPresets.Preset.CLEAR.selectedOpacity() < GlassMaterialPresets.Preset.FROSTED.selectedOpacity()
+                        && GlassMaterialPresets.Preset.FROSTED.selectedOpacity() < GlassMaterialPresets.Preset.VIVID.selectedOpacity(),
+                "selected highlight strengthens from clear to vivid");
+        config.slotOpacity = 0.077F;
+        check(GlassMaterialPresets.current(config) == null, "hand-tuned alphas match no preset");
+        config.sanitize();
+        GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.VIVID);
+        GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.VIVID);
+        check(GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.VIVID),
+                "re-applying a preset stays idempotent");
     }
 
     private static void testInventoryCursorLook() {

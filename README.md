@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.24.0 material presets:** The glass material page gains three preset buttons — **Clear**, **Frosted** and **Vivid** — that set all five alphas in one click. Each bundle stays inside the authored ranges and stays ordered, so fills, rims and highlights thicken together from Clear to Vivid; **Frosted** is exactly the default config, so it doubles as a one-click restore of the stock look. The button for the preset currently in effect is disabled, so the page always shows which material is active, and moving any slider re-enables all three for hand tuning.
+
 **26.x · 0.23.0 glass material page:** A twelfth page exposes the alpha values that previously needed a hand-edited config: **slot fill**, **panel rim**, **slot rim**, **hover highlight** and **selected highlight** opacity. They are the same values the renderer already used, so tuning them changes the actual glass rather than a preview, and everything still clamps to 0–100% on load. The hotbar keeps its own rim control from 0.17.0.
 
 **26.x · 0.22.0 keyboard page navigation:** **Page Up** and **Page Down** cycle the eleven settings pages and **Home** jumps back to the transparency page, so reaching a distant page no longer means clicking through the cycle. The keys use the same wrap-around helpers as the arrow buttons, and the footer hint now names them along with the F8 / Esc save shortcut.

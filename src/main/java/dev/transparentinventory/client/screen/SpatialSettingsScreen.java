@@ -2,6 +2,7 @@ package dev.transparentinventory.client.screen;
 
 import dev.transparentinventory.client.ConfigLoader;
 import dev.transparentinventory.client.ConfigTransfer;
+import dev.transparentinventory.client.GlassMaterialPresets;
 import dev.transparentinventory.client.InventoryConfig;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -23,6 +24,7 @@ public final class SpatialSettingsScreen extends Screen {
     private int page;
     private int top;
     private Button inheritButton;
+    private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -41,6 +43,7 @@ public final class SpatialSettingsScreen extends Screen {
         page = SettingsPages.clamp(page);
         int row = top + 34;
         inheritButton = null;
+        presetButtons.clear();
         if (page == 0) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
                     () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true));
@@ -194,6 +197,20 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.material.selected",
                     () -> InventoryConfig.get().selectedOpacity,
                     value -> InventoryConfig.get().selectedOpacity = (float) value, true));
+            GlassMaterialPresets.Preset[] presets = GlassMaterialPresets.Preset.values();
+            int gap = 4;
+            int presetWidth = (contentWidth - gap * (presets.length - 1)) / presets.length;
+            for (int index = 0; index < presets.length; index++) {
+                GlassMaterialPresets.Preset preset = presets[index];
+                String key = "spatialui.material.preset." + preset.name().toLowerCase(java.util.Locale.ROOT);
+                Button button = Button.builder(Component.translatable(key), pressed -> {
+                    GlassMaterialPresets.apply(InventoryConfig.get(), preset);
+                    rebuildWidgets();
+                }).bounds(left + index * (presetWidth + gap), row + 110, presetWidth, 20).build();
+                button.active = !GlassMaterialPresets.matches(InventoryConfig.get(), preset);
+                button.setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
+                presetButtons.add(addRenderableWidget(button));
+            }
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);
@@ -316,6 +333,12 @@ public final class SpatialSettingsScreen extends Screen {
                     case GLOBAL -> "spatialui.settings.inherited";
                 }, parent.getTitle());
         graphics.centeredText(font, context, width / 2, top + 15, 0xFFCCD5E0);
+        // Dragging a material slider does not rebuild the page, so refresh the
+        // preset buttons each frame to keep "already applied" honest.
+        GlassMaterialPresets.Preset[] presets = GlassMaterialPresets.Preset.values();
+        for (int index = 0; index < presetButtons.size() && index < presets.length; index++) {
+            presetButtons.get(index).active = !GlassMaterialPresets.matches(InventoryConfig.get(), presets[index]);
+        }
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)
                 .append(" · ").append(Component.translatable("spatialui.settings.hint")), width / 2, top + 200, 0xFFB9C7D4);
