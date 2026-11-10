@@ -380,10 +380,16 @@ public final class SpatialSettingsScreen extends Screen {
         }).bounds(left, row + 138, 20, 20).build());
         previous.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.previous")
                 .append(": ").append(Component.translatable(SettingsPages.previousLabelKey(page)))));
+        var resetPage = addRenderableWidget(Button.builder(
+                Component.translatable("spatialui.settings.reset_page"), button -> {
+            if (PageDefaults.reset(InventoryConfig.get(), page)) rebuildWidgets();
+        }).bounds(left + 22, row + 138, 20, 20).build());
+        resetPage.active = PageDefaults.supports(page);
+        resetPage.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.reset_page.hint")));
         var forward = addRenderableWidget(Button.builder(
                 Component.translatable(SettingsPages.nextLabelKey(page)), button -> {
             goTo(SettingsPages.next(page));
-        }).bounds(left + 22, row + 138, contentWidth / 2 - 24, 20).build());
+        }).bounds(left + 44, row + 138, contentWidth / 2 - 46, 20).build());
         forward.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.next")
                 .append(": ").append(Component.translatable(SettingsPages.nextLabelKey(page)))));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())

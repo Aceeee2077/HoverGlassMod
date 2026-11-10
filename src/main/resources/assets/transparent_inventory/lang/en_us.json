@@ -16,6 +16,8 @@
   "spatialui.settings.page": "Page %s / %s",
   "spatialui.settings.previous": "Previous page",
   "spatialui.settings.next": "Next page",
+  "spatialui.settings.reset_page": "↺",
+  "spatialui.settings.reset_page.hint": "Reset this page to defaults (Del)",
   "spatialui.settings.save_failed": "Hoverglass could not save settings. Changes remain active for this game session.",
   "spatialui.scale": "GUI scale",
   "spatialui.camera.distance": "Camera distance",

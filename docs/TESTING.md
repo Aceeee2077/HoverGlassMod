@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.44.0 本页重置按钮
+
+- 导航行插入 **↺** 按钮（宽 20），与上一页按钮并排；点击调用 `PageDefaults.reset(config, page)` 并在成功后重建页面，`PageDefaults.supports(page)` 为假时禁用。下一页按钮相应右移并缩窄，Done 按钮位置不变。
+- 两个语言文件新增 `spatialui.settings.reset_page`（均为 ↺）与说明性 tooltip 键；`testLanguageKeys` 自动确认两边的键集合一致。26.2 `physicsTest` 通过，共 **1,830 条断言**（本轮未新增纯逻辑，计数不变）。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认三枚按钮在最小窗口宽度下的排布，也未确认禁用按钮的 tooltip 是否可悬停显示。
+
 ## 2026-11-10 · 0.43.0 镜头取景预设
 
 - 新增 `CameraPresets`：`SUBTLE(2.4, .45, 2.0, 0, 0, 300)`、`BALANCED(3.0, .72, 4.0, 0, 0, 420)`、`CINEMATIC(3.8, .90, 7.0, 0, 0, 600)`，`apply()` 一次写入距离、侧移、倾斜、两个角度偏角与过渡时长，`matches()` 以 1e-4 容差比较，`current()` 返回匹配项或 `null`。

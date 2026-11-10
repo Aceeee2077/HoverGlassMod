@@ -16,6 +16,8 @@
   "spatialui.settings.page": "第 %s / %s 页",
   "spatialui.settings.previous": "上一页",
   "spatialui.settings.next": "下一页",
+  "spatialui.settings.reset_page": "↺",
+  "spatialui.settings.reset_page.hint": "将本页恢复默认值（Del）",
   "spatialui.settings.save_failed": "Hoverglass 设置保存失败；修改已在当前游戏会话生效。",
   "spatialui.scale": "界面缩放",
   "spatialui.camera.distance": "镜头距离",
