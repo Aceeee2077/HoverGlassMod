@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.40.0 移除已失效的配置键
+
+- 删除四个已无引用的字段及其清洗行：`lookDistance`、`maxBodyYaw`、`bodyYawRatio`、`playerSlideSmoothing`。全仓库检索确认删除前没有任何渲染、布局或动画代码读取它们；`playerSlideRatio`、`playerPreview` 仍被 1.21.x 分支使用，因此保留。
+- `testConfigTransfer` 新增兼容性检查：包含 `maxBodyYaw`、`lookDistance`、`playerSlideSmoothing` 等已移除键的 JSON 仍能解析，且同一对象中的 `panelOpacity` 正常读取（Gson 忽略未知字段）。26.2 `physicsTest` 通过，共 **1,804 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端；未在真实旧配置上确认下一次保存后这四个键确实消失，但 Gson 序列化只写当前字段，行为由实现直接保证。
+
 ## 2026-11-10 · 0.39.0 页面记忆跨重启保留
 
 - `InventoryConfig` 新增 `settingsPage`（默认 0），`sanitize()` 夹紧到 0–14；`SettingsPages.remember()` 现在同时写入会话静态值与 `InventoryConfig.get().settingsPage`，`remembered()` 在本次会话尚未翻页时回退到配置值，因此重启后能恢复上次页面。

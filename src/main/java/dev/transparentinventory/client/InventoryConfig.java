@@ -278,20 +278,12 @@ public final class InventoryConfig {
     // Look-at behaviour
     // ------------------------------------------------------------------
 
-    /** Virtual distance used to convert pixel offsets into yaw/pitch angles. */
-    public double lookDistance = 600.0;
     /** Exponential smoothing speed for the look angles. */
     public double lookSmoothing = 11.0;
-    /** Exponential smoothing speed for the player preview slide. */
-    public double playerSlideSmoothing = 12.0;
     /** Maximum head yaw in degrees. */
     public float maxHeadYaw = 50.0F;
     /** Maximum head pitch in degrees. */
     public float maxHeadPitch = 35.0F;
-    /** Maximum body yaw in degrees. */
-    public float maxBodyYaw = 16.0F;
-    /** Fraction of the head yaw that the body follows. */
-    public double bodyYawRatio = 0.34;
 
     /** Public no-arg constructor required for Gson and tests. */
     public InventoryConfig() {
@@ -399,13 +391,9 @@ public final class InventoryConfig {
         recipeBookOffset = clamp(recipeBookOffset, 0.0, 160.0);
         playerSlideRatio = clamp(playerSlideRatio, 0.05, 0.60);
 
-        lookDistance = clamp(lookDistance, 100.0, 3000.0);
         lookSmoothing = clamp(lookSmoothing, 1.0, 40.0);
-        playerSlideSmoothing = clamp(playerSlideSmoothing, 2.0, 40.0);
         maxHeadYaw = clamp(maxHeadYaw, 0.0F, 90.0F);
         maxHeadPitch = clamp(maxHeadPitch, 0.0F, 90.0F);
-        maxBodyYaw = clamp(maxBodyYaw, 0.0F, 60.0F);
-        bodyYawRatio = clamp(bodyYawRatio, 0.0, 0.80);
     }
 
     private static float clamp(float value, float min, float max) {

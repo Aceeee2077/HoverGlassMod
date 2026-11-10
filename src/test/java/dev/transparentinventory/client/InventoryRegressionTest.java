@@ -968,6 +968,11 @@ public final class InventoryRegressionTest {
         check(json.startsWith("{") && json.endsWith("}"), "exported settings are a JSON object");
         check(json.contains("\n"), "exported settings are pretty-printed");
 
+        InventoryConfig retired = ConfigTransfer.parse(
+                "{\"panelOpacity\":0.4,\"maxBodyYaw\":32,\"lookDistance\":900,\"playerSlideSmoothing\":20}");
+        check(retired != null, "a config naming retired fields still parses");
+        checkClose(retired.panelOpacity, 0.4, 1E-6, "retired fields do not block the remaining values");
+
         InventoryConfig parsed = ConfigTransfer.parse(json);
         check(parsed != null, "exported settings parse again");
         checkClose(parsed.panelOpacity, 0.23, 1E-6, "panel opacity survives a round trip");
