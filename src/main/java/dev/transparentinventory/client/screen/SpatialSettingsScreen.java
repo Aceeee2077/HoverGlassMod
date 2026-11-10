@@ -397,9 +397,9 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(parsed);
-                saveNow();
+                boolean saved = saveNow();
                 rebuildWidgets();
-                notify("spatialui.transfer.pasted");
+                notify(saved ? "spatialui.transfer.pasted" : "spatialui.settings.save_failed");
             }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build());
             addRenderableWidget(Button.builder(Component.translatable(restoreConfirm.armed()
                     ? "spatialui.transfer.confirm" : "spatialui.transfer.restore"), button -> {
@@ -414,9 +414,9 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(backup);
-                saveNow();
+                boolean saved = saveNow();
                 rebuildWidgets();
-                notify("spatialui.transfer.restored");
+                notify(saved ? "spatialui.transfer.restored" : "spatialui.settings.save_failed");
             }).bounds(left, row + 88, contentWidth, 20).build());
             int snapshotCount = ConfigLoader.snapshotCount();
             var snapshotButton = addRenderableWidget(Button.builder(Component.translatable(
@@ -434,9 +434,9 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(snapshot);
-                saveNow();
+                boolean saved = saveNow();
                 rebuildWidgets();
-                notify("spatialui.transfer.snapshot.restored");
+                notify(saved ? "spatialui.transfer.snapshot.restored" : "spatialui.settings.save_failed");
             }).bounds(left, row + 110, contentWidth, 20).build());
             snapshotButton.active = snapshotCount > 0;
             long snapshotMillis = snapshotCount > 0 ? ConfigLoader.newestSnapshotMillis() : -1;
@@ -496,10 +496,13 @@ public final class SpatialSettingsScreen extends Screen {
         }
     }
 
-    /** Saves immediately and treats the result as the close-time baseline. */
+    /**
+     * Saves immediately. A successful write becomes the close-time baseline; a
+     * failed one keeps the old baseline so closing retries and reports the error.
+     */
     private boolean saveNow() {
         boolean saved = ConfigLoader.save();
-        openedJson = ConfigLoader.toJson(InventoryConfig.get());
+        if (saved) openedJson = ConfigLoader.toJson(InventoryConfig.get());
         return saved;
     }
 

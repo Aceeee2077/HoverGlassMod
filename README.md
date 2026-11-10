@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.61.0 a failed save is never silent:** Pasting settings, restoring the previous file and restoring a snapshot now report a failed write instead of showing their usual success message over a config that was never persisted. A failure also leaves the close-time baseline alone, so closing the screen still retries the write and reports it, rather than treating the earlier failure as saved. In-memory changes stay active for the session either way, exactly as the message says.
+
 **26.x · 0.60.0 confirm the reference glass style:** **Apply reference glass style** now takes two clicks, matching the other destructive actions. Its tooltip lists what the preset overwrites — opacity, rim, camera and animation values — before anything happens; the first press only changes the label, and leaving the page, resizing or pressing any other action disarms it again. A one-off look is still easy to reach, just harder to apply by accident.
 
 **26.x · 0.59.0 third-person view switch:** The camera angles page gains **Third-person view**, the `thirdPersonOnOpen` value that until now only existed in the config file. Turned off, opening the inventory keeps the first-person camera and shows only the glass panel, with no pull-back to the avatar; the angle sliders, framing presets and **Level the camera** then have nothing to frame, and turning it back on restores the usual sweep. The camera controller is reset on each press so the change applies immediately, and Delete on the page restores the switch along with the rest of the framing.
