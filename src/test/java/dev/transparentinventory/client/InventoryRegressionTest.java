@@ -884,6 +884,21 @@ public final class InventoryRegressionTest {
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
                 "invalid titles fall back to the first page");
+        check(SettingsPages.shift(0, 1) == 1, "one step forward advances a page");
+        check(SettingsPages.shift(SettingsPages.last(), 1) == 0, "stepping forward from the last page wraps");
+        check(SettingsPages.shift(0, -1) == SettingsPages.last(), "stepping back from the first page wraps");
+        check(SettingsPages.shift(5, 2 * SettingsPages.COUNT) == 5, "a full cycle of steps returns to the same page");
+        check(SettingsPages.shift(5, -2 * SettingsPages.COUNT) == 5, "a full cycle backwards returns to the same page");
+        check(SettingsPages.scrollStep(1) == -1, "scrolling up moves to the previous page");
+        check(SettingsPages.scrollStep(-1) == 1, "scrolling down moves to the next page");
+        check(SettingsPages.scrollStep(0) == 0, "no scrolling does not change pages");
+        check(SettingsPages.scrollStep(0.49) == 0 && SettingsPages.scrollStep(-0.49) == 0,
+                "sub-notch scroll amounts are ignored");
+        check(SettingsPages.scrollStep(0.5) == -1, "a half-notch scroll still counts");
+        check(SettingsPages.scrollStep(Double.NaN) == 0, "invalid scroll amounts are ignored");
+        check(SettingsPages.scrollStep(Double.POSITIVE_INFINITY) == 0
+                        && SettingsPages.scrollStep(Double.NEGATIVE_INFINITY) == 0,
+                "infinite scroll amounts are ignored");
         check(SettingsPages.last() == SettingsPages.COUNT - 1, "End jumps to the last page");
         check(SettingsPages.remembered() == 0, "the first open starts on the transparency page");
         check(SettingsPages.remember(7) == 7 && SettingsPages.remembered() == 7,

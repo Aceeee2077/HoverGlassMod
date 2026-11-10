@@ -408,6 +408,13 @@ public final class SpatialSettingsScreen extends Screen {
         else dev.transparentinventory.client.compat.MinecraftAccess.screen(minecraft, parent);
     }
 
+    @Override public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        int step = SettingsPages.scrollStep(scrollY);
+        if (step == 0) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        goTo(SettingsPages.shift(page, step));
+        return true;
+    }
+
     @Override public boolean keyPressed(KeyEvent key) {
         if (key.key() == InputConstants.KEY_PAGEUP) {
             goTo(SettingsPages.previous(page));

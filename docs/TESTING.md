@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.34.0 滚轮翻页
+
+- `SettingsPages` 新增 `shift(page, steps)`（用 `Math.floorMod` 双向循环）与 `scrollStep(scrollY)`（向上为 -1、向下为 +1，`|scrollY| < 0.5` 或非有限值返回 0）。`SpatialSettingsScreen.mouseScrolled` 在步长为 0 时交回父类，否则 `goTo(shift(page, step))` 并吞掉本次滚动。
+- `testSettingsPages` 补上：向前/向后单步、首尾越界、正反整圈回到原页；滚轮方向、零值、±0.49 亚格量、0.5 边界、NaN 与正负无穷。26.2 `physicsTest` 通过，共 **1,759 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认滚轮在滑条上滚动时不会被吞掉后被误认为滑条失灵，也未确认快速滚轮是否会连续翻过多页。
+
 ## 2026-11-10 · 0.33.0 遮罩随面板淡入淡出
 
 - `Opacity` 新增纯函数 `fade(alpha, visibility)`：两者都夹紧到 0–1，任一为非有限值时返回 0（宁可隐藏也不闪出全黑），成品交给原有 `multiply()` 转成 ARGB。`ScreenMixin.spatial$dim` 改为用 `SpatialScreenManager.INSTANCE.visibility()` 调制 `worldDimOpacity`。

@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.34.0 scroll to change pages:** The mouse wheel now moves through the F8 pages — scrolling up goes back, scrolling down goes forward, both wrapping at the ends. Reaching the last page no longer takes nine clicks or a trip to the keyboard. Sub-notch trackpad jitter and invalid scroll amounts are ignored so a page cannot flip by accident, and Page Up / Page Down still work as before.
+
 **26.x · 0.33.0 dim fades with the panel:** The world dim behind the glass panel now follows the entrance instead of appearing at full strength on the first frame. Opening darkens the world as the panel slides in, and closing lifts the dim with the panel, so neither transition jumps. The **World dim** strength still sets the settled opacity, reduced motion and zero-length durations still snap instantly, and screens that do not use the spatial panel keep their vanilla dim.
 
 **26.x · 0.32.0 remembered settings page:** The F8 screen now reopens on the page last viewed in this session instead of always starting at transparency, so repeated tweaks to the same page take one key press. **End** jumps straight to the last page, matching **Home** for the first; both use the same clamped page memory and the page counter keeps its position after every rebuild.

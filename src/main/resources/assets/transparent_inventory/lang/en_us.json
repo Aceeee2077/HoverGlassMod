@@ -12,7 +12,7 @@
   "spatialui.settings.custom": "%s · Custom transparency",
   "spatialui.settings.inherited": "%s · Global transparency",
   "spatialui.settings.rule": "%s · Transparency from a screen rule",
-  "spatialui.settings.hint": "PgUp/PgDn · Del resets page · Esc saves",
+  "spatialui.settings.hint": "Scroll / PgUp/PgDn · Del resets page · Esc saves",
   "spatialui.settings.page": "Page %s / %s",
   "spatialui.settings.previous": "Previous page",
   "spatialui.settings.next": "Next page",
