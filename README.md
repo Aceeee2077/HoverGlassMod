@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.52.0 confirm the restores:** **Restore previous settings** and **Restore newest snapshot** now take two clicks as well. The first press changes the label to **Click again to confirm**; the second replaces the config. Both share the confirmation used by the full reset, which is thrown away whenever the page rebuilds — so changing pages or pressing another action never leaves a restore waiting to fire. A missing backup or snapshot still reports itself and returns to the unarmed state.
+
 **26.x · 0.51.0 confirm the full reset:** **Reset all settings** on the transparency page now takes two clicks. The first arms it and changes the label to **Click again to reset all**; the second restores every page and container override. Navigating away, resizing, or pressing any other action button disarms it, so the confirmation cannot linger, and the rotating snapshots remain the way back if the reset was a mistake.
 
 **26.x · 0.50.0 full duration range:** The **Camera transition** and **GUI animation duration** sliders now cover the whole 0–2000 ms range the config already accepted. Previously they stopped at 1000 ms, so a hand-edited value above that pinned the knob at the right edge and snapped back on the first drag; slowly sweeping transitions can now be set from the UI, and the readout follows the new range.

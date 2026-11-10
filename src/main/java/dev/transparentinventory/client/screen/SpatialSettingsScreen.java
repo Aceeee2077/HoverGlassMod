@@ -30,7 +30,9 @@ public final class SpatialSettingsScreen extends Screen {
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
     private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
     private Button levelCameraButton;
-    private boolean resetAllArmed;
+    private final ConfirmPress resetConfirm = new ConfirmPress();
+    private final ConfirmPress restoreConfirm = new ConfirmPress();
+    private final ConfirmPress snapshotConfirm = new ConfirmPress();
     private final ScrollAccumulator scroll = new ScrollAccumulator();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
@@ -74,13 +76,11 @@ public final class SpatialSettingsScreen extends Screen {
             }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build());
             inheritButton.active = screenName != null && InventoryConfig.get().hasScreenOverride(screenName);
             addRenderableWidget(Button.builder(Component.translatable(
-                    resetAllArmed ? "spatialui.settings.reset.confirm" : "spatialui.settings.reset"), button -> {
-                if (!resetAllArmed) {
-                    resetAllArmed = true;
+                    resetConfirm.armed() ? "spatialui.settings.reset.confirm" : "spatialui.settings.reset"), button -> {
+                if (!resetConfirm.press()) {
                     button.setMessage(Component.translatable("spatialui.settings.reset.confirm"));
                     return;
                 }
-                resetAllArmed = false;
                 InventoryConfig.setInstance(new InventoryConfig());
                 rebuildWidgets();
             }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build())
@@ -375,9 +375,15 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
                 notify("spatialui.transfer.pasted");
             }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build());
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.restore"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable(restoreConfirm.armed()
+                    ? "spatialui.transfer.confirm" : "spatialui.transfer.restore"), button -> {
+                if (!restoreConfirm.press()) {
+                    button.setMessage(Component.translatable("spatialui.transfer.confirm"));
+                    return;
+                }
                 InventoryConfig backup = ConfigLoader.loadBackup();
                 if (backup == null) {
+                    rebuildWidgets();
                     notify("spatialui.transfer.no_backup");
                     return;
                 }
@@ -387,10 +393,17 @@ public final class SpatialSettingsScreen extends Screen {
                 notify("spatialui.transfer.restored");
             }).bounds(left, row + 88, contentWidth, 20).build());
             int snapshotCount = ConfigLoader.snapshotCount();
-            var snapshotButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.snapshot")
+            var snapshotButton = addRenderableWidget(Button.builder(Component.translatable(
+                    snapshotConfirm.armed() ? "spatialui.transfer.confirm" : "spatialui.transfer.snapshot")
                             .append(" (" + snapshotCount + ")"), button -> {
+                if (!snapshotConfirm.press()) {
+                    button.setMessage(Component.translatable("spatialui.transfer.confirm")
+                            .append(" (" + snapshotCount + ")"));
+                    return;
+                }
                 InventoryConfig snapshot = ConfigLoader.loadNewestSnapshot();
                 if (snapshot == null) {
+                    rebuildWidgets();
                     notify("spatialui.transfer.snapshot.none");
                     return;
                 }
@@ -437,7 +450,9 @@ public final class SpatialSettingsScreen extends Screen {
      * page or pressing another button must not leave the reset button armed.
      */
     @Override protected void rebuildWidgets() {
-        resetAllArmed = false;
+        resetConfirm.disarm();
+        restoreConfirm.disarm();
+        snapshotConfirm.disarm();
         super.rebuildWidgets();
     }
 

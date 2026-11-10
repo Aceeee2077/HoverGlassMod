@@ -7,6 +7,7 @@ import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
 import dev.transparentinventory.client.render.Opacity;
+import dev.transparentinventory.client.screen.ConfirmPress;
 import dev.transparentinventory.client.screen.ScrollAccumulator;
 import dev.transparentinventory.client.screen.SettingsPages;
 import dev.transparentinventory.client.screen.SliderFormat;
@@ -67,6 +68,7 @@ public final class InventoryRegressionTest {
         testOpacityFade();
         testSliderFormat();
         testScrollAccumulator();
+        testConfirmPress();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -1808,6 +1810,21 @@ public final class InventoryRegressionTest {
         invalid.reset();
         checkClose(invalid.pending(), 0, 1E-9, "reset drops the partial scroll");
         check(invalid.accept(0.5) == -1, "a half notch alone still counts after a reset");
+    }
+
+    private static void testConfirmPress() {
+        ConfirmPress press = new ConfirmPress();
+        check(!press.armed(), "a new confirmation starts idle");
+        check(!press.press(), "the first press only arms the action");
+        check(press.armed(), "the first press leaves the action armed");
+        check(press.press(), "the second press completes the action");
+        check(!press.armed(), "completing the action disarms it");
+        check(!press.press(), "the next press arms the action again");
+        press.disarm();
+        check(!press.armed(), "disarm drops a pending confirmation");
+        check(!press.press(), "a press after disarm only arms again");
+        ConfirmPress other = new ConfirmPress();
+        check(!other.armed(), "confirmations do not share state");
     }
 
     private static void check(boolean condition, String message) {
