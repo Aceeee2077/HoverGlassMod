@@ -161,8 +161,10 @@
   "spatialui.hotbar.border": "Hotbar rim strength",
   "spatialui.hotbar.match_rim": "Match inventory rim",
   "spatialui.hotbar.match_rim.hint": "Copies the glass panel's rim strength onto the hotbar",
+  "spatialui.hotbar.match_rim.done": "The hotbar rim already matches the panel",
   "spatialui.hotbar.match_opacity": "Match panel opacity",
   "spatialui.hotbar.match_opacity.hint": "Copies the glass panel's fill opacity onto the hotbar",
+  "spatialui.hotbar.match_opacity.done": "The hotbar fill already matches the panel",
   "spatialui.ui.liquid_glass": "Liquid glass UI",
   "spatialui.ui.liquid_glass.hint": "Rounded glass and hover highlights for standard buttons and sliders in pause, options and settings menus. Applies instantly, independently of glass inventory."
 }

@@ -161,8 +161,10 @@
   "spatialui.hotbar.border": "快捷栏描边强度",
   "spatialui.hotbar.match_rim": "匹配物品栏边框",
   "spatialui.hotbar.match_rim.hint": "把玻璃面板的边框强度复制到快捷栏",
+  "spatialui.hotbar.match_rim.done": "快捷栏边框已经与面板一致",
   "spatialui.hotbar.match_opacity": "匹配面板透明度",
   "spatialui.hotbar.match_opacity.hint": "把玻璃面板的填充透明度复制到快捷栏",
+  "spatialui.hotbar.match_opacity.done": "快捷栏填充已经与面板一致",
   "spatialui.ui.liquid_glass": "液态玻璃 UI",
   "spatialui.ui.liquid_glass.hint": "为暂停菜单、选项和设置中的常规按钮及滑块启用圆角玻璃与悬停高光。实时切换，独立于玻璃背包。"
 }

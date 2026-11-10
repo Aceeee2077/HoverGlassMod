@@ -1,5 +1,13 @@
 # 验证记录
 
+## 2026-11-10 · 0.57.0 匹配按钮状态
+
+- `InventoryConfig` 新增两个纯查询：`hotbarRimMatches()` 与 `hotbarOpacityMatches()`，用 1e-6 容差比较快捷栏与面板的对应值，避免浮点复制后的尾差导致误判。
+- `SpatialSettingsScreen` 保存两个按钮引用，在 `init()` 与每帧 `extractRenderState` 中调用 `refreshMatchButtons()`：已匹配时置灰并把 tooltip 换成「已经与面板一致」，不匹配时恢复可用与原提示；只有状态变化时才重建 tooltip，避免每帧分配。点击后仍会重建页面，状态从当前数值重新计算。
+- 新增语言键 `spatialui.hotbar.match_rim.done` 与 `spatialui.hotbar.match_opacity.done`（中英各一），`testLanguageKeys` 继续校验两边键集合一致。
+- `testHotbarRim` 新增五条断言：不同边框/填充报告不匹配、复制后报告匹配、面板再次变化后重新不匹配。26.2 `physicsTest` 通过，共 **1,925 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认置灰状态在拖动滑条时的即时刷新，也未查看灰色按钮的 tooltip 渲染。
+
 ## 2026-11-10 · 0.56.0 快照时间提示
 
 - `ConfigBackups` 新增纯逻辑 `newestEpochMillis(Path)`：在最新快照文件名中截取时间戳并解析；缺少 `.json` 后缀、前缀之后不是数字、或根本没有快照目录时返回 -1。`ConfigLoader` 新增同步包装 `newestSnapshotMillis()`。

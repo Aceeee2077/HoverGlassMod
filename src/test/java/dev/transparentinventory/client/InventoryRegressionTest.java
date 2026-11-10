@@ -1199,10 +1199,13 @@ public final class InventoryRegressionTest {
                 "the hotbar rim is independent of the panel border");
         checkClose(config.borderOpacity, 0.9, 1E-6, "the panel border keeps its own value");
 
+        check(!config.hotbarRimMatches(), "different rims are reported as a mismatch");
         config.matchHotbarRim();
         checkClose(config.hotbarBorderOpacity, 0.9, 1E-6, "matching copies the panel rim onto the hotbar");
         checkClose(config.borderOpacity, 0.9, 1E-6, "matching leaves the panel rim untouched");
+        check(config.hotbarRimMatches(), "a matched hotbar rim is reported as matching");
         config.borderOpacity = 0.4F;
+        check(!config.hotbarRimMatches(), "moving the panel rim breaks the match again");
         config.matchHotbarRim();
         checkClose(config.hotbarBorderOpacity, 0.4, 1E-6, "matching follows later panel rim changes");
 
@@ -1210,8 +1213,10 @@ public final class InventoryRegressionTest {
         config.panelOpacity = 0.33F;
         checkClose(config.hotbarOpacity, 0.16, 1E-6,
                 "the hotbar fill is independent of the panel fill before matching");
+        check(!config.hotbarOpacityMatches(), "different fills are reported as a mismatch");
         config.matchHotbarOpacity();
         checkClose(config.hotbarOpacity, 0.33, 1E-6, "matching copies the panel fill onto the hotbar");
+        check(config.hotbarOpacityMatches(), "a matched hotbar fill is reported as matching");
         checkClose(config.panelOpacity, 0.33, 1E-6, "matching leaves the panel fill untouched");
         checkClose(config.hotbarBorderOpacity, 0.4, 1E-6, "matching the fill leaves the hotbar rim alone");
         config.panelOpacity = 0.05F;

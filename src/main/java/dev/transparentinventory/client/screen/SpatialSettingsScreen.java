@@ -30,6 +30,8 @@ public final class SpatialSettingsScreen extends Screen {
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
     private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
     private Button levelCameraButton;
+    private Button matchRimButton;
+    private Button matchOpacityButton;
     private final ConfirmPress resetConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
@@ -54,6 +56,8 @@ public final class SpatialSettingsScreen extends Screen {
         int row = top + 34;
         inheritButton = null;
         levelCameraButton = null;
+        matchRimButton = null;
+        matchOpacityButton = null;
         presetButtons.clear();
         cameraPresetButtons.clear();
         if (page == 0) {
@@ -170,16 +174,17 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.hotbar.border",
                     () -> InventoryConfig.get().hotbarBorderOpacity,
                     value -> InventoryConfig.get().hotbarBorderOpacity = (float) value, true));
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_rim"), button -> {
+            matchRimButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_rim"), button -> {
                 InventoryConfig.get().matchHotbarRim();
                 rebuildWidgets();
-            }).bounds(left, row + 66, contentWidth, 20).build())
-                    .setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.match_rim.hint")));
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_opacity"), button -> {
+            }).bounds(left, row + 66, contentWidth, 20).build());
+            matchOpacityButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_opacity"), button -> {
                 InventoryConfig.get().matchHotbarOpacity();
                 rebuildWidgets();
-            }).bounds(left, row + 88, contentWidth, 20).build())
-                    .setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.match_opacity.hint")));
+            }).bounds(left, row + 88, contentWidth, 20).build());
+            matchRimButton.setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.match_rim.hint")));
+            matchOpacityButton.setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.match_opacity.hint")));
+            refreshMatchButtons();
         } else if (page == 5) {
             motionToggle(left, row, contentWidth, "spatialui.motion.enabled", () -> InventoryConfig.get().motion.enabled, value -> InventoryConfig.get().motion.enabled = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.reduce", () -> InventoryConfig.get().motion.reduceMotion, value -> InventoryConfig.get().motion.reduceMotion = value);
@@ -506,6 +511,27 @@ public final class SpatialSettingsScreen extends Screen {
         return Component.translatable(key).append(": ").append(Component.translatable(enabled ? "options.on" : "options.off"));
     }
 
+    /** Greys out each match button while its hotbar value already equals the panel's. */
+    private void refreshMatchButtons() {
+        var config = InventoryConfig.get();
+        if (matchRimButton != null) {
+            boolean matched = config.hotbarRimMatches();
+            if (matchRimButton.active == matched) {
+                matchRimButton.active = !matched;
+                matchRimButton.setTooltip(Tooltip.create(Component.translatable(matched
+                        ? "spatialui.hotbar.match_rim.done" : "spatialui.hotbar.match_rim.hint")));
+            }
+        }
+        if (matchOpacityButton != null) {
+            boolean matched = config.hotbarOpacityMatches();
+            if (matchOpacityButton.active == matched) {
+                matchOpacityButton.active = !matched;
+                matchOpacityButton.setTooltip(Tooltip.create(Component.translatable(matched
+                        ? "spatialui.hotbar.match_opacity.done" : "spatialui.hotbar.match_opacity.hint")));
+            }
+        }
+    }
+
     /** Formats a snapshot timestamp in the player's local time, to the minute. */
     private static String snapshotStamp(long epochMillis) {
         return java.time.Instant.ofEpochMilli(epochMillis)
@@ -566,6 +592,7 @@ public final class SpatialSettingsScreen extends Screen {
         if (levelCameraButton != null) {
             levelCameraButton.active = !CameraPresets.isLevel(InventoryConfig.get());
         }
+        refreshMatchButtons();
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)
                 .append(" · ").append(Component.translatable(PageDefaults.supports(page)

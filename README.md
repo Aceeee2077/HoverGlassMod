@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.57.0 match buttons know when they are done:** **Match inventory rim** and **Match panel opacity** now grey themselves out while the hotbar value already equals the panel's, with a tooltip that says so — so a click that would change nothing is visibly unavailable. Moving either the panel slider or the hotbar slider re-enables the matching button on the next frame, and pressing it after a match still works because the state is recomputed from the live values rather than remembered.
+
 **26.x · 0.56.0 snapshot time in the tooltip:** Hovering **Restore newest snapshot** now also says when that snapshot was taken, in the same local time the file manager shows, so restoring is an informed choice instead of grabbing the latest copy blindly. The timestamp is read from the snapshot's file name, a missing or unreadable history shows only the usual hint, and the count and the time always describe the same file.
 
 **26.x · 0.55.0 page resets cover every control:** Resetting the transparency page now also turns the **Liquid glass UI** theme back off, and resetting the screen support page turns the master effects switch back on — both sat on those pages but were left untouched by Delete and **↺**. Every page now restores exactly the controls it shows.
