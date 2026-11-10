@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.42.0 快捷栏边框匹配物品栏
+
+- `InventoryConfig.matchHotbarRim()` 把 `borderOpacity` 一次性复制到 `hotbarBorderOpacity`，不建立联动；快捷栏页新增同名按钮，点击后重建页面让滑条立即反映新值。
+- `testHotbarRim` 补上：匹配后快捷栏等于面板边框、面板边框本身不变、面板边框再次变化后可重新匹配。26.2 `physicsTest` 通过，共 **1,810 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认按钮在快捷栏页上的实际点击反馈与重建后的滑条位置。
+
 ## 2026-11-10 · 0.41.0 恢复按钮显示快照数量
 
 - `ConfigBackups.snapshotCount(Path)` 统计轮换目录中带前缀的普通文件，目录缺失或不可读时返回 0；`ConfigLoader.snapshotCount()` 封装真实配置路径。兼容性页的恢复按钮标签追加 `(N)`，`N == 0` 时按钮禁用并把 tooltip 换成「还没有快照」。

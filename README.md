@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.42.0 match the hotbar rim:** The hotbar page gains **Match inventory rim**, which copies the glass panel's current rim strength onto the hotbar's independent value in one click. It is a one-off copy rather than a live link, so either slider can still be tuned afterwards, and the hotbar keeps its own rim until the button is used again.
+
 **26.x · 0.41.0 snapshot count on the restore button:** **Restore newest snapshot** now shows how many snapshots are kept next to its label, and greys itself out with an explanatory tooltip when the history is empty. The count refreshes every time the page is rebuilt, so restoring or saving is reflected immediately, and a failed read is treated as zero rather than a guess.
 
 **26.x · 0.40.0 retired config keys removed:** Four values that no longer drove anything — `lookDistance`, `maxBodyYaw`, `bodyYawRatio` and `playerSlideSmoothing` — are gone from the saved file, so the config no longer advertises knobs that silently do nothing. Existing files that still name them keep loading: unknown keys are ignored, the remaining values are read normally, and the next save drops the stale entries.

@@ -203,6 +203,9 @@ public final class InventoryConfig {
     /** Removes every per-screen opacity override; screens fall back to the global value. */
     public void clearScreenOpacities() { screenOpacities.clear(); }
 
+    /** Copies the glass panel's rim strength onto the hotbar's independent rim. */
+    public void matchHotbarRim() { hotbarBorderOpacity = borderOpacity; }
+
     /** Removes every opt-in rule, including wildcards, leaving only built-in containers. */
     public void clearScreenOptIns() { additionalScreens.clear(); }
 

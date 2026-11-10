@@ -155,6 +155,11 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.hotbar.border",
                     () -> InventoryConfig.get().hotbarBorderOpacity,
                     value -> InventoryConfig.get().hotbarBorderOpacity = (float) value, true));
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_rim"), button -> {
+                InventoryConfig.get().matchHotbarRim();
+                rebuildWidgets();
+            }).bounds(left, row + 66, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.hotbar.match_rim.hint")));
         } else if (page == 5) {
             motionToggle(left, row, contentWidth, "spatialui.motion.enabled", () -> InventoryConfig.get().motion.enabled, value -> InventoryConfig.get().motion.enabled = value);
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.reduce", () -> InventoryConfig.get().motion.reduceMotion, value -> InventoryConfig.get().motion.reduceMotion = value);
