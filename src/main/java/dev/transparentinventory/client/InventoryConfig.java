@@ -201,6 +201,9 @@ public final class InventoryConfig {
     /** Removes every per-screen opacity override; screens fall back to the global value. */
     public void clearScreenOpacities() { screenOpacities.clear(); }
 
+    /** Removes every opt-in rule, including wildcards, leaving only built-in containers. */
+    public void clearScreenOptIns() { additionalScreens.clear(); }
+
     private static boolean screenNameIn(List<String> rules, String className) {
         String clean = ScreenRules.cleanName(className);
         return clean != null && rules.contains(clean);

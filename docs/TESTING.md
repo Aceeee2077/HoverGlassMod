@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.38.0 清空已添加的界面
+
+- `InventoryConfig` 新增 `clearScreenOptIns()`，清空 `additionalScreens` 的全部条目（含通配规则），与兼容性页的清空按钮保持同样的直接语义；内置容器处理与 `defaultSpatialHandledScreens` 不受影响。
+- 界面支持页在设置快捷键下方新增 **清空已添加的界面** 按钮，点击后重建页面；tooltip 说明会一并清除通配规则。
+- `testScreenOptIn` 补上：同时存在精确条目与通配规则时清空后列表为空、两类规则都不再命中、清空后仍能重新添加界面。26.2 `physicsTest` 通过，共 **1,799 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认清空后正在打开的模组界面是否会立即回退，也未确认按钮在窄窗口下的布局。
+
 ## 2026-11-10 · 0.37.0 恢复最新快照
 
 - `ConfigBackups.newest(Path)` 按零填充文件名的字典序取最新快照；目录缺失、不可读或没有匹配前缀时返回 `null`，无关文件被忽略。`ConfigLoader.loadNewestSnapshot()` 复用与 `.bak` 恢复相同的解析与 `sanitize()` 路径。

@@ -1490,6 +1490,12 @@ public final class InventoryRegressionTest {
         check(config.additionalScreens.size() == 1, "the wildcard rule stays untouched");
         check(config.additionalScreens.get(0).equals("com.example.*"), "the rule is unchanged");
 
+        config.additionalScreens.add("com.example.ExactScreen");
+        config.clearScreenOptIns();
+        check(config.additionalScreens.isEmpty(), "clearing removes exact entries and wildcards");
+        check(!config.isScreenOptedIn("com.example.OtherScreen"), "clearing removes the wildcard rule");
+        check(!config.isScreenOptedIn("com.example.ExactScreen"), "cleared screens revert to vanilla");
+        check(config.toggleScreenOptIn("com.example.AfterClear"), "opt-ins still work after clearing");
         config.additionalScreens.clear();
         config.toggleScreenOptIn("  com.example.Padded  ");
         check(config.hasExactOptIn("com.example.Padded"), "an opt-in name is trimmed");

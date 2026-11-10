@@ -83,6 +83,8 @@
   "spatialui.support.optin.hint": "为打开设置时所处的界面套用玻璃面板",
   "spatialui.support.key": "设置快捷键",
   "spatialui.support.key.hint": "在 F6–F10 之间循环，默认 F8",
+  "spatialui.support.clear_optins": "清空已添加的界面",
+  "spatialui.support.clear_optins.hint": "移除这里添加过的所有界面，包括通配规则",
   "spatialui.material.slot": "槽位填充透明度",
   "spatialui.material.panel_rim": "面板描边透明度",
   "spatialui.material.slot_rim": "槽位描边透明度",

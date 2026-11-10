@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.38.0 clear added screens:** The screen support page gains **Clear added screens**, which removes every screen previously opted in through the page — exact entries and wildcard rules alike — in one click. Hand-edited opt-ins in `additionalScreens` are cleared too, matching the existing clear buttons on the compatibility page, and the built-in container handling is untouched. The button sits below the settings-key control and refreshes the page immediately.
+
 **26.x · 0.37.0 restore newest snapshot:** The rotating history from 0.31.0 can now be used without opening a file manager. **Restore newest snapshot** on the compatibility page loads the latest timestamped copy in `transparent_inventory-backups/` and saves it, covering the case where several bad saves have already pushed the plain `.bak` out of reach. With no snapshot yet the button says so instead of failing silently, unrelated files in the folder are ignored, and copy/paste now share one row to make space.
 
 **26.x · 0.36.0 panel feel page:** A fifteenth page exposes the slide itself. **Opening slide speed**, **Closing slide speed**, **Bounce**, **Settle stiffness** and **Settle damping** tune how the glass panel enters, springs back and settles — from a brisk clean stop to a slower, softer drift. These are the exact values the animator already used, so the page changes the real panel, and Delete restores the stock feel. Reduced motion still snaps everything instantly regardless of the sliders.

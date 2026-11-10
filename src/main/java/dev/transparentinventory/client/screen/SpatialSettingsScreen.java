@@ -245,6 +245,11 @@ public final class SpatialSettingsScreen extends Screen {
                         .append(": " + InventoryConfig.get().settingsKeyName()));
             }).bounds(left, row + 66, contentWidth, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.support.key.hint")));
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.support.clear_optins"), button -> {
+                InventoryConfig.get().clearScreenOptIns();
+                rebuildWidgets();
+            }).bounds(left, row + 88, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.support.clear_optins.hint")));
         } else if (page == SettingsPages.PREVIEW_LAYOUT) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.layout.player_height",
                     () -> (InventoryConfig.get().playerHeightRatio - 0.25) / 0.45,
