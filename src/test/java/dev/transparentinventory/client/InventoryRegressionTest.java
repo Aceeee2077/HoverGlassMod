@@ -1177,6 +1177,18 @@ public final class InventoryRegressionTest {
         config.borderOpacity = 0.4F;
         config.matchHotbarRim();
         checkClose(config.hotbarBorderOpacity, 0.4, 1E-6, "matching follows later panel rim changes");
+
+        config.hotbarOpacity = 0.16F;
+        config.panelOpacity = 0.33F;
+        checkClose(config.hotbarOpacity, 0.16, 1E-6,
+                "the hotbar fill is independent of the panel fill before matching");
+        config.matchHotbarOpacity();
+        checkClose(config.hotbarOpacity, 0.33, 1E-6, "matching copies the panel fill onto the hotbar");
+        checkClose(config.panelOpacity, 0.33, 1E-6, "matching leaves the panel fill untouched");
+        checkClose(config.hotbarBorderOpacity, 0.4, 1E-6, "matching the fill leaves the hotbar rim alone");
+        config.panelOpacity = 0.05F;
+        config.matchHotbarOpacity();
+        checkClose(config.hotbarOpacity, 0.05, 1E-6, "matching follows later panel fill changes");
     }
 
     private static void testClimbPose() {

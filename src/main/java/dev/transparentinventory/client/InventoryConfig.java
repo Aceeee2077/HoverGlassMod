@@ -206,6 +206,9 @@ public final class InventoryConfig {
     /** Copies the glass panel's rim strength onto the hotbar's independent rim. */
     public void matchHotbarRim() { hotbarBorderOpacity = borderOpacity; }
 
+    /** Copies the glass panel's fill opacity onto the hotbar's independent value. */
+    public void matchHotbarOpacity() { hotbarOpacity = panelOpacity; }
+
     /** Removes every opt-in rule, including wildcards, leaving only built-in containers. */
     public void clearScreenOptIns() { additionalScreens.clear(); }
 

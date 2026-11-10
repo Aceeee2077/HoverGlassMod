@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.47.0 match the panel fill:** The hotbar page gains **Match panel opacity**, the companion to **Match inventory rim**. It copies the glass panel's current fill opacity onto the hotbar's independent value in one click, so a HUD that should read as part of the same surface can be aligned without dragging two sliders. Like the rim match it is a one-off copy, the panel's own value is untouched, the hotbar rim stays as it was, and either slider can still be tuned afterwards.
+
 **26.x · 0.46.0 opening brake slider:** The panel feel page now exposes **Opening brake**, the deceleration applied while the panel slides in — previously reachable only by hand-editing `slideBrake`. Higher values stop the panel sooner after the initial push; lower values let it coast toward its resting spot before the settle spring takes over. The readout is in px/s², the page's Delete reset restores the stock 3450, and the remaining feel sliders shift down one row to make space.
 
 **26.x · 0.45.0 sliders show real units:** The panel feel and preview layout pages no longer report raw slider positions. Opening and closing speed now read in px/s, bounce as a percentage, settle stiffness and damping as their plain strengths, preview placement as percentages of the screen, and the recipe book offset in pixels — matching what each tooltip already promised. Out-of-range values still clamp, invalid values still fall back safely, every other slider's readout is unchanged, and the formatting lives in a small pure-Java helper the tests walk key by key.
