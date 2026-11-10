@@ -1531,6 +1531,7 @@ public final class InventoryRegressionTest {
         config.cameraYawOffset = 45;
         config.cameraPitchOffset = -30;
         config.cameraTransitionDurationMs = 1500;
+        config.thirdPersonOnOpen = false;
         check(PageDefaults.reset(config, SettingsPages.CAMERA_ANGLES), "the camera angles page resets");
         checkClose(config.cameraDistance, 3.0, 1E-6, "page reset restores the camera distance");
         checkClose(config.inventoryCameraSide, .72, 1E-6, "page reset restores the camera side");
@@ -1538,6 +1539,7 @@ public final class InventoryRegressionTest {
         checkClose(config.cameraYawOffset, 0, 1E-6, "page reset restores the yaw offset");
         checkClose(config.cameraPitchOffset, 0, 1E-6, "page reset restores the pitch offset");
         check(config.cameraTransitionDurationMs == 420, "page reset restores the camera transition");
+        check(config.thirdPersonOnOpen, "page reset restores the third-person view");
 
         config.slotOpacity = .3F;
         config.borderOpacity = .1F;

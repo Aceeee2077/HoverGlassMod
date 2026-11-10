@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.59.0 第三人称视角开关
+
+- 全字段对照发现 `thirdPersonOnOpen` 被 `SpatialCameraController` 与 `GlassInventoryRenderer` 读取，却没有出现在设置界面。在镜头角度页的 `row + 88` 新增 **第三人称视角** 开关，点击时同步重置 `SpatialCameraController.INSTANCE`，让下一次打开物品栏即按新状态处理。
+- `PageDefaults` 的 `case 10` 增加 `thirdPersonOnOpen = true`，符合「每页重置恢复本页所有控件」的原则；`testPageDefaults` 先关闭该值，重置后断言恢复开启。
+- 新增语言键 `spatialui.camera.third_person` 与 `.hint`（中英各一），`testLanguageKeys` 继续校验两边键集合一致。26.2 `physicsTest` 通过，共 **1,932 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认关闭后第一人称下玻璃面板的观感，也未确认该开关与取景预设按钮同时存在时页面底部是否拥挤。
+
 ## 2026-11-10 · 0.58.0 无改动关闭不保存
 
 - `ConfigLoader` 新增 `toJson(InventoryConfig)`，用与写盘相同的 Gson 配置序列化，空配置返回空字符串；不触发 `FabricLoader`，可在纯 Java 测试中调用。

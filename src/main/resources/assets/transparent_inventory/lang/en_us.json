@@ -116,6 +116,8 @@
   "spatialui.camera.preset.cinematic.hint": "A wider pull-back with a slower sweep",
   "spatialui.camera.level": "Level the camera",
   "spatialui.camera.level.hint": "Zeroes both angle offsets and leaves distance, side and tilt as they are",
+  "spatialui.camera.third_person": "Third-person view",
+  "spatialui.camera.third_person.hint": "Pulls the camera back to show the avatar when the inventory opens; off keeps the first-person view and only the glass panel appears",
   "spatialui.compat.exclude": "Exclude this container",
   "spatialui.compat.included": "Re-include this container",
   "spatialui.compat.excluded_rule": "Excluded by a screen rule",

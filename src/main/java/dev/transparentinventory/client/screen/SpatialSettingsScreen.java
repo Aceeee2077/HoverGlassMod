@@ -244,6 +244,12 @@ public final class SpatialSettingsScreen extends Screen {
             levelCamera.active = !CameraPresets.isLevel(InventoryConfig.get());
             levelCamera.setTooltip(Tooltip.create(Component.translatable("spatialui.camera.level.hint")));
             levelCameraButton = levelCamera;
+            addRenderableWidget(Button.builder(toggle("spatialui.camera.third_person", InventoryConfig.get().thirdPersonOnOpen), button -> {
+                InventoryConfig.get().thirdPersonOnOpen = !InventoryConfig.get().thirdPersonOnOpen;
+                button.setMessage(toggle("spatialui.camera.third_person", InventoryConfig.get().thirdPersonOnOpen));
+                dev.transparentinventory.client.camera.SpatialCameraController.INSTANCE.reset();
+            }).bounds(left, row + 88, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.camera.third_person.hint")));
         } else if (page == SettingsPages.GLASS_MATERIAL) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.material.slot",
                     () -> InventoryConfig.get().slotOpacity,

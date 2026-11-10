@@ -100,6 +100,7 @@ public final class PageDefaults {
                 config.cameraYawOffset = 0;
                 config.cameraPitchOffset = 0;
                 config.cameraTransitionDurationMs = 420;
+                config.thirdPersonOnOpen = true;
             }
             case 11 -> GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.FROSTED);
             case 12 -> {
