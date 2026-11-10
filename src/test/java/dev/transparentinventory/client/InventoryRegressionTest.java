@@ -1391,10 +1391,12 @@ public final class InventoryRegressionTest {
 
         config.panelOpacity = .9F;
         config.worldDimOpacity = .5F;
+        config.liquidGlassUi = true;
         config.screenOpacities.put("net.minecraft.client.gui.screens.inventory.InventoryScreen", .4F);
         check(PageDefaults.reset(config, 0), "the transparency page resets");
         checkClose(config.panelOpacity, .18, 1E-6, "page reset restores the global transparency");
         checkClose(config.worldDimOpacity, 0, 1E-6, "page reset restores the world dim");
+        check(!config.liquidGlassUi, "page reset turns the menu theme back off");
         check(config.screenOpacities.isEmpty(), "page reset clears per-screen overrides");
 
         config.guiScale = 1.5;
@@ -1511,10 +1513,12 @@ public final class InventoryRegressionTest {
         config.defaultSpatialHandledScreens = false;
         config.fallbackToScreenSpace = false;
         config.settingsKey = "key.keyboard.f10";
+        config.enabled = false;
         check(PageDefaults.reset(config, SettingsPages.SCREEN_SUPPORT), "the screen support page resets");
         check(config.defaultSpatialHandledScreens && config.fallbackToScreenSpace,
                 "page reset restores both screen support switches");
         check(config.settingsKey.equals("key.keyboard.f8"), "page reset restores the settings key");
+        check(config.enabled, "page reset turns the master effects switch back on");
 
         config.playerHeightRatio = .30;
         config.playerCenterXRatio = .60;

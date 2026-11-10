@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.55.0 page resets cover every control:** Resetting the transparency page now also turns the **Liquid glass UI** theme back off, and resetting the screen support page turns the master effects switch back on — both sat on those pages but were left untouched by Delete and **↺**. Every page now restores exactly the controls it shows.
+
 **26.x · 0.54.0 master effects switch:** The screen support page now exposes **Hoverglass effects**, the config's master switch that previously required editing the file. Turned off, the glass panels, hotbar glass, menu theme and added avatar animations stop without clearing a single setting, and the configured settings key keeps working so the switch is always reachable to turn everything back on.
 
 **26.x · 0.53.0 accurate hints on the compatibility page:** The footer no longer promises that Delete resets the page while the compatibility page is open, and the disabled **↺** button now explains why: that page holds hand-written exclusions and per-screen rules, so it is reset in the config file. Every other page keeps the full hint and the working reset button.

@@ -34,6 +34,7 @@ public final class PageDefaults {
                 config.panelOpacity = 0.18F;
                 config.worldDimOpacity = 0F;
                 config.screenOpacities.clear();
+                config.liquidGlassUi = false;
             }
             case 1 -> {
                 config.guiScale = 1.0;
@@ -105,6 +106,7 @@ public final class PageDefaults {
                 config.defaultSpatialHandledScreens = true;
                 config.fallbackToScreenSpace = true;
                 config.settingsKey = "key.keyboard.f8";
+                config.enabled = true;
             }
             case 13 -> {
                 config.playerHeightRatio = 0.47;

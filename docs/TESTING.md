@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.55.0 本页重置覆盖所有控件
+
+- 审计每页控件与 `PageDefaults` 的对应关系后发现两处遗漏：透明度页的 **液态玻璃 UI** 开关（`liquidGlassUi`）与界面支持页的 **Hoverglass 效果** 总开关（`enabled`）都不在本页重置的写入列表中。分别补入 `case 0` 与 `case 12`，默认值与本页默认一致（关闭 / 开启）。
+- `testPageDefaults` 扩展两处：透明度页测试先打开 `liquidGlassUi`，重置后断言关闭；界面支持页测试先关闭 `enabled`，重置后断言开启。既有的「对新配置重复重置为无操作」全页循环继续通过。26.2 `physicsTest` 通过，共 **1,916 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认重置后两个开关按钮的文字是否立即更新（重置按钮与 Delete 都会重建页面，预期会更新）。
+
 ## 2026-11-10 · 0.54.0 总开关
 
 - 界面支持设置页在「清空已添加的界面」下方新增 **Hoverglass 效果** 开关（`row + 110`），直接切换 `InventoryConfig.enabled`。该字段原本只能手改配置，且被 `SpatialScreenRegistry`、`GlassHotbarRenderer`、`LiquidGlassRenderer`、`PlayerAnimationController` 读取。
