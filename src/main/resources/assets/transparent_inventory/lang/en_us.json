@@ -36,6 +36,7 @@
   "spatialui.look.enabled": "Head follows inventory cursor",
   "spatialui.look.head_yaw": "Horizontal head range",
   "spatialui.look.head_pitch": "Vertical head range",
+  "spatialui.look.smoothing": "Head follow speed",
   "spatialui.settings.hotbar": "Hotbar settings",
   "spatialui.settings.motion": "Fluid animations",
   "spatialui.settings.camera_motion": "Camera motion",

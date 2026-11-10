@@ -124,6 +124,9 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.look.head_pitch",
                     () -> InventoryConfig.get().maxHeadPitch / 90.0,
                     value -> InventoryConfig.get().maxHeadPitch = (float) (value * 90), false));
+            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.look.smoothing",
+                    () -> (InventoryConfig.get().lookSmoothing - 1) / 39.0,
+                    value -> InventoryConfig.get().lookSmoothing = 1 + value * 39, false));
         } else if (page == 4) {
             addRenderableWidget(Button.builder(toggle("spatialui.hotbar.glass", InventoryConfig.get().glassHotbar), button -> {
                 InventoryConfig.get().glassHotbar = !InventoryConfig.get().glassHotbar;
@@ -306,7 +309,7 @@ public final class SpatialSettingsScreen extends Screen {
             String number = label.endsWith("container_scale") ? Math.round((0.75 + value * 1.25) * 100) + "%"
                     : label.endsWith("particle_multiplier") ? String.format(java.util.Locale.ROOT, "%.2f×", value * 2)
                     : label.endsWith("head_yaw") || label.endsWith("head_pitch") ? Math.round(value * 90) + "°"
-                    : percentage ? Math.round(value * 100) + "%"
+                    : percentage || label.endsWith("smoothing") ? Math.round(value * 100) + "%"
                     : label.endsWith("duration") ? Math.round(value * 1000) + " ms"
                     : label.endsWith("tilt") ? String.format(java.util.Locale.ROOT, "%.1f°", value * 24 - 12)
                     : String.format(java.util.Locale.ROOT, "%.2f", label.endsWith("distance") ? value * 8 : value + 0.5);

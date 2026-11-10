@@ -422,6 +422,21 @@ public final class InventoryRegressionTest {
             fast.update(40.0F, 20.0F, 10.0F, 1.0 / 240.0, 11.0);
         }
         checkClose(slow.headYaw(), fast.headYaw(), 0.5, "smoothing is frame-rate independent");
+
+        // The F8 follow-speed slider maps onto this scale: faster means closer after
+        // the same frames, and neither setting may overshoot the requested angle.
+        LookTracker loose = new LookTracker();
+        LookTracker snappy = new LookTracker();
+        loose.update(0.0F, 0.0F, 0.0F, 1.0 / 60.0, 1.0);
+        snappy.update(0.0F, 0.0F, 0.0F, 1.0 / 60.0, 1.0);
+        for (int i = 0; i < 10; i++) {
+            loose.update(40.0F, 0.0F, 0.0F, 1.0 / 60.0, 1.0);
+            snappy.update(40.0F, 0.0F, 0.0F, 1.0 / 60.0, 40.0);
+        }
+        check(snappy.headYaw() > loose.headYaw(), "a higher follow speed tracks faster");
+        check(snappy.headYaw() < 40.0F && loose.headYaw() < 40.0F,
+                "neither follow speed overshoots the requested angle");
+        checkClose(new LookTracker().headYaw(), 0.0, 1.0E-9, "a fresh tracker starts at rest");
     }
 
     // ------------------------------------------------------------------

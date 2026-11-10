@@ -36,6 +36,7 @@
   "spatialui.look.enabled": "头部跟随物品栏鼠标",
   "spatialui.look.head_yaw": "左右转头幅度",
   "spatialui.look.head_pitch": "上下转头幅度",
+  "spatialui.look.smoothing": "头部跟随速度",
   "spatialui.settings.hotbar": "快捷栏设置",
   "spatialui.settings.motion": "流畅动画设置",
   "spatialui.settings.camera_motion": "视角动效设置",
