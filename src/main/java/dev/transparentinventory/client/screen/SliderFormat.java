@@ -34,6 +34,7 @@ public final class SliderFormat {
             // ------------------------------------------------------------------
             case "spatialui.feel.open_speed", "spatialui.feel.close_speed" ->
                     Math.round(600 + value * 5400) + " px/s";
+            case "spatialui.feel.slide_brake" -> Math.round(200 + value * 7800) + " px/s²";
             case "spatialui.feel.bounce" -> Math.round(value * 60) + "%";
             case "spatialui.feel.spring" -> String.valueOf(Math.round(40 + value * 860));
             case "spatialui.feel.damping" -> String.valueOf(Math.round(5 + value * 85));

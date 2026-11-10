@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.46.0 入场减速滑条
+
+- 面板手感页新增第 6 条滑条 **入场减速**，直接写入 `slideBrake`（范围 200–8000，默认 3450）；`SliderFormat` 新增 `spatialui.feel.slide_brake` 的 `px/s²` 单位。原有回弹、退场、弹簧、阻尼滑条顺次下移一行，最后一行位于 `row + 110`，导航行仍在 `row + 138`。
+- `PageDefaults` 第 14 页补上 `slideBrake = 3450`，使本页 Delete 与重置按钮能恢复该值；`testPageDefaults` 先把 `slideBrake` 改为 200 再验证恢复，并继续通过「对新配置重复重置为无操作」的全页循环。
+- `testSliderFormat` 新增三条：200 / 4100 / 8000 三处读数均带 `px/s²`。26.2 `physicsTest` 通过，共 **1,876 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认第 6 条滑条与导航行之间的间距，也未观察高减速度下入场动画的实际停止距离。
+
 ## 2026-11-10 · 0.45.0 滑条显示真实数值
 
 - 新增纯 Java `SliderFormat.value(labelKey, normalized, percentage)`：把滑条归一化位置还原成用户实际配置的值。此前面板手感的四个速度/弹簧滑条与预览布局的五个滑条都落到 `value + 0.5` 的兜底格式，界面显示 0.50–1.50，与 tooltip 承诺的 px/s、像素完全不符。

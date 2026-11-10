@@ -298,19 +298,23 @@ public final class SpatialSettingsScreen extends Screen {
                     () -> (InventoryConfig.get().slideSpeed - 600) / 5400.0,
                     value -> InventoryConfig.get().slideSpeed = 600 + value * 5400, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.open_speed.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.feel.bounce",
+            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.feel.slide_brake",
+                    () -> (InventoryConfig.get().slideBrake - 200) / 7800.0,
+                    value -> InventoryConfig.get().slideBrake = 200 + value * 7800, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.slide_brake.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.feel.bounce",
                     () -> InventoryConfig.get().bounce / 0.6,
                     value -> InventoryConfig.get().bounce = value * 0.6, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.bounce.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.feel.close_speed",
+            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.feel.close_speed",
                     () -> (InventoryConfig.get().closeSpeed - 600) / 5400.0,
                     value -> InventoryConfig.get().closeSpeed = 600 + value * 5400, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.close_speed.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.feel.spring",
+            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.feel.spring",
                     () -> (InventoryConfig.get().spring - 40) / 860.0,
                     value -> InventoryConfig.get().spring = 40 + value * 860, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.spring.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.feel.damping",
+            addRenderableWidget(new SettingSlider(left, row + 110, contentWidth, "spatialui.feel.damping",
                     () -> (InventoryConfig.get().damping - 5) / 85.0,
                     value -> InventoryConfig.get().damping = 5 + value * 85, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.damping.hint")));

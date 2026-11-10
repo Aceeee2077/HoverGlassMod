@@ -66,6 +66,8 @@
   "spatialui.settings.panel_feel": "Panel feel",
   "spatialui.feel.open_speed": "Opening slide speed",
   "spatialui.feel.open_speed.hint": "Pixels per second before the panel settles",
+  "spatialui.feel.slide_brake": "Opening brake",
+  "spatialui.feel.slide_brake.hint": "Deceleration during the slide-in; higher stops sooner (px/s²)",
   "spatialui.feel.bounce": "Bounce",
   "spatialui.feel.bounce.hint": "How far the panel springs back after the slide; 0 is a clean stop",
   "spatialui.feel.close_speed": "Closing slide speed",

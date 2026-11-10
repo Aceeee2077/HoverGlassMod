@@ -115,6 +115,7 @@ public final class PageDefaults {
             }
             case 14 -> {
                 config.slideSpeed = 2600.0;
+                config.slideBrake = 3450.0;
                 config.bounce = 0.26;
                 config.closeSpeed = 2200.0;
                 config.spring = 500.0;
