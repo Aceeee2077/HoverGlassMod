@@ -172,6 +172,7 @@
   "spatialui.hotbar.match_rim": "Match inventory rim",
   "spatialui.hotbar.match_rim.hint": "Copies the glass panel's rim strength onto the hotbar",
   "spatialui.hotbar.match_rim.done": "The hotbar rim already matches the panel",
+  "spatialui.hotbar.glass_off": "Turn on the glass hotbar to tune or match it",
   "spatialui.hotbar.match_opacity": "Match panel opacity",
   "spatialui.hotbar.match_opacity.hint": "Copies the glass panel's fill opacity onto the hotbar",
   "spatialui.hotbar.match_opacity.done": "The hotbar fill already matches the panel",

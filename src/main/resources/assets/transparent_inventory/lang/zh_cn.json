@@ -172,6 +172,7 @@
   "spatialui.hotbar.match_rim": "匹配物品栏边框",
   "spatialui.hotbar.match_rim.hint": "把玻璃面板的边框强度复制到快捷栏",
   "spatialui.hotbar.match_rim.done": "快捷栏边框已经与面板一致",
+  "spatialui.hotbar.glass_off": "先开启玻璃快捷栏，再调整或匹配",
   "spatialui.hotbar.match_opacity": "匹配面板透明度",
   "spatialui.hotbar.match_opacity.hint": "把玻璃面板的填充透明度复制到快捷栏",
   "spatialui.hotbar.match_opacity.done": "快捷栏填充已经与面板一致",

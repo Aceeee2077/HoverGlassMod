@@ -32,6 +32,8 @@ public final class SpatialSettingsScreen extends Screen {
     private Button levelCameraButton;
     private Button matchRimButton;
     private Button matchOpacityButton;
+    private SettingSlider hotbarOpacitySlider;
+    private SettingSlider hotbarBorderSlider;
     private final ConfirmPress resetConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
@@ -62,6 +64,8 @@ public final class SpatialSettingsScreen extends Screen {
         levelCameraButton = null;
         matchRimButton = null;
         matchOpacityButton = null;
+        hotbarOpacitySlider = null;
+        hotbarBorderSlider = null;
         presetButtons.clear();
         cameraPresetButtons.clear();
         if (page == 0) {
@@ -178,10 +182,10 @@ public final class SpatialSettingsScreen extends Screen {
                 InventoryConfig.get().glassHotbar = !InventoryConfig.get().glassHotbar;
                 button.setMessage(toggle("spatialui.hotbar.glass", InventoryConfig.get().glassHotbar));
             }).bounds(left, row, contentWidth, 20).build());
-            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.hotbar.transparency",
+            hotbarOpacitySlider = addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.hotbar.transparency",
                     () -> 1 - InventoryConfig.get().hotbarOpacity,
                     value -> InventoryConfig.get().hotbarOpacity = (float) (1 - value), true));
-            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.hotbar.border",
+            hotbarBorderSlider = addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.hotbar.border",
                     () -> InventoryConfig.get().hotbarBorderOpacity,
                     value -> InventoryConfig.get().hotbarBorderOpacity = (float) value, true));
             matchRimButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.hotbar.match_rim"), button -> {
@@ -552,23 +556,39 @@ public final class SpatialSettingsScreen extends Screen {
         return Component.translatable(key).append(": ").append(Component.translatable(enabled ? "options.on" : "options.off"));
     }
 
-    /** Greys out each match button while its hotbar value already equals the panel's. */
+    /**
+     * Greys out the hotbar tuning while the glass hotbar is off, and each match
+     * button while its hotbar value already equals the panel's.
+     */
     private void refreshMatchButtons() {
         var config = InventoryConfig.get();
+        boolean on = config.glassHotbar;
+        if (hotbarOpacitySlider != null && hotbarOpacitySlider.active != on) {
+            hotbarOpacitySlider.active = on;
+            hotbarOpacitySlider.setTooltip(on ? null : Tooltip.create(Component.translatable("spatialui.hotbar.glass_off")));
+        }
+        if (hotbarBorderSlider != null && hotbarBorderSlider.active != on) {
+            hotbarBorderSlider.active = on;
+            hotbarBorderSlider.setTooltip(on ? null : Tooltip.create(Component.translatable("spatialui.hotbar.glass_off")));
+        }
         if (matchRimButton != null) {
             boolean matched = config.hotbarRimMatches();
-            if (matchRimButton.active == matched) {
-                matchRimButton.active = !matched;
-                matchRimButton.setTooltip(Tooltip.create(Component.translatable(matched
-                        ? "spatialui.hotbar.match_rim.done" : "spatialui.hotbar.match_rim.hint")));
+            boolean active = on && !matched;
+            if (matchRimButton.active != active) {
+                matchRimButton.active = active;
+                matchRimButton.setTooltip(Tooltip.create(Component.translatable(!on
+                        ? "spatialui.hotbar.glass_off"
+                        : matched ? "spatialui.hotbar.match_rim.done" : "spatialui.hotbar.match_rim.hint")));
             }
         }
         if (matchOpacityButton != null) {
             boolean matched = config.hotbarOpacityMatches();
-            if (matchOpacityButton.active == matched) {
-                matchOpacityButton.active = !matched;
-                matchOpacityButton.setTooltip(Tooltip.create(Component.translatable(matched
-                        ? "spatialui.hotbar.match_opacity.done" : "spatialui.hotbar.match_opacity.hint")));
+            boolean active = on && !matched;
+            if (matchOpacityButton.active != active) {
+                matchOpacityButton.active = active;
+                matchOpacityButton.setTooltip(Tooltip.create(Component.translatable(!on
+                        ? "spatialui.hotbar.glass_off"
+                        : matched ? "spatialui.hotbar.match_opacity.done" : "spatialui.hotbar.match_opacity.hint")));
             }
         }
     }

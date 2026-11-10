@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.65.0 快捷栏控件联动
+
+- 快捷栏页保存两个滑条引用（`hotbarOpacitySlider`、`hotbarBorderSlider`），`refreshMatchButtons()` 每帧检查 `glassHotbar`：关闭时把两个滑条和两个匹配按钮置灰，并显示 `spatialui.hotbar.glass_off`；重新开启时恢复可用与原 tooltip。只在状态变化时更新控件与 tooltip，避免每帧分配。
+- 匹配按钮的可用状态改为 `glassHotbar && !已匹配`，与 0.57.0 的「已匹配即置灰」叠加；切换开关不会重建页面，因此两个状态都由每帧刷新处理。
+- 新增语言键 `spatialui.hotbar.glass_off`（中英各一），`testLanguageKeys` 继续校验两边键集合一致。本轮无纯逻辑改动，26.2 `physicsTest` 通过，共 **1,948 条断言**（计数不变）。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认置灰滑条的 tooltip 是否正常显示，也未确认 `setTooltip(null)` 在开启后确实清除了提示。
+
 ## 2026-11-10 · 0.64.0 面板深度与高度
 
 - `guiDistance`（0.5–6，可读容器的深度缩放）与 `guiVerticalOffset`（-2–3，世界中的垂直偏移）在 `SpatialScreenManager` 中生效，但没有设置入口；现在放进预览布局页 `row + 110` 的两个半宽滑条，归一化映射与 `sanitize()` 的范围一致。
