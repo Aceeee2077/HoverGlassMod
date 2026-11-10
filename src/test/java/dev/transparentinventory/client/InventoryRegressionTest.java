@@ -6,6 +6,9 @@ import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Plain-Java regression tests for the mod's simulation and layout maths.
  *
@@ -28,6 +31,8 @@ public final class InventoryRegressionTest {
         testCinematicTimeline();
         testGlassPreset();
         testCreativeGlassMigration();
+        testScreenRules();
+        testReducedMotion();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -525,6 +530,140 @@ public final class InventoryRegressionTest {
         checkClose(custom.opacityFor(creative), 0.42, 1E-6, "upgrade respects an existing creative override");
         custom.applyGlassPreset();
         checkClose(custom.opacityFor(creative), 0.16, 1E-6, "reference preset also applies to creative inventory");
+    }
+
+    private static void testScreenRules() {
+        String merchant = "net.minecraft.client.gui.screens.inventory.MerchantScreen";
+        check(ScreenRules.isPattern("a*") && ScreenRules.isPattern("?"), "wildcards are recognised");
+        check(!ScreenRules.isPattern(merchant), "a plain class name is not a pattern");
+        check(ScreenRules.matches("*", ""), "a lone star matches the empty name");
+        check(ScreenRules.matches("a*", "a") && ScreenRules.matches("a*c", "ac"), "a star may match nothing");
+        check(ScreenRules.matches("a*c", "abbbc"), "a star spans several characters");
+        check(ScreenRules.matches("a?c", "abc"), "a question mark matches one character");
+        check(!ScreenRules.matches("a?c", "ac") && !ScreenRules.matches("a?c", "abbc"), "a question mark matches exactly one");
+        check(ScreenRules.matches("net.minecraft.client.gui.screens.inventory.*", merchant),
+                "a package wildcard covers a screen");
+        check(ScreenRules.matches("*MerchantScreen", merchant), "a suffix wildcard matches");
+        check(ScreenRules.matches("*Merchant*", merchant), "a two-sided wildcard matches");
+        check(!ScreenRules.matches("*MerchantScreen", merchant + "Extra"), "a suffix wildcard respects the end");
+        check(ScreenRules.matches("net.minecraft.?lient.gui.screens.inventory.MerchantScreen", merchant),
+                "a single-character wildcard matches inside a class name");
+        check(!ScreenRules.matches(merchant, merchant.toLowerCase(java.util.Locale.ROOT)),
+                "screen rules are case-sensitive");
+        check(!ScreenRules.matches("*a*a*a*a*a*b", "aaaaaaaaaaaaaaaaaaaaaaaa"),
+                "a pathological rule terminates with no match");
+        check(ScreenRules.matches(merchant, merchant), "an exact rule matches itself");
+        check(!ScreenRules.matches(merchant, merchant + "Extra") && !ScreenRules.matches("", merchant),
+                "non-pattern rules require full equality");
+        check(!ScreenRules.matches(null, merchant) && !ScreenRules.matches(merchant, null),
+                "null rules and names never match");
+
+        Map<String, Float> overrides = new LinkedHashMap<>();
+        overrides.put("*Screen", 0.5F);
+        overrides.put("net.minecraft.client.gui.screens.inventory.*", 0.3F);
+        checkClose(ScreenRules.opacity(overrides, merchant, 0.9F), 0.3, 1E-6,
+                "the most specific wildcard wins");
+        overrides.put(merchant, 0.2F);
+        checkClose(ScreenRules.opacity(overrides, merchant, 0.9F), 0.2, 1E-6,
+                "an exact entry beats every wildcard");
+        check(ScreenRules.hasExactOverride(overrides, merchant), "an exact override is reported");
+
+        Map<String, Float> tie = new LinkedHashMap<>();
+        tie.put("a*", 0.1F);
+        tie.put("*b", 0.2F);
+        checkClose(ScreenRules.opacity(tie, "ab", 0.9F), 0.1, 1E-6,
+                "equally specific patterns keep the earliest entry");
+        checkClose(ScreenRules.opacity(null, merchant, 0.7F), 0.7, 1E-6, "a missing map uses the fallback");
+        checkClose(ScreenRules.opacity(overrides, null, 0.7F), 0.7, 1E-6, "a missing name uses the fallback");
+        check(ScreenRules.bestKey(overrides, null) == null, "no key is resolved for a null name");
+        check(ScreenRules.matchesAny(java.util.List.of("a*", "b"), "abc"), "matchesAny accepts patterns");
+        check(!ScreenRules.matchesAny(java.util.List.of("a*", "b"), "cde"), "matchesAny rejects non-matches");
+        check(!ScreenRules.matchesAny(null, "abc"), "a missing rule list matches nothing");
+
+        var config = new InventoryConfig();
+        config.panelOpacity = 0.2F;
+        config.screenOpacities.put("net.minecraft.client.gui.screens.*", 0.55F);
+        checkClose(config.opacityFor("net.minecraft.client.gui.screens.ChatScreen"), 0.55, 1E-6,
+                "wildcard opacity applies through the config");
+        check(!config.hasScreenOverride("net.minecraft.client.gui.screens.ChatScreen"),
+                "a wildcard hit is inherited, not a per-screen override");
+        config.screenOpacities.put("net.minecraft.client.gui.screens.ChatScreen", 0.12F);
+        checkClose(config.opacityFor("net.minecraft.client.gui.screens.ChatScreen"), 0.12, 1E-6,
+                "a per-screen slider value beats the wildcard");
+        check(config.hasScreenOverride("net.minecraft.client.gui.screens.ChatScreen"),
+                "an exact slider value is reported as an override");
+        checkClose(config.opacityFor("com.example.UnknownScreen"), 0.2, 1E-6,
+                "unmatched screens still use the global opacity");
+
+        var messy = new InventoryConfig();
+        messy.excludedScreens.add("  com.example.FancyScreen  ");
+        messy.excludedScreens.add("");
+        messy.excludedScreens.add("com.example.FancyScreen");
+        messy.excludedScreens.add("x".repeat(300));
+        messy.additionalScreens.add(null);
+        messy.additionalScreens.add("  com.example.ShopScreen ");
+        messy.screenOpacities.put("  com.example.* ", 3F);
+        messy.screenOpacities.put("   ", 0.5F);
+        messy.sanitize();
+        check(messy.excludedScreens.size() == 1 && messy.excludedScreens.get(0).equals("com.example.FancyScreen"),
+                "screen rules are trimmed, de-duplicated and length-capped");
+        check(messy.additionalScreens.size() == 1 && messy.additionalScreens.get(0).equals("com.example.ShopScreen"),
+                "opt-in screens are cleaned the same way");
+        checkClose(messy.opacityFor("com.example.Thing"), 1, 1E-6,
+                "wildcard opacity values are clamped like exact entries");
+        check(ScreenRules.matchesAny(messy.additionalScreens, "com.example.ShopScreen"),
+                "cleaned opt-in screens still match");
+    }
+
+    private static void testReducedMotion() {
+        var config = new InventoryConfig();
+        check(!config.reducedMotion(), "reduced motion is off by default");
+        check(config.effectiveOpeningDurationMs() == 480, "the authored entrance duration is kept");
+        check(config.effectiveCameraTransitionDurationMs() == 420, "the authored camera duration is kept");
+        config.motion.reduceMotion = true;
+        check(config.reducedMotion(), "the preference is reported");
+        check(config.effectiveOpeningDurationMs() == 0, "reduced motion snaps the panel into place");
+        check(config.effectiveCameraTransitionDurationMs() == 0, "reduced motion snaps the camera");
+        config.motion = null;
+        config.sanitize();
+        check(!config.reducedMotion() && config.effectiveOpeningDurationMs() == 480,
+                "missing motion options fall back to the standard entrance");
+
+        long start = 3_000_000_000L;
+        var instant = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        checkClose(instant.motion(start, 0), 1, 1E-9, "a zero-length entrance starts at rest");
+        checkClose(instant.progress(start, 0), 1, 1E-9, "a zero-length entrance is fully visible");
+        checkClose(instant.impact(start), 0, 1E-9, "a zero-length entrance has no landing flash");
+        instant.close(start, 0);
+        check(instant.finished(start, 0), "a zero-length close finishes immediately");
+        checkClose(instant.progress(start, 0), 0, 1E-9, "a zero-length close hides the panel at once");
+
+        var camera = new dev.transparentinventory.client.camera.CameraTransition();
+        checkClose(camera.update(true, start, 0), 1, 1E-9, "a zero-length camera transition opens this frame");
+        checkClose(camera.update(false, start + 1, 0), 0, 1E-9, "a zero-length camera transition returns this frame");
+        checkClose(camera.update(true, start + 2, 0), 1, 1E-9, "reopening snaps again");
+
+        var eased = new dev.transparentinventory.client.camera.CameraTransition();
+        checkClose(eased.update(true, start, 420), 0, 1E-9, "a timed transition starts at the first-person value");
+        checkClose(eased.update(true, start + 210_000_000L, 420), 0.5, 1E-6, "a timed transition is half-way at half time");
+        checkClose(eased.update(true, start + 420_000_000L, 420), 1, 1E-9, "a timed transition completes");
+        checkClose(eased.update(false, start + 421_000_000L, 420), 1, 1E-9, "closing starts from the open value");
+
+        var ordinary = new dev.transparentinventory.client.anim.SpatialAnimationController(start);
+        double finalMotion = ordinary.motion(start + 480_000_000L, 480);
+        double finalVisibility = ordinary.progress(start + 480_000_000L, 480);
+        var settled = dev.transparentinventory.client.render.InventoryEntrance.transform(1920, 1080, 806, 540,
+                176, 166, 1.12, finalMotion, finalVisibility, 4, 0);
+        var snapped = dev.transparentinventory.client.render.InventoryEntrance.transform(1920, 1080, 806, 540,
+                176, 166, 1.12, 1, 1, 4, 0);
+        checkClose(snapped.centerX(), settled.centerX(), 1E-9, "reduced motion lands on the settled X");
+        checkClose(snapped.centerY(), settled.centerY(), 1E-9, "reduced motion lands on the settled height");
+        checkClose(snapped.scale(), settled.scale(), 1E-9, "reduced motion lands on the settled scale");
+        checkClose(snapped.tiltDegrees(), 4, 1E-9, "reduced motion keeps the configured tilt");
+        checkClose(snapped.centerX(), 1920 * 0.34, 1E-9, "reduced motion uses the resting panel centre");
+        var midway = dev.transparentinventory.client.render.InventoryEntrance.transform(1920, 1080, 806, 540,
+                176, 166, 1.12, .4, .4, 4, 0);
+        check(midway.centerX() < snapped.centerX() - 1, "an ordinary entrance still starts left of the resting pose");
     }
 
     private static void testInventoryCursorLook() {

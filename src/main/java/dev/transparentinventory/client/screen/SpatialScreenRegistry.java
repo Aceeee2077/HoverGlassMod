@@ -1,6 +1,7 @@
 package dev.transparentinventory.client.screen;
 
 import dev.transparentinventory.client.InventoryConfig;
+import dev.transparentinventory.client.ScreenRules;
 import dev.transparentinventory.client.anchor.AnchorType;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -37,8 +38,9 @@ public final class SpatialScreenRegistry {
     public SpatialScreenProfile resolve(Screen screen) {
         InventoryConfig config = InventoryConfig.get();
         if (screen == null || screen instanceof SpatialSettingsScreen || !config.enabled) return null;
+        // Exclusions apply to the screen and every superclass, and accept wildcard rules.
         for (Class<?> type = screen.getClass(); type != null; type = type.getSuperclass()) {
-            if (config.excludedScreens.contains(type.getName())) return null;
+            if (ScreenRules.matchesAny(config.excludedScreens, type.getName())) return null;
         }
         SpatialScreenProfile profile = cache.computeIfAbsent(screen.getClass(), type -> {
             for (Class<?> current = type; current != null; current = current.getSuperclass()) {
@@ -48,6 +50,6 @@ public final class SpatialScreenRegistry {
             return Optional.empty();
         }).orElse(null);
         if (profile != null) return config.defaultSpatialHandledScreens ? profile : null;
-        return config.additionalScreens.contains(screen.getClass().getName()) ? fallback : null;
+        return ScreenRules.matchesAny(config.additionalScreens, screen.getClass().getName()) ? fallback : null;
     }
 }

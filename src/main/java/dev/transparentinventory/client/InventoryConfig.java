@@ -105,7 +105,14 @@ public final class InventoryConfig {
     /** Fully qualified screen class name -> background opacity; missing means global. */
     public Map<String, Float> screenOpacities = new LinkedHashMap<>();
 
-    public float opacityFor(String className) { return screenOpacities.getOrDefault(className, panelOpacity); }
+    /**
+     * Opacity for a screen class. An exact entry wins; otherwise the most specific
+     * matching wildcard rule (see {@link ScreenRules}) applies, then the global panel opacity.
+     */
+    public float opacityFor(String className) { return ScreenRules.opacity(screenOpacities, className, panelOpacity); }
+
+    /** True when this screen has its own exact override and does not inherit a wildcard. */
+    public boolean hasScreenOverride(String className) { return ScreenRules.hasExactOverride(screenOpacities, className); }
 
     // ------------------------------------------------------------------
     // Visual alpha values
@@ -193,6 +200,18 @@ public final class InventoryConfig {
     public InventoryConfig() {
     }
 
+    /** True when the user asked for fewer moving effects. */
+    public boolean reducedMotion() { return motion != null && motion.reduceMotion; }
+
+    /**
+     * Opening/closing animation length after the reduced-motion preference.
+     * Zero means the panel appears and disappears at its resting pose without a slide.
+     */
+    public int effectiveOpeningDurationMs() { return reducedMotion() ? 0 : openingAnimationDurationMs; }
+
+    /** Camera transition length after the reduced-motion preference; zero snaps the view. */
+    public int effectiveCameraTransitionDurationMs() { return reducedMotion() ? 0 : cameraTransitionDurationMs; }
+
     /** Apply the reference composition without erasing other containers' opacity choices. */
     public void applyGlassPreset() {
         enabled = glassInventory = cinematicInventory = cameraEnabled = thirdPersonOnOpen = true;
@@ -236,13 +255,17 @@ public final class InventoryConfig {
         containerScale = clamp(containerScale, 0.75, 2.0);
         guiDistance = clamp(guiDistance, 0.5, 6);
         guiVerticalOffset = clamp(guiVerticalOffset, -2, 3);
-        if (excludedScreens == null) excludedScreens = new ArrayList<>();
-        if (additionalScreens == null) additionalScreens = new ArrayList<>();
-        excludedScreens.removeIf(value -> value == null || value.isBlank());
-        additionalScreens.removeIf(value -> value == null || value.isBlank());
-        if (screenOpacities == null) screenOpacities = new LinkedHashMap<>();
-        screenOpacities.entrySet().removeIf(entry -> entry.getKey() == null || entry.getKey().isBlank() || entry.getValue() == null);
-        screenOpacities.replaceAll((name, value) -> clamp(value, 0F, 1F));
+        excludedScreens = ScreenRules.cleanList(excludedScreens);
+        additionalScreens = ScreenRules.cleanList(additionalScreens);
+        Map<String, Float> cleanedOpacities = new LinkedHashMap<>();
+        if (screenOpacities != null) {
+            for (Map.Entry<String, Float> entry : screenOpacities.entrySet()) {
+                String name = ScreenRules.cleanName(entry.getKey());
+                if (name == null || entry.getValue() == null) continue;
+                cleanedOpacities.put(name, clamp(entry.getValue(), 0F, 1F));
+            }
+        }
+        screenOpacities = cleanedOpacities;
         if (!creativeGlassDefaultsApplied) {
             screenOpacities.putIfAbsent("net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen", 0.16F);
             creativeGlassDefaultsApplied = true;

@@ -11,6 +11,9 @@ public final class CameraTransition {
             from = value;
             target = requested;
             changedAt = now;
+            // A zero-length transition (reduced motion, or a 0 ms slider value)
+            // must land on the new target this frame instead of one frame later.
+            if (durationMs <= 0) value = requested;
         }
         return value;
     }

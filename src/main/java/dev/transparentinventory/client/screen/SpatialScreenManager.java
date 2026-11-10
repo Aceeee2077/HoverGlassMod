@@ -101,12 +101,12 @@ public final class SpatialScreenManager {
         synchronize();
         if (settings != null) { settings.onClose(); return true; }
         if (!active(candidate) || forceClose || !InventoryConfig.get().closeAnimation) return false;
-        animation.close(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs);
+        animation.close(System.nanoTime(), InventoryConfig.get().effectiveOpeningDurationMs());
         return true;
     }
 
     public boolean finishClose(Screen candidate) {
-        if (active(candidate) && animation.finished(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs)) {
+        if (active(candidate) && animation.finished(System.nanoTime(), InventoryConfig.get().effectiveOpeningDurationMs())) {
             forceClose = true;
             candidate.onClose();
             return true;
@@ -117,11 +117,11 @@ public final class SpatialScreenManager {
     public float backgroundOpacity() {
         if (!active()) return 1;
         return (float) (InventoryConfig.get().opacityFor(screen.getClass().getName())
-                * animation.progress(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs));
+                * animation.progress(System.nanoTime(), InventoryConfig.get().effectiveOpeningDurationMs()));
     }
 
     public double visibility() {
-        return active() ? animation.progress(System.nanoTime(), InventoryConfig.get().openingAnimationDurationMs) : 1;
+        return active() ? animation.progress(System.nanoTime(), InventoryConfig.get().effectiveOpeningDurationMs()) : 1;
     }
 
     public SpatialTransform prepare(Screen candidate) {
@@ -174,11 +174,11 @@ public final class SpatialScreenManager {
         if (cinematicInventory()) {
             vanillaFallback = false;
             long now = System.nanoTime();
-            double motion = animation.motion(now, config.openingAnimationDurationMs);
+            double motion = animation.motion(now, config.effectiveOpeningDurationMs());
             double impact = animation.impact(now);
             SpatialTransform transform = InventoryEntrance.transform(width, height, originX, originY, panelWidth, panelHeight, scale,
                     motion,
-                    animation.progress(now, config.openingAnimationDurationMs), config.inventoryTiltDegrees, impact);
+                    animation.progress(now, config.effectiveOpeningDurationMs()), config.inventoryTiltDegrees, impact);
             presentedImpact = impact;
             flashEdgeX = transform.centerX() + transform.halfWidth(panelWidth, panelHeight);
             flashEdgeY = transform.centerY();
@@ -206,7 +206,7 @@ public final class SpatialScreenManager {
         // An invalid/missing/off-camera anchor can explicitly opt out of the effect.
         vanillaFallback = !projected && !config.fallbackToScreenSpace && profile.anchor() != dev.transparentinventory.client.anchor.AnchorType.PLAYER;
         if (vanillaFallback) return SpatialTransform.IDENTITY;
-        double progress = animation.progress(System.nanoTime(), config.openingAnimationDurationMs);
+        double progress = animation.progress(System.nanoTime(), config.effectiveOpeningDurationMs());
         scale *= 0.92 + 0.08 * progress;
         scale = Math.clamp(Math.min(scale, Math.min((width - 20) / panelWidth, (height - 20) / panelHeight)), 0.1, 2.0);
         double halfWidth = panelWidth * scale / 2 + 4;

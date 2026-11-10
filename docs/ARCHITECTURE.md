@@ -70,7 +70,7 @@ SpatialTransform：本帧 billboard 投影快照
 
 ## 注册表与分类
 
-选择顺序：先检查排除列表，然后是精确类、最近的已注册父类、通用容器。未匹配的普通 Screen 只有显式出现在 `additionalScreens` 中才使用屏幕相对 profile。
+选择顺序：先检查排除列表，然后是精确类、最近的已注册父类、通用容器。未匹配的普通 Screen 只有显式出现在 `additionalScreens` 中才使用屏幕相对 profile。排除与加入列表都接受 `*`/`?` 通配规则；排除仍逐级检查父类，因此一条 `net.minecraft.client.gui.screens.*` 可覆盖整包界面，而不会影响类名完全不同的第三方界面。
 
 - `InventoryScreen` / `CreativeModeInventoryScreen` → PLAYER。
 - `MerchantScreen` / `HorseInventoryScreen` → ENTITY。
@@ -107,7 +107,7 @@ invalid/NaN/零缩放不会进入除法；输入退回原坐标。过小的窗�
 
 ## 透明度
 
-JSON `panelOpacity` 表示不透明度；UI 透明度滑块展示 `1 - panelOpacity`。`screenOpacities` 以完整 Screen 类名覆盖全局值，删除键即恢复继承。范围均为 0–1。
+JSON `panelOpacity` 表示不透明度；UI 透明度滑块展示 `1 - panelOpacity`。`screenOpacities` 以完整 Screen 类名覆盖全局值，删除键即恢复继承；键也可以是通配规则。解析时精确类名优先，其次取匹配规则中字面字符最多者，同等具体度保留先写入条目，`ScreenRules` 只用单次回溯实现，不编译正则。范围均为 0–1。
 
 `GuiRenderStateMixin` 在**提取时**复制 `BlitRenderState` 和 `ColoredRectangleRenderState` 并乘原有 alpha，不使用跨帧 GPU 全局状态。数量、文字和物品状态不改色。延迟工具提示、物品装饰（耐久/冷却/数量）和原版槽位高亮使用不透明范围，世界遮罩另行控制。
 

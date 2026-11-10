@@ -24,7 +24,7 @@ public final class LegacyScreenManager {
     public void reset() { animation = null; }
     public boolean active() { return animation != null; }
 
-    private int duration() { return InventoryConfig.get().openingAnimationDurationMs; }
+    private int duration() { return InventoryConfig.get().effectiveOpeningDurationMs(); }
     private long now() { return System.nanoTime(); }
 
     /** Interpolated slide; overshoots ~10% past 1 before settling. */

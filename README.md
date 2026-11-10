@@ -1,5 +1,9 @@
 # Hoverglass
 
+**26.x · 0.8.0 reduced motion:** The existing **Reduce motion** switch now covers the container UI itself. With it on, the glass panel appears and disappears at its resting pose — no slide, overshoot, landing flash or fade — and the camera snaps straight to the container framing instead of sweeping into it. When the switch is off, the F8 durations still apply. A zero-length camera transition now lands on the new view in the same frame instead of one frame later, so dragging the camera-duration slider to 0 also snaps cleanly. Reduced motion is persisted with the rest of the config and applies on both branches.
+
+**26.x · 0.7.0 screen rules:** `screenOpacities`, `excludedScreens` and `additionalScreens` now accept `*` (any run of characters) and `?` (exactly one) wildcards, so a single entry can cover a screen family such as `"net.minecraft.client.gui.screens.inventory.*"` or `"*MerchantScreen"`. An exact class entry always beats a wildcard and the most specific matching pattern wins, so the per-screen slider keeps working unchanged. Rules are trimmed, de-duplicated and length-capped when the config is loaded or saved.
+
 **26.x · 0.6.1 sprint stride:** Sprinting adds a full-body stride on top of vanilla walking — wider alternating legs, a counter-swinging arm pump, forward torso lean and a head counter-rotation. It applies to every visible sprinting player and follows the vanilla walk phase, so ordinary walking is untouched. Toggle it on the F8 **Avatar motion** page.
 
 **26.x · 0.6.0 avatar motion:** Full-body third-person sword, axe, spear and tool swings for every visible player, plus a hands-at-the-bench loop for the local player while a crafting table is open. The pose is added after vanilla animation, so walking, crouching, riding, item use and the vanilla arm swing remain intact; separate armor models receive the same pose so armor follows the body. Workbench motion is local-only because a client-only mod cannot read another player's open menu. Cycle F8 to **Avatar motion** for the master, attack and crafting toggles plus an 80% default intensity. See the [architecture audit and validation boundaries](docs/MOTION-AUDIT.md).
@@ -150,8 +154,8 @@ Common fields, with an example:
 ```
 
 - `panelOpacity` (0–1): panel background opacity, 0 = fully transparent, 1 = opaque; shared by screens without their own override.
-- `screenOpacities`: overrides `panelOpacity` by the screen's fully qualified class name.
-- `excludedScreens`: uses fully qualified class names and can also exclude a parent class with all of its subclasses. `additionalScreens` explicitly opts non-container screens in; chat, pause and the main menu are never handled by default.
+- `screenOpacities`: overrides `panelOpacity` by the screen's fully qualified class name. Entries may also be wildcard rules using `*` (any run of characters, including none) and `?` (exactly one character). An exact class entry wins; otherwise the matching rule with the most literal characters applies, and patterns of equal specificity keep the earliest entry.
+- `excludedScreens`: uses fully qualified class names and can also exclude a parent class with all of its subclasses. `additionalScreens` explicitly opts non-container screens in; chat, pause and the main menu are never handled by default. Both lists accept the same wildcards as `screenOpacities`, for example `"*MerchantScreen"` or `"com.example.mods.*"`.
 - `worldDimOpacity` (0–1): how strongly the world background darkens.
 - `playerPreview` / `playerSlideRatio` / `playerCenterXRatio` / `playerCenterYRatio` / `playerHeightRatio`: player preview toggle, slide distance and position (Glass Inventory branch).
 - `inventoryTiltDegrees` (−12–12): the resting tilt of the inventory.

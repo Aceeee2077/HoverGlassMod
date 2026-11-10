@@ -80,6 +80,8 @@ def overrides = overlay.exists() ? fileTree(overlay).matching { include '**/*.ja
 def legacyKeep = [
         'dev/transparentinventory/client/ConfigLoader.java',
         'dev/transparentinventory/client/InventoryConfig.java',
+        // Shared by both branches: the legacy InventoryConfig uses it for screen overrides.
+        'dev/transparentinventory/client/ScreenRules.java',
         'dev/transparentinventory/client/ModClient.java',
 ] as Set
 def animPackage = 'dev/transparentinventory/client/anim'
