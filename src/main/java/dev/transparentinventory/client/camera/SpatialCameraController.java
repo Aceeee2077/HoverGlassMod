@@ -39,7 +39,8 @@ public final class SpatialCameraController {
             original = applied = client.options.getCameraType();
             cinematic = false;
         }
-        blend = transition.update(open, System.nanoTime(), config.effectiveCameraTransitionDurationMs());
+        int duration = manager.snapEntrance() ? 0 : config.effectiveCameraTransitionDurationMs();
+        blend = transition.update(open, System.nanoTime(), duration);
         if (!open && blend <= 0) reset();
     }
 

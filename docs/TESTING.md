@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.10.0 快速重新打开
+
+- 新增 `EntranceTiming` 纯 Java 断言：首次打开不瞬切；关闭后 0 ms 与窗口最后一纳秒内瞬切；恰好到达窗口边界恢复动画；窗口为 0 停用；时钟回退不瞬切；`expired` 与窗口一致；`reset` 清除记录；默认窗口 400 ms；配置上限 1500、负值归零；减少动态仍让每次打开瞬切。26.2 `physicsTest` 通过，共 **1,297 条断言**。
+- `SpatialScreenManager` 记录面板关闭时刻，新会话在窗口内把入场时长置 0；创世背包交接沿用原动画并保留本次会话的瞬切状态，避免时长切换造成跳变。`SpatialCameraController` 在同一会话内同样瞬切。
+- legacy `LegacyScreenManager` 记录 `reset()` 时刻并读取同一配置；`EntranceTiming` 位于共享 `anim` 包。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认连续开关 E 的观感。
+
 ## 2026-11-10 · 0.9.0 容器镜头开关
 
 - 新增 `CameraPolicy` 纯 Java 断言：默认同时允许物品栏与容器；关闭 `containerCameraEnabled` 只停用容器、物品栏入口镜头保留；`cameraEnabled` 总开关优先于两者；重新开启恢复容器镜头；null 配置关闭镜头。26.2 `physicsTest` 通过，共 **1,284 条断言**。

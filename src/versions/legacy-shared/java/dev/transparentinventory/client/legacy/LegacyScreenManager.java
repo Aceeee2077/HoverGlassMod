@@ -1,6 +1,7 @@
 package dev.transparentinventory.client.legacy;
 
 import dev.transparentinventory.client.InventoryConfig;
+import dev.transparentinventory.client.anim.EntranceTiming;
 import dev.transparentinventory.client.anim.SpatialAnimationController;
 
 /**
@@ -9,22 +10,29 @@ import dev.transparentinventory.client.anim.SpatialAnimationController;
  */
 public final class LegacyScreenManager {
     public static final LegacyScreenManager INSTANCE = new LegacyScreenManager();
+    private final EntranceTiming reopenTiming = new EntranceTiming();
     private SpatialAnimationController animation;
+    private boolean snapSession;
     private int travelPixels = 320;
 
     private LegacyScreenManager() { }
 
     public void open(int totalTravel) {
         if (animation == null) {
-            animation = new SpatialAnimationController(System.nanoTime());
+            long now = System.nanoTime();
+            animation = new SpatialAnimationController(now);
+            snapSession = reopenTiming.snap(now, InventoryConfig.get().reopenSnapWindowMs);
             travelPixels = Math.max(0, totalTravel);
         }
     }
 
-    public void reset() { animation = null; }
+    public void reset() {
+        if (animation != null) reopenTiming.closed(System.nanoTime());
+        animation = null;
+    }
     public boolean active() { return animation != null; }
 
-    private int duration() { return InventoryConfig.get().effectiveOpeningDurationMs(); }
+    private int duration() { return snapSession ? 0 : InventoryConfig.get().effectiveOpeningDurationMs(); }
     private long now() { return System.nanoTime(); }
 
     /** Interpolated slide; overshoots ~10% past 1 before settling. */

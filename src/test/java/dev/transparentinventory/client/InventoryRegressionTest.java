@@ -1,5 +1,6 @@
 package dev.transparentinventory.client;
 
+import dev.transparentinventory.client.anim.EntranceTiming;
 import dev.transparentinventory.client.anim.InventoryAnimator;
 import dev.transparentinventory.client.anim.SlideTracker;
 import dev.transparentinventory.client.layout.InventoryLayout;
@@ -35,6 +36,7 @@ public final class InventoryRegressionTest {
         testReducedMotion();
         testConfigRecovery();
         testCameraPolicy();
+        testQuickReopen();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -708,6 +710,33 @@ public final class InventoryRegressionTest {
                 "re-enabling restores the container camera");
         check(!dev.transparentinventory.client.camera.CameraPolicy.enabled(null, true),
                 "a missing config disables the camera");
+    }
+
+    private static void testQuickReopen() {
+        var timing = new EntranceTiming();
+        check(!timing.snap(0, 400), "a first open always animates");
+        check(timing.expired(0, 400), "no recorded close is already expired");
+        timing.closed(1_000_000_000L);
+        check(timing.snap(1_000_000_000L, 400), "an immediate reopen snaps");
+        check(timing.snap(1_399_999_999L, 400), "the last nanosecond inside the window snaps");
+        check(!timing.snap(1_400_000_000L, 400), "the window boundary animates again");
+        check(!timing.snap(1_000_000_000L, 0), "a zero window disables snapping");
+        check(!timing.snap(999_999_999L, 400), "a backwards clock animates");
+        check(timing.expired(1_400_000_000L, 400), "expiry follows the same window");
+        timing.reset();
+        check(!timing.snap(1_000_000_000L, 400), "reset forgets the last close");
+
+        var config = new InventoryConfig();
+        check(config.reopenSnapWindowMs == 400, "quick reopen is enabled by default");
+        config.reopenSnapWindowMs = 5000;
+        config.sanitize();
+        check(config.reopenSnapWindowMs == 1500, "the reopen window is capped");
+        config.reopenSnapWindowMs = -20;
+        config.sanitize();
+        check(config.reopenSnapWindowMs == 0, "a negative reopen window becomes zero");
+        config.reopenSnapWindowMs = 400;
+        config.motion.reduceMotion = true;
+        check(config.effectiveOpeningDurationMs() == 0, "reduced motion still snaps every open");
     }
 
     private static void testInventoryCursorLook() {

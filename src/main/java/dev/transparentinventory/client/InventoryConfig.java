@@ -94,6 +94,8 @@ public final class InventoryConfig {
     public double cameraYawOffset = 0;
     public double cameraPitchOffset = 0;
     public int cameraTransitionDurationMs = 420;
+    /** Reopening inside this window skips the entrance and camera animation; 0 disables it. */
+    public int reopenSnapWindowMs = 400;
     public double guiScale = 1.0;
     /** Readable screen-space size for chests and other non-player containers. */
     public double containerScale = 1.35;
@@ -252,6 +254,7 @@ public final class InventoryConfig {
         inventoryTiltDegrees = clamp(inventoryTiltDegrees, -12, 12);
         inventoryCameraSide = clamp(inventoryCameraSide, 0, 0.95);
         cameraTransitionDurationMs = (int) clamp(cameraTransitionDurationMs, 0, 2000);
+        reopenSnapWindowMs = (int) clamp(reopenSnapWindowMs, 0, 1500);
         openingAnimationDurationMs = (int) clamp(openingAnimationDurationMs, 0, 2000);
         guiScale = clamp(guiScale, 0.5, 1.5);
         containerScale = clamp(containerScale, 0.75, 2.0);

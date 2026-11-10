@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.10.0 quick reopen:** Closing a container and opening another within 400 ms now skips the panel entrance and the camera transition, snapping straight to the settled view — tapping E on and off no longer replays the full slide every time. The first open and slower reopens animate normally. The window is configurable with `reopenSnapWindowMs` (0 disables the shortcut, up to 1500 ms) and applies to both branches; **Reduce motion** still snaps every open.
+
 **26.x · 0.9.0 container camera:** A new **Container camera** switch on the F8 camera page (on by default) lets chests, furnaces, merchants and other world containers stay in first person while their glass panel, per-screen opacity and world anchoring still apply. The player inventory keeps its own entrance camera, and the master **Spatial camera** switch still overrides both. The choice is saved as `containerCameraEnabled` in the config file, next to the other camera fields.
 
 **26.x · 0.8.1 config recovery:** If `config/transparent_inventory.json` cannot be parsed, the mod now moves it aside as `transparent_inventory.json.corrupt-<UTC timestamp>` before using defaults. Previously the in-memory defaults would replace the unreadable file on the next save, destroying any hand edits worth recovering. Backup names use a Windows-safe UTC timestamp, never collide, and are length-capped; if the move itself fails, the original is left untouched and defaults are used for that session only.
@@ -166,6 +168,7 @@ Common fields, with an example:
 - `inventoryTiltDegrees` (−12–12): the resting tilt of the inventory.
 - `cameraEnabled` / `containerCameraEnabled` / `cameraDistance` / `cameraTransitionDurationMs`: the master camera toggle, whether containers may use the camera (the inventory keeps its own framing), distance and transition duration.
 - `openingAnimationDurationMs` / `closeAnimation`: open/close animation length and the close animation toggle.
+- `reopenSnapWindowMs` (0–1500): a container opened within this many milliseconds of the previous close skips its entrance and camera transition; 0 always animates.
 - The file also keeps several tuning fields for slot border opacities, slide physics (`slideSpeed` / `slideBrake` / `bounce`) and visual ratios; all are clamped to safe ranges and can be edited as needed.
 
 Unknown modded containers use a generic profile by default; when there is no reliable anchor the panel falls back to screen-relative placement. Chests and barrels with different slot counts can share the same vanilla `Screen` class, so their per-screen opacity is shared.
