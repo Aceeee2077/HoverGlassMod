@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.28.0 界面支持设置页
+
+- 新增第十三页 **界面支持设置**（索引 12），提供 `defaultSpatialHandledScreens`、`fallbackToScreenSpace` 两个开关，以及把打开设置时所处界面加入/移出 `additionalScreens` 的按钮；精确条目可增删，通配规则只提示不改写。`SettingsPages` 更新为 13 页，`testSettingsPages` 覆盖新索引与首尾循环。
+- 新增 `testScreenOptIn`：默认不加入任何界面；加入后 `hasExactOptIn`/`isScreenOptedIn` 为真，再次点击移除；空白名被拒绝；通配规则可命中但不会被按钮删除；名称会去掉首尾空格，且经 `sanitize()` 后仍保留。`testPageDefaults` 补上第 13 页的开关恢复断言。26.2 `physicsTest` 通过，共 **1,671 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过；`testLanguageKeys` 自动校验新增 11 个键的中英一致性。按用户要求未启动 Minecraft 客户端，未实机确认从模组菜单按 F8 后按钮状态，以及关闭「已识别的容器使用玻璃」后的实际行为。
+
 ## 2026-11-10 · 0.27.0 关闭动画开关
 
 - 入场页第一行拆成两个半宽开关：**第一人称侧移入场** 与新增的 **关闭动画**（`closeAnimation`）。关闭后 `SpatialScreenManager.requestClose` 直接返回 false，由原版立即关闭界面，不再等待滑出动画。

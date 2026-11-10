@@ -22,6 +22,7 @@ public final class SpatialSettingsScreen extends Screen {
     private final Screen parent;
     private final boolean overlay;
     private final String screenName;
+    private final Class<?> openedFrom;
     private int page;
     private int top;
     private Button inheritButton;
@@ -33,6 +34,7 @@ public final class SpatialSettingsScreen extends Screen {
                 .map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse("?")));
         this.parent = parent;
         this.overlay = overlay;
+        this.openedFrom = parent == null ? null : parent.getClass();
         this.screenName = parent instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
                 ? parent.getClass().getName() : null;
     }
@@ -217,6 +219,24 @@ public final class SpatialSettingsScreen extends Screen {
                 button.setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
                 presetButtons.add(addRenderableWidget(button));
             }
+        } else if (page == SettingsPages.SCREEN_SUPPORT) {
+            addRenderableWidget(Button.builder(toggle("spatialui.support.handled", InventoryConfig.get().defaultSpatialHandledScreens), button -> {
+                InventoryConfig.get().defaultSpatialHandledScreens = !InventoryConfig.get().defaultSpatialHandledScreens;
+                button.setMessage(toggle("spatialui.support.handled", InventoryConfig.get().defaultSpatialHandledScreens));
+            }).bounds(left, row, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.support.handled.hint")));
+            addRenderableWidget(Button.builder(toggle("spatialui.support.fallback", InventoryConfig.get().fallbackToScreenSpace), button -> {
+                InventoryConfig.get().fallbackToScreenSpace = !InventoryConfig.get().fallbackToScreenSpace;
+                button.setMessage(toggle("spatialui.support.fallback", InventoryConfig.get().fallbackToScreenSpace));
+            }).bounds(left, row + 22, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.support.fallback.hint")));
+            var optIn = addRenderableWidget(Button.builder(optInLabel(), button -> {
+                InventoryConfig.get().toggleScreenOptIn(openedName());
+                button.setMessage(optInLabel());
+                button.active = canToggleOptIn();
+            }).bounds(left, row + 44, contentWidth, 20).build());
+            optIn.active = canToggleOptIn();
+            optIn.setTooltip(Tooltip.create(Component.translatable("spatialui.support.optin.hint")));
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);
@@ -293,6 +313,25 @@ public final class SpatialSettingsScreen extends Screen {
         if (config.hasExactExclusion(screenName)) return Component.translatable("spatialui.compat.included");
         if (config.isScreenExcluded(screenName)) return Component.translatable("spatialui.compat.excluded_rule");
         return Component.translatable("spatialui.compat.exclude");
+    }
+
+    private String openedName() { return openedFrom == null ? null : openedFrom.getName(); }
+
+    /** Real containers already get the panel, and a wildcard rule cannot be undone here. */
+    private boolean canToggleOptIn() {
+        String name = openedName();
+        if (name == null || screenName != null) return false;
+        var config = InventoryConfig.get();
+        return !config.isScreenOptedIn(name) || config.hasExactOptIn(name);
+    }
+
+    private Component optInLabel() {
+        String name = openedName();
+        if (name == null || screenName != null) return Component.translatable("spatialui.support.optin.container");
+        var config = InventoryConfig.get();
+        if (config.hasExactOptIn(name)) return Component.translatable("spatialui.support.optin.remove");
+        if (config.isScreenOptedIn(name)) return Component.translatable("spatialui.support.optin.rule");
+        return Component.translatable("spatialui.support.optin");
     }
 
     private static Component toggle(String key, boolean enabled) {

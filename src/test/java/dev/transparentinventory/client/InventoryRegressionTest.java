@@ -51,6 +51,7 @@ public final class InventoryRegressionTest {
         testGlassMaterials();
         testGlassMaterialPresets();
         testPageDefaults();
+        testScreenOptIn();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -837,9 +838,9 @@ public final class InventoryRegressionTest {
     }
 
     private static void testSettingsPages() {
-        check(SettingsPages.COUNT == 12, "the settings screen has twelve pages");
+        check(SettingsPages.COUNT == 13, "the settings screen has thirteen pages");
         check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10
-                        && SettingsPages.GLASS_MATERIAL == 11,
+                        && SettingsPages.GLASS_MATERIAL == 11 && SettingsPages.SCREEN_SUPPORT == 12,
                 "compatibility keeps its position and the advanced pages follow it");
         check(SettingsPages.titleKey(SettingsPages.COMPATIBILITY).equals("spatialui.settings.compatibility"),
                 "the compatibility index names the compatibility page");
@@ -847,6 +848,8 @@ public final class InventoryRegressionTest {
                 "the camera angle index names the camera angle page");
         check(SettingsPages.titleKey(SettingsPages.GLASS_MATERIAL).equals("spatialui.settings.glass_material"),
                 "the glass material index names the glass material page");
+        check(SettingsPages.titleKey(SettingsPages.SCREEN_SUPPORT).equals("spatialui.settings.screen_support"),
+                "the screen support index names the screen support page");
         for (int page = 0; page < SettingsPages.COUNT; page++) {
             check(SettingsPages.clamp(page) == page, "valid page indices are kept");
             check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
@@ -866,11 +869,13 @@ public final class InventoryRegressionTest {
                 "compatibility is followed by camera angles");
         check(SettingsPages.next(SettingsPages.CAMERA_ANGLES) == SettingsPages.GLASS_MATERIAL,
                 "camera angles are followed by glass material");
-        check(SettingsPages.next(SettingsPages.GLASS_MATERIAL) == 0, "the last page wraps to the first");
-        check(SettingsPages.previous(0) == SettingsPages.GLASS_MATERIAL,
+        check(SettingsPages.next(SettingsPages.GLASS_MATERIAL) == SettingsPages.SCREEN_SUPPORT,
+                "glass material is followed by screen support");
+        check(SettingsPages.next(SettingsPages.SCREEN_SUPPORT) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == SettingsPages.SCREEN_SUPPORT,
                 "the first page wraps to the last");
-        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.glass_material"),
-                "going back from the first page lands on glass material");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.screen_support"),
+                "going back from the first page lands on screen support");
         check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
@@ -1299,6 +1304,12 @@ public final class InventoryRegressionTest {
         check(GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.FROSTED),
                 "page reset restores the reference material");
 
+        config.defaultSpatialHandledScreens = false;
+        config.fallbackToScreenSpace = false;
+        check(PageDefaults.reset(config, SettingsPages.SCREEN_SUPPORT), "the screen support page resets");
+        check(config.defaultSpatialHandledScreens && config.fallbackToScreenSpace,
+                "page reset restores both screen support switches");
+
         config.panelOpacity = .5F;
         check(!PageDefaults.reset(config, SettingsPages.COMPATIBILITY),
                 "the compatibility page has no reset");
@@ -1319,6 +1330,34 @@ public final class InventoryRegressionTest {
         checkClose(fresh.motion.playerIntensity, .8, 1E-6, "repeated page resets keep the avatar intensity");
         check(GlassMaterialPresets.matches(fresh, GlassMaterialPresets.Preset.FROSTED),
                 "repeated page resets keep the reference material");
+    }
+
+    private static void testScreenOptIn() {
+        InventoryConfig config = new InventoryConfig();
+        check(config.additionalScreens.isEmpty(), "no screen is opted in by default");
+        check(!config.isScreenOptedIn("com.example.TestScreen"), "an unknown screen is not opted in");
+        check(!config.hasExactOptIn("com.example.TestScreen"), "no exact opt-in exists yet");
+        check(config.toggleScreenOptIn("com.example.TestScreen"), "toggling opts the screen in");
+        check(config.hasExactOptIn("com.example.TestScreen"), "an exact opt-in is recorded");
+        check(config.isScreenOptedIn("com.example.TestScreen"), "the screen reports opted in");
+        check(!config.toggleScreenOptIn("com.example.TestScreen"), "toggling again opts it out");
+        check(!config.isScreenOptedIn("com.example.TestScreen"), "the screen reports not opted in");
+        check(!config.toggleScreenOptIn(null) && !config.toggleScreenOptIn("   "),
+                "blank names are refused");
+
+        config.additionalScreens.add("com.example.*");
+        check(config.isScreenOptedIn("com.example.OtherScreen"), "a wildcard rule opts a family in");
+        check(!config.hasExactOptIn("com.example.OtherScreen"), "a wildcard rule is not an exact entry");
+        check(config.toggleScreenOptIn("com.example.OtherScreen"),
+                "toggling cannot undo a wildcard opt-in");
+        check(config.additionalScreens.size() == 1, "the wildcard rule stays untouched");
+        check(config.additionalScreens.get(0).equals("com.example.*"), "the rule is unchanged");
+
+        config.additionalScreens.clear();
+        config.toggleScreenOptIn("  com.example.Padded  ");
+        check(config.hasExactOptIn("com.example.Padded"), "an opt-in name is trimmed");
+        config.sanitize();
+        check(config.isScreenOptedIn("com.example.Padded"), "a saved opt-in survives sanitizing");
     }
 
     private static void testInventoryCursorLook() {

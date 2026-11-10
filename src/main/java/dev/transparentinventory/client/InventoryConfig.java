@@ -150,6 +150,27 @@ public final class InventoryConfig {
     /** Removes every exact and wildcard exclusion. */
     public void clearScreenExclusions() { excludedScreens.clear(); }
 
+    /** True when this screen is opted in to the spatial UI, exactly or by a wildcard rule. */
+    public boolean isScreenOptedIn(String className) { return ScreenRules.matchesAny(additionalScreens, className); }
+
+    /** True when an exact opt-in entry exists for this screen (wildcard rules are not removed). */
+    public boolean hasExactOptIn(String className) { return screenNameIn(additionalScreens, className); }
+
+    /**
+     * Adds or removes an exact opt-in for a non-container screen.
+     * A wildcard rule that already opts it in is left alone, so the button is a no-op then.
+     *
+     * @return true when the screen is opted in afterwards
+     */
+    public boolean toggleScreenOptIn(String className) {
+        String clean = ScreenRules.cleanName(className);
+        if (clean == null) return false;
+        if (additionalScreens.remove(clean)) return false;
+        if (ScreenRules.matchesAny(additionalScreens, clean)) return true;
+        additionalScreens.add(clean);
+        return true;
+    }
+
     /** Removes every per-screen opacity override; screens fall back to the global value. */
     public void clearScreenOpacities() { screenOpacities.clear(); }
 

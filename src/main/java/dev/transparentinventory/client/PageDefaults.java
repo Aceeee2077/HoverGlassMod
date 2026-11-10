@@ -16,7 +16,7 @@ public final class PageDefaults {
     /** True when {@code page} has values that {@link #reset(InventoryConfig, int)} restores. */
     public static boolean supports(int page) {
         return switch (page) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11 -> true;
+            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12 -> true;
             default -> false;
         };
     }
@@ -96,6 +96,10 @@ public final class PageDefaults {
                 config.cameraPitchOffset = 0;
             }
             case 11 -> GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.FROSTED);
+            case 12 -> {
+                config.defaultSpatialHandledScreens = true;
+                config.fallbackToScreenSpace = true;
+            }
             default -> {
                 return false;
             }
