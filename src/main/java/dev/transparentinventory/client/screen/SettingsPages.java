@@ -35,7 +35,26 @@ public final class SettingsPages {
             "spatialui.settings.screen_support"
     };
 
+    /** Last page opened this session; 0 until the screen navigates somewhere else. */
+    private static int remembered;
+
     private SettingsPages() {
+    }
+
+    /** The page index that should be shown when the settings screen opens. */
+    public static int remembered() {
+        return clamp(remembered);
+    }
+
+    /** Stores the page for the next open, keeping it inside the valid range. */
+    public static int remember(int page) {
+        remembered = clamp(page);
+        return remembered;
+    }
+
+    /** Index of the last page, i.e. where End jumps. */
+    public static int last() {
+        return COUNT - 1;
     }
 
     /** Keeps an arbitrary index inside the page range; invalid values start over at the first page. */

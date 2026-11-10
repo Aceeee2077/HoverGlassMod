@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.32.0 remembered settings page:** The F8 screen now reopens on the page last viewed in this session instead of always starting at transparency, so repeated tweaks to the same page take one key press. **End** jumps straight to the last page, matching **Home** for the first; both use the same clamped page memory and the page counter keeps its position after every rebuild.
+
 **26.x · 0.31.0 rotating config snapshots:** Save-time protection no longer stops at a single `.bak`. Every save also writes a timestamped copy into `config/transparent_inventory-backups/` and prunes that folder to the five newest, so several bad saves in a row can still be walked back by hand. The sibling `.bak`, the compatibility page's **Restore previous settings** behaviour and the "a failed copy never blocks the save" rule are unchanged, and the shared loader means both branches get the history.
 
 **26.x · 0.30.0 idle sway:** A standing avatar no longer freezes between actions. A new **Idle sway** switch on the avatar motion page adds a breathing layer — the chest rises, the arms drift outward, and the weight shifts slowly side to side — with amplitudes under three hundredths of a radian and scaling with **Avatar motion intensity**. It stops the moment the walk cycle or a landing takes over and leaves the legs entirely to vanilla; the switch beside it is now labelled **Airborne poses** to make room.

@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.32.0 记住上次设置页
+
+- `SettingsPages` 新增会话内页面记忆 `remembered()` / `remember(int)` 与 `last()`；非法值统一夹紧到第一页。`testSettingsPages` 补上：End 指向最后一页、首次打开为第一页、记住第 8 页、非法值回落到第一页，并在结束前把记忆复位为 0。
+- 设置界面的所有翻页入口（上一页/下一页按钮、PgUp/PgDn、Home 新增 End）统一走 `goTo()`：写入记忆后重建控件；`init()` 从记忆恢复页码。26.2 `physicsTest` 通过，共 **1,714 条断言**；26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。
+- 按用户要求未启动 Minecraft 客户端，未实机确认「上次页面」与实际进出容器的配合，以及 End 键是否会被其他模组拦截。
+
 ## 2026-11-10 · 0.31.0 配置快照轮换
 
 - `ConfigBackups` 新增 `rotate()`：保存时在同级 `transparent_inventory-backups/` 写入 19 位零填充时间戳快照，并按字典序裁剪到最新 `KEEP = 5` 份；任何文件操作失败都返回 -1，不影响 `.bak` 与本次保存。

@@ -43,7 +43,7 @@ public final class SpatialSettingsScreen extends Screen {
         int contentWidth = Math.min(320, width - 16);
         int left = (width - contentWidth) / 2;
         top = Math.max(6, (height - 220) / 2);
-        page = SettingsPages.clamp(page);
+        page = SettingsPages.remembered();
         int row = top + 34;
         inheritButton = null;
         presetButtons.clear();
@@ -291,15 +291,13 @@ public final class SpatialSettingsScreen extends Screen {
             }).bounds(left, row + 110, contentWidth, 20).build());
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
-            page = SettingsPages.previous(page);
-            rebuildWidgets();
+            goTo(SettingsPages.previous(page));
         }).bounds(left, row + 138, 20, 20).build());
         previous.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.previous")
                 .append(": ").append(Component.translatable(SettingsPages.previousLabelKey(page)))));
         var forward = addRenderableWidget(Button.builder(
                 Component.translatable(SettingsPages.nextLabelKey(page)), button -> {
-            page = SettingsPages.next(page);
-            rebuildWidgets();
+            goTo(SettingsPages.next(page));
         }).bounds(left + 22, row + 138, contentWidth / 2 - 24, 20).build());
         forward.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.next")
                 .append(": ").append(Component.translatable(SettingsPages.nextLabelKey(page)))));
@@ -308,6 +306,12 @@ public final class SpatialSettingsScreen extends Screen {
     }
 
     /** Short chat feedback so copy/paste results are visible without leaving the screen. */
+    /** Changes page, remembers it for the next open and rebuilds the controls. */
+    private void goTo(int page) {
+        this.page = SettingsPages.remember(page);
+        rebuildWidgets();
+    }
+
     private void notify(String key) {
         if (minecraft.player != null) {
             minecraft.player.sendSystemMessage(Component.translatable(key));
@@ -406,18 +410,19 @@ public final class SpatialSettingsScreen extends Screen {
 
     @Override public boolean keyPressed(KeyEvent key) {
         if (key.key() == InputConstants.KEY_PAGEUP) {
-            page = SettingsPages.previous(page);
-            rebuildWidgets();
+            goTo(SettingsPages.previous(page));
             return true;
         }
         if (key.key() == InputConstants.KEY_PAGEDOWN) {
-            page = SettingsPages.next(page);
-            rebuildWidgets();
+            goTo(SettingsPages.next(page));
             return true;
         }
         if (key.key() == InputConstants.KEY_HOME) {
-            page = 0;
-            rebuildWidgets();
+            goTo(0);
+            return true;
+        }
+        if (key.key() == InputConstants.KEY_END) {
+            goTo(SettingsPages.last());
             return true;
         }
         if (key.key() == InputConstants.KEY_DELETE && PageDefaults.reset(InventoryConfig.get(), page)) {

@@ -882,6 +882,13 @@ public final class InventoryRegressionTest {
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
                 "invalid titles fall back to the first page");
+        check(SettingsPages.last() == SettingsPages.COUNT - 1, "End jumps to the last page");
+        check(SettingsPages.remembered() == 0, "the first open starts on the transparency page");
+        check(SettingsPages.remember(7) == 7 && SettingsPages.remembered() == 7,
+                "the last opened page is remembered");
+        check(SettingsPages.remember(42) == 0 && SettingsPages.remembered() == 0,
+                "an invalid remembered page falls back to the first");
+        SettingsPages.remember(0);
     }
 
     private static void testLanguageKeys() {
