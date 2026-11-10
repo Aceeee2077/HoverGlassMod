@@ -266,19 +266,24 @@ public final class SpatialSettingsScreen extends Screen {
         } else if (page == SettingsPages.GLASS_MATERIAL) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.material.slot",
                     () -> InventoryConfig.get().slotOpacity,
-                    value -> InventoryConfig.get().slotOpacity = (float) value, true));
+                    value -> InventoryConfig.get().slotOpacity = (float) value, true))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.material.slot.hint")));
             addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.material.panel_rim",
                     () -> InventoryConfig.get().borderOpacity,
-                    value -> InventoryConfig.get().borderOpacity = (float) value, true));
+                    value -> InventoryConfig.get().borderOpacity = (float) value, true))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.material.panel_rim.hint")));
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.material.slot_rim",
                     () -> InventoryConfig.get().slotBorderOpacity,
-                    value -> InventoryConfig.get().slotBorderOpacity = (float) value, true));
+                    value -> InventoryConfig.get().slotBorderOpacity = (float) value, true))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.material.slot_rim.hint")));
             addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.material.hover",
                     () -> InventoryConfig.get().hoverOpacity,
-                    value -> InventoryConfig.get().hoverOpacity = (float) value, true));
+                    value -> InventoryConfig.get().hoverOpacity = (float) value, true))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.material.hover.hint")));
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.material.selected",
                     () -> InventoryConfig.get().selectedOpacity,
-                    value -> InventoryConfig.get().selectedOpacity = (float) value, true));
+                    value -> InventoryConfig.get().selectedOpacity = (float) value, true))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.material.selected.hint")));
             GlassMaterialPresets.Preset[] presets = GlassMaterialPresets.Preset.values();
             int gap = 4;
             int presetWidth = (contentWidth - gap * (presets.length - 1)) / presets.length;

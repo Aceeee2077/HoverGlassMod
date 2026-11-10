@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.67.0 glass material sliders explain themselves:** Every slider on the glass material page now has a tooltip saying what it actually draws — the fill behind empty cells, the panel outline, the per-cell outline, the cursor hover tint and the selected hotbar slot tint. Five values that read almost the same as labels are now distinguishable without trial and error.
+
 **26.x · 0.66.0 hotbar hints stay truthful:** The match buttons now track which hint they show separately from whether they are clickable, so flipping **Glass hotbar** off and on always leaves the right text: the "already matches" hint, the normal hint, or the turn-it-on hint. Before, a button that was disabled for both reasons at once could keep a stale tooltip after the switch changed.
 
 **26.x · 0.65.0 hotbar controls follow their switch:** With **Glass hotbar** turned off, the transparency and border sliders plus both match buttons on that page now grey out, and their tooltips say to turn the glass hotbar on first — instead of accepting drags and clicks that change values nothing renders. Turning the switch back on re-enables them on the next frame without leaving the page.
