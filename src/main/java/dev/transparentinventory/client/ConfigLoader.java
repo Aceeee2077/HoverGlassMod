@@ -91,27 +91,23 @@ public final class ConfigLoader {
         }
     }
 
-    /**
-     * Reads the newest rotating snapshot, which covers the case where several bad
-     * saves have already pushed the plain {@code .bak} out of reach.
-     *
-     * @return a sanitized config, or {@code null} when no snapshot exists or it
-     *         cannot be parsed
-     */
     /** Number of rotating snapshots available to restore; zero when there are none. */
     public static synchronized int snapshotCount() {
         return ConfigBackups.snapshotCount(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
     }
 
-    /** When the newest rotating snapshot was taken, or {@code -1} when there is none. */
-    public static synchronized long newestSnapshotMillis() {
-        return ConfigBackups.newestEpochMillis(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
-    }
-
-    public static synchronized InventoryConfig loadNewestSnapshot() {
-        Path snapshot = ConfigBackups.newest(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
-        if (snapshot == null) return null;
-        try (Reader reader = Files.newBufferedReader(snapshot, StandardCharsets.UTF_8)) {
+    /**
+     * Reads one rotating snapshot, which covers the case where several bad saves
+     * have already pushed the plain {@code .bak} out of reach.
+     *
+     * @param index 0 is the newest snapshot; older ones follow
+     * @return a sanitized config, or {@code null} when that snapshot does not exist
+     *         or cannot be parsed
+     */
+    public static synchronized InventoryConfig loadSnapshot(int index) {
+        var snapshots = ConfigBackups.snapshots(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+        if (index < 0 || index >= snapshots.size()) return null;
+        try (Reader reader = Files.newBufferedReader(snapshots.get(index), StandardCharsets.UTF_8)) {
             InventoryConfig config = GSON.fromJson(reader, InventoryConfig.class);
             if (config == null) return null;
             config.sanitize();
@@ -119,6 +115,12 @@ public final class ConfigLoader {
         } catch (IOException | RuntimeException ignored) {
             return null;
         }
+    }
+
+    /** When the snapshot at {@code index} was taken, or {@code -1} when there is none. */
+    public static synchronized long snapshotMillis(int index) {
+        var snapshots = ConfigBackups.snapshots(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME));
+        return index >= 0 && index < snapshots.size() ? ConfigBackups.epochMillis(snapshots.get(index)) : -1;
     }
 
     /**

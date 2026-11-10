@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.71.0 快照选择
+
+- `ConfigBackups.snapshots(Path)` 返回按文件名降序（即由新到旧）的快照列表，`epochMillis(Path)` 从单个快照文件名解析时间；`newestEpochMillis` 改为委托 `epochMillis(newest(config))`，行为不变。`ConfigLoader` 的 `loadNewestSnapshot` / `newestSnapshotMillis` 改为带索引的 `loadSnapshot(int)` / `snapshotMillis(int)`，0 表示最新一份；同时把原先放错位置的 Javadoc 移到 `loadSnapshot` 上。
+- 兼容性页最后一行改为 `◀`（20 像素）+ 恢复按钮 + `▶`（20 像素）：`snapshotPick` 记录当前索引，越界时收敛到有效范围，恢复成功后归零；两端箭头按索引与总数置灰。按钮标签显示 `n/总数`，tooltip 显示位置与该快照的保存时间。确认点击、失败提示与保存失败提示沿用原流程。
+- 新增 6 条断言：列表长度、首尾时间、降序、`null` 快照、无轮换目录。26.2 `physicsTest` 通过，共 **2,080 条断言**。
+- 语言文件更新 4 个键并删除 1 个不再使用的键（`snapshot.latest`），键集合相等（231 个键）。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认 `◀`/`▶` 字形在按钮内的居中效果，也未验证恢复后索引归零的视觉反馈。
+
 ## 2026-11-10 · 0.70.0 本页重置二次确认
 
 - 底部 **↺** 与 Delete 共享新增的 `pageResetConfirm`：第一次按下只武装并把按钮文字改为 `spatialui.settings.reset_page.confirm`（`↺?`），tooltip 换成确认说明；第二次才调用 `PageDefaults.reset` 并重建。`rebuildWidgets()` 会 `disarm()`，因此翻页、预设、恢复等重建操作都会丢弃待确认状态。不支持重置的页面仍在按下时直接返回。

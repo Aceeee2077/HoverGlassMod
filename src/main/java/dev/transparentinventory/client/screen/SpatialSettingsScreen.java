@@ -47,6 +47,8 @@ public final class SpatialSettingsScreen extends Screen {
     private final ScrollAccumulator scroll = new ScrollAccumulator();
     /** Config JSON as it was when the screen opened, so an untouched close saves nothing. */
     private String openedJson;
+    /** Selected rotating snapshot, 0 being the newest. */
+    private int snapshotPick;
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -475,15 +477,22 @@ public final class SpatialSettingsScreen extends Screen {
                 notify(saved ? "spatialui.transfer.restored" : "spatialui.settings.save_failed");
             }).bounds(left, row + 88, contentWidth, 20).build());
             int snapshotCount = ConfigLoader.snapshotCount();
+            if (snapshotPick >= snapshotCount) snapshotPick = Math.max(0, snapshotCount - 1);
+            var olderSnapshot = addRenderableWidget(Button.builder(Component.literal("◀"), button -> {
+                if (snapshotPick + 1 < snapshotCount) snapshotPick++;
+                rebuildWidgets();
+            }).bounds(left, row + 110, 20, 20).build());
+            olderSnapshot.active = snapshotCount > 1 && snapshotPick < snapshotCount - 1;
+            olderSnapshot.setTooltip(Tooltip.create(Component.translatable("spatialui.transfer.snapshot.older")));
             var snapshotButton = addRenderableWidget(Button.builder(Component.translatable(
                     snapshotConfirm.armed() ? "spatialui.transfer.confirm" : "spatialui.transfer.snapshot")
-                            .append(" (" + snapshotCount + ")"), button -> {
+                            .append(" " + (snapshotPick + 1) + "/" + snapshotCount), button -> {
                 if (!snapshotConfirm.press()) {
                     button.setMessage(Component.translatable("spatialui.transfer.confirm")
-                            .append(" (" + snapshotCount + ")"));
+                            .append(" " + (snapshotPick + 1) + "/" + snapshotCount));
                     return;
                 }
-                InventoryConfig snapshot = ConfigLoader.loadNewestSnapshot();
+                InventoryConfig snapshot = ConfigLoader.loadSnapshot(snapshotPick);
                 if (snapshot == null) {
                     rebuildWidgets();
                     notify("spatialui.transfer.snapshot.none");
@@ -491,16 +500,25 @@ public final class SpatialSettingsScreen extends Screen {
                 }
                 InventoryConfig.setInstance(snapshot);
                 boolean saved = saveNow();
+                snapshotPick = 0;
                 rebuildWidgets();
                 notify(saved ? "spatialui.transfer.snapshot.restored" : "spatialui.settings.save_failed");
-            }).bounds(left, row + 110, contentWidth, 20).build());
+            }).bounds(left + 22, row + 110, Math.max(20, contentWidth - 44), 20).build());
             snapshotButton.active = snapshotCount > 0;
-            long snapshotMillis = snapshotCount > 0 ? ConfigLoader.newestSnapshotMillis() : -1;
+            var newerSnapshot = addRenderableWidget(Button.builder(Component.literal("▶"), button -> {
+                if (snapshotPick > 0) snapshotPick--;
+                rebuildWidgets();
+            }).bounds(left + contentWidth - 20, row + 110, 20, 20).build());
+            newerSnapshot.active = snapshotCount > 1 && snapshotPick > 0;
+            newerSnapshot.setTooltip(Tooltip.create(Component.translatable("spatialui.transfer.snapshot.newer")));
+            long snapshotMillis = snapshotCount > 0 ? ConfigLoader.snapshotMillis(snapshotPick) : -1;
             var snapshotHint = Component.translatable(snapshotCount > 0
                     ? "spatialui.transfer.snapshot.hint" : "spatialui.transfer.snapshot.none");
             if (snapshotMillis > 0) {
                 snapshotHint = snapshotHint.append(Component.literal("\n")).append(Component.translatable(
-                        "spatialui.transfer.snapshot.latest", snapshotStamp(snapshotMillis)));
+                        "spatialui.transfer.snapshot.position", snapshotPick + 1, snapshotCount))
+                        .append(" · ")
+                        .append(Component.translatable("spatialui.transfer.snapshot.taken", snapshotStamp(snapshotMillis)));
             }
             snapshotButton.setTooltip(Tooltip.create(snapshotHint));
         }

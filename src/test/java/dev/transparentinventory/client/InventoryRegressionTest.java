@@ -1229,6 +1229,17 @@ public final class InventoryRegressionTest {
             }
             check(ConfigBackups.newest(dir.resolve("nested").resolve("elsewhere.json")) == null,
                     "a config without a rotation folder has no newest snapshot");
+            var ordered = ConfigBackups.snapshots(config);
+            check(ordered.size() == ConfigBackups.KEEP, "the snapshot list matches the files on disk");
+            check(ConfigBackups.epochMillis(ordered.get(0)) == stamp + ConfigBackups.KEEP + 1,
+                    "the snapshot list starts with the newest");
+            check(ConfigBackups.epochMillis(ordered.get(ordered.size() - 1)) == stamp + 2,
+                    "the snapshot list ends with the oldest kept one");
+            check(ConfigBackups.epochMillis(ordered.get(0)) > ConfigBackups.epochMillis(ordered.get(1)),
+                    "snapshots are ordered newest first");
+            check(ConfigBackups.epochMillis(null) == -1, "a missing snapshot reports no time");
+            check(ConfigBackups.snapshots(dir.resolve("nested").resolve("elsewhere.json")).isEmpty(),
+                    "a config without a rotation folder has no snapshot list");
             check(ConfigBackups.newestEpochMillis(config) == stamp + ConfigBackups.KEEP + 1,
                     "the newest snapshot reports when it was taken");
             check(ConfigBackups.newestEpochMillis(dir.resolve("nested").resolve("elsewhere.json")) == -1,

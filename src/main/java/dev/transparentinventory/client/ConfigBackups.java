@@ -144,6 +144,44 @@ public final class ConfigBackups {
     }
 
     /**
+     * Rotating snapshots, newest first. Sortable names make the descending
+     * lexicographic order chronological.
+     *
+     * @return the snapshot paths; empty when the folder is missing, empty or unreadable
+     */
+    public static List<Path> snapshots(Path config) {
+        Path directory = rotationDirectory(config);
+        if (directory == null || !Files.isDirectory(directory)) return List.of();
+        try (var stream = Files.list(directory)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(ROTATION_PREFIX))
+                    .sorted(Comparator.comparing((Path path) -> path.getFileName().toString()).reversed())
+                    .toList();
+        } catch (IOException | RuntimeException ignored) {
+            return List.of();
+        }
+    }
+
+    /**
+     * Time recorded in a snapshot's file name, so the settings screen can show
+     * when it was taken.
+     *
+     * @return epoch milliseconds, or {@code -1} when the name is not a snapshot name
+     */
+    public static long epochMillis(Path snapshot) {
+        if (snapshot == null) return -1;
+        String name = snapshot.getFileName().toString();
+        if (!name.startsWith(ROTATION_PREFIX) || !name.endsWith(".json")) return -1;
+        String stamp = name.substring(ROTATION_PREFIX.length(), name.length() - ".json".length());
+        try {
+            return Long.parseLong(stamp);
+        } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+            return -1;
+        }
+    }
+
+    /**
      * Time recorded in the newest snapshot's file name, so the settings screen can
      * show when it was taken.
      *
@@ -151,16 +189,7 @@ public final class ConfigBackups {
      *         name is unreadable
      */
     public static long newestEpochMillis(Path config) {
-        Path newest = newest(config);
-        if (newest == null) return -1;
-        String name = newest.getFileName().toString();
-        if (!name.endsWith(".json")) return -1;
-        String stamp = name.substring(ROTATION_PREFIX.length(), name.length() - ".json".length());
-        try {
-            return Long.parseLong(stamp);
-        } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
-            return -1;
-        }
+        return epochMillis(newest(config));
     }
 
     /** True when a backup file exists and can be read. */
