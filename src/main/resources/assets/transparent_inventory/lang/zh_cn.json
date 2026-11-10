@@ -41,6 +41,8 @@
   "spatialui.inventory.reopen": "快速重开窗口",
   "spatialui.inventory.reopen.hint": "在此时间内重新打开容器会跳过入场与镜头动画；0 表示关闭该捷径。",
   "spatialui.inventory.preset": "应用参考图玻璃效果（透明度 84%）",
+  "spatialui.inventory.preset.confirm": "再次点击以替换玻璃外观",
+  "spatialui.inventory.preset.hint": "一次性设置透明度、边框、镜头与动画等参考玻璃外观；你在各页的自定义调整会被替换",
   "spatialui.container_scale": "箱子等容器显示大小",
   "spatialui.settings.look": "人物头部跟随设置",
   "spatialui.look.enabled": "头部跟随物品栏鼠标",

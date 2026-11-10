@@ -41,6 +41,8 @@
   "spatialui.inventory.reopen": "Quick reopen window",
   "spatialui.inventory.reopen.hint": "Reopening a container inside this window skips the entrance and camera animation. 0 disables the shortcut.",
   "spatialui.inventory.preset": "Apply reference glass style (84% transparent)",
+  "spatialui.inventory.preset.confirm": "Click again to replace the glass look",
+  "spatialui.inventory.preset.hint": "Sets the reference glass style across opacity, rim, camera and animation values; your own tuning on those pages is replaced",
   "spatialui.container_scale": "Chest / container size",
   "spatialui.settings.look": "Player head tracking",
   "spatialui.look.enabled": "Head follows inventory cursor",

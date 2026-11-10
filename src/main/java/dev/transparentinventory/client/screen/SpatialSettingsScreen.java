@@ -35,6 +35,7 @@ public final class SpatialSettingsScreen extends Screen {
     private final ConfirmPress resetConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
+    private final ConfirmPress presetConfirm = new ConfirmPress();
     private final ScrollAccumulator scroll = new ScrollAccumulator();
     /** Config JSON as it was when the screen opened, so an untouched close saves nothing. */
     private String openedJson;
@@ -92,10 +93,16 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
             }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.settings.reset.hint")));
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.inventory.preset"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable(presetConfirm.armed()
+                    ? "spatialui.inventory.preset.confirm" : "spatialui.inventory.preset"), button -> {
+                if (!presetConfirm.press()) {
+                    button.setMessage(Component.translatable("spatialui.inventory.preset.confirm"));
+                    return;
+                }
                 InventoryConfig.get().applyGlassPreset();
                 rebuildWidgets();
-            }).bounds(left, row + 90, contentWidth, 20).build());
+            }).bounds(left, row + 90, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.preset.hint")));
             addRenderableWidget(Button.builder(toggle("spatialui.ui.liquid_glass", InventoryConfig.get().liquidGlassUi), button -> {
                 InventoryConfig.get().liquidGlassUi = !InventoryConfig.get().liquidGlassUi;
                 button.setMessage(toggle("spatialui.ui.liquid_glass", InventoryConfig.get().liquidGlassUi));
@@ -479,6 +486,7 @@ public final class SpatialSettingsScreen extends Screen {
         resetConfirm.disarm();
         restoreConfirm.disarm();
         snapshotConfirm.disarm();
+        presetConfirm.disarm();
         super.rebuildWidgets();
     }
 

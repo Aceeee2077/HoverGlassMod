@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.60.0 参考玻璃外观两段确认
+
+- 透明度页的 **应用参考图玻璃效果** 改用第四个 `ConfirmPress` 实例：首次点击只把标签改为「再次点击以替换玻璃外观」，第二次才调用 `applyGlassPreset()` 并重建页面。`rebuildWidgets()` 统一解除四个实例的确认状态，翻页、缩放或其他操作按钮不会留下待确认的按钮。
+- 该预设会同时改写 `enabled`、玻璃背包/快捷栏/电影感/镜头/第三人称开关、屏幕透明度、材质与动画/镜头数值，因此新增 tooltip `spatialui.inventory.preset.hint` 明确说明会替换这些页面上的自定义值。
+- 新增语言键 `spatialui.inventory.preset.confirm` 与 `.hint`（中英各一），`testLanguageKeys` 继续校验两边键集合一致；`ConfirmPress` 的行为已由既有 `testConfirmPress` 覆盖，本轮断言数不变，仍为 **1,932 条**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认确认状态的标签长度与 tooltip 换行。
+
 ## 2026-11-10 · 0.59.0 第三人称视角开关
 
 - 全字段对照发现 `thirdPersonOnOpen` 被 `SpatialCameraController` 与 `GlassInventoryRenderer` 读取，却没有出现在设置界面。在镜头角度页的 `row + 88` 新增 **第三人称视角** 开关，点击时同步重置 `SpatialCameraController.INSTANCE`，让下一次打开物品栏即按新状态处理。
