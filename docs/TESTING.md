@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.23.0 玻璃材质设置页
+
+- `testSettingsPages` 更新为 12 页，新增 `GLASS_MATERIAL = 11` 与首尾循环断言；`testLanguageKeys` 自动检查新页与 5 个材质键的中英一致性。
+- 新增 `testGlassMaterials`：五个默认值符合参考玻璃；选中高亮默认强于悬停；越界值夹到 0/1，NaN 槽位描边回落到 0。26.2 `physicsTest` 通过，共 **1,504 条断言**。
+- F8 新页提供 5 个百分比滑条，直接读写 `slotOpacity`、`borderOpacity`、`slotBorderOpacity`、`hoverOpacity`、`selectedOpacity`。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。
+- 按用户要求未启动 Minecraft 客户端，未实机确认 5 个材质滑条对面板观感的组合效果。
+
 ## 2026-11-10 · 0.22.0 键盘翻页
 
 - 设置界面覆写 `keyPressed(KeyEvent)`：Page Up / Page Down 复用 `SettingsPages.previous` / `next` 并重建控件，Home 回到第一页，其余按键交给原版处理；断言数不变（沿用既有翻页断言）。26.2 `physicsTest` 通过，共 **1,484 条断言**。

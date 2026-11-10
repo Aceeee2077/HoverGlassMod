@@ -9,11 +9,13 @@ package dev.transparentinventory.client.screen;
  */
 public final class SettingsPages {
 
-    public static final int COUNT = 11;
+    public static final int COUNT = 12;
     /** Index of the compatibility page, which also owns the shortcut buttons. */
     public static final int COMPATIBILITY = 9;
     /** Advanced framing offsets, kept after compatibility so existing pages stay put. */
     public static final int CAMERA_ANGLES = 10;
+    /** Alpha values of the glass material itself. */
+    public static final int GLASS_MATERIAL = 11;
 
     private static final String[] TITLES = {
             "spatialui.settings.opacity",
@@ -26,7 +28,8 @@ public final class SettingsPages {
             "spatialui.settings.world_effects",
             "spatialui.settings.player_motion",
             "spatialui.settings.compatibility",
-            "spatialui.settings.camera_angles"
+            "spatialui.settings.camera_angles",
+            "spatialui.settings.glass_material"
     };
 
     private SettingsPages() {

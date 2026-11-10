@@ -48,6 +48,7 @@ public final class InventoryRegressionTest {
         testConfigTransfer();
         testConfigBackups();
         testHotbarRim();
+        testGlassMaterials();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -833,13 +834,16 @@ public final class InventoryRegressionTest {
     }
 
     private static void testSettingsPages() {
-        check(SettingsPages.COUNT == 11, "the settings screen has eleven pages");
-        check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10,
-                "compatibility keeps its position and camera angles follow it");
+        check(SettingsPages.COUNT == 12, "the settings screen has twelve pages");
+        check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10
+                        && SettingsPages.GLASS_MATERIAL == 11,
+                "compatibility keeps its position and the advanced pages follow it");
         check(SettingsPages.titleKey(SettingsPages.COMPATIBILITY).equals("spatialui.settings.compatibility"),
                 "the compatibility index names the compatibility page");
         check(SettingsPages.titleKey(SettingsPages.CAMERA_ANGLES).equals("spatialui.settings.camera_angles"),
                 "the camera angle index names the camera angle page");
+        check(SettingsPages.titleKey(SettingsPages.GLASS_MATERIAL).equals("spatialui.settings.glass_material"),
+                "the glass material index names the glass material page");
         for (int page = 0; page < SettingsPages.COUNT; page++) {
             check(SettingsPages.clamp(page) == page, "valid page indices are kept");
             check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
@@ -857,11 +861,13 @@ public final class InventoryRegressionTest {
                 "player motion is followed by compatibility");
         check(SettingsPages.next(SettingsPages.COMPATIBILITY) == SettingsPages.CAMERA_ANGLES,
                 "compatibility is followed by camera angles");
-        check(SettingsPages.next(SettingsPages.CAMERA_ANGLES) == 0, "the last page wraps to the first");
-        check(SettingsPages.previous(0) == SettingsPages.CAMERA_ANGLES,
+        check(SettingsPages.next(SettingsPages.CAMERA_ANGLES) == SettingsPages.GLASS_MATERIAL,
+                "camera angles are followed by glass material");
+        check(SettingsPages.next(SettingsPages.GLASS_MATERIAL) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == SettingsPages.GLASS_MATERIAL,
                 "the first page wraps to the last");
-        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.camera_angles"),
-                "going back from the first page lands on camera angles");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.glass_material"),
+                "going back from the first page lands on glass material");
         check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
@@ -1059,6 +1065,27 @@ public final class InventoryRegressionTest {
                 "zero intensity adds no pose");
         check(AvatarMotionMath.climb(Float.NaN, 0.2F, 1F) == AvatarMotionMath.Pose.NONE,
                 "an invalid clock adds no pose");
+    }
+
+    private static void testGlassMaterials() {
+        InventoryConfig config = new InventoryConfig();
+        checkClose(config.slotOpacity, 0.09, 1E-6, "the slot fill starts subtle");
+        checkClose(config.borderOpacity, 0.72, 1E-6, "the panel rim starts strong");
+        checkClose(config.slotBorderOpacity, 0.58, 1E-6, "the slot rim starts mid-strength");
+        checkClose(config.hoverOpacity, 0.18, 1E-6, "the hover highlight starts visible");
+        checkClose(config.selectedOpacity, 0.32, 1E-6, "the selected highlight starts clearer than hover");
+        check(config.selectedOpacity > config.hoverOpacity, "selection reads stronger than hover");
+        config.slotOpacity = 4;
+        config.borderOpacity = -2;
+        config.slotBorderOpacity = Float.NaN;
+        config.hoverOpacity = 9;
+        config.selectedOpacity = -9;
+        config.sanitize();
+        checkClose(config.slotOpacity, 1, 1E-6, "the slot fill clamps above 1");
+        checkClose(config.borderOpacity, 0, 1E-6, "the panel rim clamps below 0");
+        checkClose(config.slotBorderOpacity, 0, 1E-6, "a NaN slot rim falls back to its lower bound");
+        checkClose(config.hoverOpacity, 1, 1E-6, "the hover highlight clamps above 1");
+        checkClose(config.selectedOpacity, 0, 1E-6, "the selected highlight clamps below 0");
     }
 
     private static void testInventoryCursorLook() {

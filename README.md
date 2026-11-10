@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.23.0 glass material page:** A twelfth page exposes the alpha values that previously needed a hand-edited config: **slot fill**, **panel rim**, **slot rim**, **hover highlight** and **selected highlight** opacity. They are the same values the renderer already used, so tuning them changes the actual glass rather than a preview, and everything still clamps to 0–100% on load. The hotbar keeps its own rim control from 0.17.0.
+
 **26.x · 0.22.0 keyboard page navigation:** **Page Up** and **Page Down** cycle the eleven settings pages and **Home** jumps back to the transparency page, so reaching a distant page no longer means clicking through the cycle. The keys use the same wrap-around helpers as the arrow buttons, and the footer hint now names them along with the F8 / Esc save shortcut.
 
 **26.x · 0.21.0 camera angles:** An eleventh settings page, **Camera angles**, exposes two framing offsets that already existed in the config: **Camera side angle** (−60° to +60°) and **Camera height angle** (−45° to +45°). They rotate the settled framing sideways and vertically and blend in with the camera transition like the other camera values. The page keeps compatibility at index 9, so existing pages and the page cycle stay where they were. Both values clamp on load, so a hand-edited config cannot exceed the authored range.
