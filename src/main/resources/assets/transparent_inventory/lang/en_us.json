@@ -93,6 +93,8 @@
   "spatialui.support.key.hint": "Cycles F6–F10; F8 is the default",
   "spatialui.support.clear_optins": "Clear added screens",
   "spatialui.support.clear_optins.hint": "Removes every screen added here, including wildcard rules",
+  "spatialui.enabled": "Hoverglass effects",
+  "spatialui.enabled.hint": "Turns off the glass panels, HUD glass, menu theme and added avatar animations without changing any other setting. The settings key still works.",
   "spatialui.material.slot": "Slot fill opacity",
   "spatialui.material.panel_rim": "Panel rim opacity",
   "spatialui.material.slot_rim": "Slot rim opacity",

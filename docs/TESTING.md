@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.54.0 总开关
+
+- 界面支持设置页在「清空已添加的界面」下方新增 **Hoverglass 效果** 开关（`row + 110`），直接切换 `InventoryConfig.enabled`。该字段原本只能手改配置，且被 `SpatialScreenRegistry`、`GlassHotbarRenderer`、`LiquidGlassRenderer`、`PlayerAnimationController` 读取。
+- 关闭后设置界面仍可通过设置快捷键打开（`KeyboardHandlerMixin` 不检查 `enabled`），因此开关始终可以再打开；tooltip 明确说明只停用玻璃面板、快捷栏玻璃、菜单主题与新增人物动作，不清除任何设置。
+- 新增两个语言键；`testLanguageKeys` 确认两边键集合一致。本轮没有新增纯逻辑，26.2 `physicsTest` 通过，共 **1,914 条断言**（计数不变）。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认关闭时空间界面是否立即恢复原版（依赖 `SpatialScreenRegistry` 下一次查询），也未确认世界粒子反馈是否仍会触发。
+
 ## 2026-11-10 · 0.53.0 兼容性页提示准确性
 
 - 底部提示与重置按钮说明改为依据 `PageDefaults.supports(page)` 选择文案：支持的页面沿用原来的「Del 重置本页」提示与 tooltip，兼容性页（第 10 页 / 索引 9）改用不含 Del 的提示，并在禁用的 **↺** 按钮上说明该页规则需在配置文件中重置。

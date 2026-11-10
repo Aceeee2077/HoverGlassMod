@@ -296,6 +296,11 @@ public final class SpatialSettingsScreen extends Screen {
                 rebuildWidgets();
             }).bounds(left, row + 88, contentWidth, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.support.clear_optins.hint")));
+            addRenderableWidget(Button.builder(toggle("spatialui.enabled", InventoryConfig.get().enabled), button -> {
+                InventoryConfig.get().enabled = !InventoryConfig.get().enabled;
+                button.setMessage(toggle("spatialui.enabled", InventoryConfig.get().enabled));
+            }).bounds(left, row + 110, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.enabled.hint")));
         } else if (page == SettingsPages.PREVIEW_LAYOUT) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.layout.player_height",
                     () -> (InventoryConfig.get().playerHeightRatio - 0.25) / 0.45,

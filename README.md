@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.54.0 master effects switch:** The screen support page now exposes **Hoverglass effects**, the config's master switch that previously required editing the file. Turned off, the glass panels, hotbar glass, menu theme and added avatar animations stop without clearing a single setting, and the configured settings key keeps working so the switch is always reachable to turn everything back on.
+
 **26.x · 0.53.0 accurate hints on the compatibility page:** The footer no longer promises that Delete resets the page while the compatibility page is open, and the disabled **↺** button now explains why: that page holds hand-written exclusions and per-screen rules, so it is reset in the config file. Every other page keeps the full hint and the working reset button.
 
 **26.x · 0.52.0 confirm the restores:** **Restore previous settings** and **Restore newest snapshot** now take two clicks as well. The first press changes the label to **Click again to confirm**; the second replaces the config. Both share the confirmation used by the full reset, which is thrown away whenever the page rebuilds — so changing pages or pressing another action never leaves a restore waiting to fire. A missing backup or snapshot still reports itself and returns to the unarmed state.
