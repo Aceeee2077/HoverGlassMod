@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.33.0 遮罩随面板淡入淡出
+
+- `Opacity` 新增纯函数 `fade(alpha, visibility)`：两者都夹紧到 0–1，任一为非有限值时返回 0（宁可隐藏也不闪出全黑），成品交给原有 `multiply()` 转成 ARGB。`ScreenMixin.spatial$dim` 改为用 `SpatialScreenManager.INSTANCE.visibility()` 调制 `worldDimOpacity`。
+- 新增 `testOpacityFade`：稳定态保持原强度、半进度为一半、进度为 0 时遮罩消失、超范围与负值被夹紧、NaN/无穷进度或强度返回 0、20 步采样全程单调不减；并确认 `multiply()` 在 0.5 进度得到 `0x80000000`、进度 0 得到全透明、进度 1 得到不透明黑，非有限不透明度仍保留原 alpha。26.2 `physicsTest` 通过，共 **1,747 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认遮罩与面板滑入曲线在视觉上是否同步，也未确认快速开关容器时淡出是否被「快速重开」路径打断得自然。
+
 ## 2026-11-10 · 0.32.0 记住上次设置页
 
 - `SettingsPages` 新增会话内页面记忆 `remembered()` / `remember(int)` 与 `last()`；非法值统一夹紧到第一页。`testSettingsPages` 补上：End 指向最后一页、首次打开为第一页、记住第 8 页、非法值回落到第一页，并在结束前把记忆复位为 0。

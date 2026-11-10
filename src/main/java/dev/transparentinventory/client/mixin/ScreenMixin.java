@@ -100,7 +100,10 @@ public abstract class ScreenMixin {
         graphics.pose().pushMatrix();
         graphics.pose().identity();
         SpatialGuiRenderer.deferred(true);
-        try { graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), Opacity.multiply(0xFF000000, InventoryConfig.get().worldDimOpacity)); }
+        try {
+            double dim = Opacity.fade(InventoryConfig.get().worldDimOpacity, SpatialScreenManager.INSTANCE.visibility());
+            graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), Opacity.multiply(0xFF000000, dim));
+        }
         finally { SpatialGuiRenderer.deferred(false); }
         graphics.pose().popMatrix();
         ci.cancel();

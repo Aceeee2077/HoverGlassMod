@@ -6,6 +6,7 @@ import dev.transparentinventory.client.anim.SlideTracker;
 import dev.transparentinventory.client.layout.InventoryLayout;
 import dev.transparentinventory.client.look.LookTracker;
 import dev.transparentinventory.client.motion.AvatarMotionMath;
+import dev.transparentinventory.client.render.Opacity;
 import dev.transparentinventory.client.screen.SettingsPages;
 
 import java.io.IOException;
@@ -60,6 +61,7 @@ public final class InventoryRegressionTest {
         testClimbPose();
         testLandingPose();
         testIdleSway();
+        testOpacityFade();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -1493,6 +1495,27 @@ public final class InventoryRegressionTest {
         config.containerScale = Double.POSITIVE_INFINITY;
         config.sanitize();
         checkClose(config.containerScale, 2, 1E-9, "container size is safely bounded");
+    }
+
+    private static void testOpacityFade() {
+        checkClose(Opacity.fade(0.5, 1), 0.5, 1E-9, "settled panel keeps the authored dim");
+        checkClose(Opacity.fade(0.5, 0.5), 0.25, 1E-9, "dim scales with entrance progress");
+        checkClose(Opacity.fade(0.5, 0), 0, 1E-9, "dim disappears before the panel appears");
+        checkClose(Opacity.fade(2, 0.5), 0.5, 1E-9, "over-bright dim is clamped to one");
+        checkClose(Opacity.fade(-1, 0.5), 0, 1E-9, "negative dim is clamped to zero");
+        checkClose(Opacity.fade(Double.NaN, 1), 0, 1E-9, "invalid dim strength stays hidden");
+        checkClose(Opacity.fade(0.6, Double.NaN), 0, 1E-9, "invalid entrance progress hides the dim");
+        checkClose(Opacity.fade(0.6, Double.POSITIVE_INFINITY), 0, 1E-9, "infinite entrance progress hides the dim");
+        double previous = -1;
+        for (int step = 0; step <= 20; step++) {
+            double faded = Opacity.fade(0.6, step / 20.0);
+            check(faded >= previous, "dim never darkens then brightens during the fade");
+            previous = faded;
+        }
+        check(Opacity.multiply(0xFF000000, Opacity.fade(1, 0.5)) == 0x80000000, "half-visible dim renders at half alpha");
+        check(Opacity.multiply(0xFF000000, Opacity.fade(1, 0)) == 0x00000000, "hidden dim renders nothing");
+        check(Opacity.multiply(0xFF000000, Opacity.fade(1, 1)) == 0xFF000000, "full dim renders opaque black");
+        check(Opacity.multiply(0x80000000, Double.NaN) == 0x80000000, "invalid opacity keeps the authored alpha");
     }
 
     private static void check(boolean condition, String message) {
