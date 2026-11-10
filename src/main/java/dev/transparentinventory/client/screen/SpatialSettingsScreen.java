@@ -426,7 +426,8 @@ public final class SpatialSettingsScreen extends Screen {
             if (PageDefaults.reset(InventoryConfig.get(), page)) rebuildWidgets();
         }).bounds(left + 22, row + 138, 20, 20).build());
         resetPage.active = PageDefaults.supports(page);
-        resetPage.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.reset_page.hint")));
+        resetPage.setTooltip(Tooltip.create(Component.translatable(PageDefaults.supports(page)
+                ? "spatialui.settings.reset_page.hint" : "spatialui.settings.reset_page.none")));
         var forward = addRenderableWidget(Button.builder(
                 Component.translatable(SettingsPages.nextLabelKey(page)), button -> {
             goTo(SettingsPages.next(page));
@@ -549,7 +550,8 @@ public final class SpatialSettingsScreen extends Screen {
         }
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)
-                .append(" · ").append(Component.translatable("spatialui.settings.hint")), width / 2, top + 200, 0xFFB9C7D4);
+                .append(" · ").append(Component.translatable(PageDefaults.supports(page)
+                        ? "spatialui.settings.hint" : "spatialui.settings.hint.no_reset")), width / 2, top + 200, 0xFFB9C7D4);
     }
 
     @Override public void onClose() {

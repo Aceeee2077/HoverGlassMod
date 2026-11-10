@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.53.0 accurate hints on the compatibility page:** The footer no longer promises that Delete resets the page while the compatibility page is open, and the disabled **↺** button now explains why: that page holds hand-written exclusions and per-screen rules, so it is reset in the config file. Every other page keeps the full hint and the working reset button.
+
 **26.x · 0.52.0 confirm the restores:** **Restore previous settings** and **Restore newest snapshot** now take two clicks as well. The first press changes the label to **Click again to confirm**; the second replaces the config. Both share the confirmation used by the full reset, which is thrown away whenever the page rebuilds — so changing pages or pressing another action never leaves a restore waiting to fire. A missing backup or snapshot still reports itself and returns to the unarmed state.
 
 **26.x · 0.51.0 confirm the full reset:** **Reset all settings** on the transparency page now takes two clicks. The first arms it and changes the label to **Click again to reset all**; the second restores every page and container override. Navigating away, resizing, or pressing any other action button disarms it, so the confirmation cannot linger, and the rotating snapshots remain the way back if the reset was a mistake.

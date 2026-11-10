@@ -20,6 +20,8 @@
   "spatialui.settings.next": "Next page",
   "spatialui.settings.reset_page": "↺",
   "spatialui.settings.reset_page.hint": "Reset this page to defaults (Del)",
+  "spatialui.settings.reset_page.none": "Compatibility settings are hand-written; edit the config file to reset them",
+  "spatialui.settings.hint.no_reset": "Scroll / PgUp/PgDn · Esc saves",
   "spatialui.settings.save_failed": "Hoverglass could not save settings. Changes remain active for this game session.",
   "spatialui.scale": "GUI scale",
   "spatialui.camera.distance": "Camera distance",

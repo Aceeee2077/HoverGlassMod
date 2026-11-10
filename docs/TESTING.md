@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.53.0 兼容性页提示准确性
+
+- 底部提示与重置按钮说明改为依据 `PageDefaults.supports(page)` 选择文案：支持的页面沿用原来的「Del 重置本页」提示与 tooltip，兼容性页（第 10 页 / 索引 9）改用不含 Del 的提示，并在禁用的 **↺** 按钮上说明该页规则需在配置文件中重置。
+- 新增两个语言键 `spatialui.settings.hint.no_reset` 与 `spatialui.settings.reset_page.none`，中英各一份；`testLanguageKeys` 继续保证两边键集合一致。本轮没有新增纯逻辑，26.2 `physicsTest` 通过，共 **1,914 条断言**（计数不变）。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认兼容性页底部提示长度是否在窄窗口中溢出。
+
 ## 2026-11-10 · 0.52.0 恢复操作两段确认
 
 - 新增纯 Java `ConfirmPress`：`press()` 第一次返回 false 并进入确认状态，第二次返回 true 并自动解除；`armed()` 查询状态；`disarm()` 丢弃待确认。`SpatialSettingsScreen` 用三个实例（全部重置、恢复上一次、恢复最新快照）替换原本单一的 `resetAllArmed` 字段，并统一在 `rebuildWidgets()` 中解除。
