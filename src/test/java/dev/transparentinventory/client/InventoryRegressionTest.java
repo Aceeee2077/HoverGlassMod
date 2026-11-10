@@ -37,6 +37,7 @@ public final class InventoryRegressionTest {
         testConfigRecovery();
         testCameraPolicy();
         testQuickReopen();
+        testCompatibilityActions();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -743,6 +744,36 @@ public final class InventoryRegressionTest {
         config.reopenSnapWindowMs = 400;
         config.motion.reduceMotion = true;
         check(config.effectiveOpeningDurationMs() == 0, "reduced motion still snaps every open");
+    }
+
+    private static void testCompatibilityActions() {
+        String chest = "com.example.ChestScreen";
+        var config = new InventoryConfig();
+        check(!config.isScreenExcluded(chest), "screens start included");
+        check(config.toggleScreenExclusion("  com.example.ChestScreen "), "the button adds a trimmed exact exclusion");
+        check(config.hasExactExclusion(chest) && config.isScreenExcluded(chest), "the exclusion is visible");
+        check(!config.toggleScreenExclusion(chest), "toggling again re-includes the screen");
+        check(!config.isScreenExcluded(chest), "a re-included screen is handled again");
+        check(!config.toggleScreenExclusion(null) && !config.toggleScreenExclusion("   "),
+                "invalid names change nothing");
+
+        config.excludedScreens.add("com.example.mods.*");
+        check(config.isScreenExcluded("com.example.mods.FancyScreen"), "wildcard rules exclude matching screens");
+        check(!config.hasExactExclusion("com.example.mods.FancyScreen"), "a wildcard hit is not an exact entry");
+        check(config.toggleScreenExclusion("com.example.mods.FancyScreen"), "clicking cannot override a wildcard");
+        check(config.isScreenExcluded("com.example.mods.FancyScreen"), "the wildcard still excludes after the click");
+        check(!config.excludedScreens.contains("com.example.mods.FancyScreen"), "no redundant exact entry is added");
+
+        config.clearScreenExclusions();
+        check(config.excludedScreens.isEmpty() && !config.isScreenExcluded(chest),
+                "clearing removes every exclusion");
+
+        config.screenOpacities.put(chest, 0.4F);
+        config.screenOpacities.put("com.example.*", 0.5F);
+        config.clearScreenOpacities();
+        check(config.screenOpacities.isEmpty(), "clearing per-screen values removes exact and wildcard entries");
+        checkClose(config.opacityFor(chest), config.panelOpacity, 1E-6,
+                "cleared screens fall back to the global opacity");
     }
 
     private static void testInventoryCursorLook() {

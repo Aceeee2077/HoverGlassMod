@@ -149,24 +149,52 @@ public final class SpatialSettingsScreen extends Screen {
             motionToggle(left, row + 22, contentWidth, "spatialui.motion.place", () -> InventoryConfig.get().motion.blockPlaceAnimation, value -> InventoryConfig.get().motion.blockPlaceAnimation = value);
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.motion.particle_multiplier",
                     () -> InventoryConfig.get().motion.particleMultiplier / 2, value -> InventoryConfig.get().motion.particleMultiplier = value * 2, false));
-        } else {
+        } else if (page == 8) {
             playerToggle(left, row, contentWidth, "spatialui.motion.player", () -> InventoryConfig.get().motion.playerAnimations, value -> InventoryConfig.get().motion.playerAnimations = value);
             playerToggle(left, row + 22, contentWidth, "spatialui.motion.player_attack", () -> InventoryConfig.get().motion.playerAttackAnimation, value -> InventoryConfig.get().motion.playerAttackAnimation = value);
             playerToggle(left, row + 44, contentWidth, "spatialui.motion.crafting", () -> InventoryConfig.get().motion.craftingAnimation, value -> InventoryConfig.get().motion.craftingAnimation = value);
             playerToggle(left, row + 66, contentWidth, "spatialui.motion.sprint_stride", () -> InventoryConfig.get().motion.sprintStride, value -> InventoryConfig.get().motion.sprintStride = value);
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
                     () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
+        } else {
+            var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
+                InventoryConfig.get().toggleScreenExclusion(screenName);
+                button.setMessage(exclusionLabel());
+                button.active = screenName != null && (!InventoryConfig.get().isScreenExcluded(screenName)
+                        || InventoryConfig.get().hasExactExclusion(screenName));
+            }).bounds(left, row, contentWidth, 20).build());
+            exclude.setTooltip(Tooltip.create(Component.translatable("spatialui.compat.exclude.hint")));
+            exclude.active = screenName != null && (!InventoryConfig.get().isScreenExcluded(screenName)
+                    || InventoryConfig.get().hasExactExclusion(screenName));
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.compat.clear_exclusions"), button -> {
+                InventoryConfig.get().clearScreenExclusions();
+                rebuildWidgets();
+            }).bounds(left, row + 22, contentWidth, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.compat.clear_opacity"), button -> {
+                InventoryConfig.get().clearScreenOpacities();
+                rebuildWidgets();
+            }).bounds(left, row + 44, contentWidth, 20).build());
         }
         addRenderableWidget(Button.builder(Component.translatable(page == 0 ? "spatialui.settings.more"
                 : page == 1 ? "spatialui.settings.entrance" : page == 2 ? "spatialui.settings.look"
                 : page == 3 ? "spatialui.settings.hotbar" : page == 4 ? "spatialui.settings.motion"
                 : page == 5 ? "spatialui.settings.camera_motion" : page == 6 ? "spatialui.settings.world_effects"
-                : page == 7 ? "spatialui.settings.player_motion" : "spatialui.settings.opacity"), button -> {
-            page = (page + 1) % 9;
+                : page == 7 ? "spatialui.settings.player_motion"
+                : page == 8 ? "spatialui.settings.compatibility" : "spatialui.settings.opacity"), button -> {
+            page = (page + 1) % 10;
             rebuildWidgets();
         }).bounds(left, row + 138, contentWidth / 2 - 2, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
                 .bounds(left + contentWidth / 2 + 2, row + 138, contentWidth / 2 - 2, 20).build());
+    }
+
+    /** Label for the exclusion action; disabled states explain why nothing happens. */
+    private Component exclusionLabel() {
+        var config = InventoryConfig.get();
+        if (screenName == null) return Component.translatable("spatialui.compat.exclude");
+        if (config.hasExactExclusion(screenName)) return Component.translatable("spatialui.compat.included");
+        if (config.isScreenExcluded(screenName)) return Component.translatable("spatialui.compat.excluded_rule");
+        return Component.translatable("spatialui.compat.exclude");
     }
 
     private static Component toggle(String key, boolean enabled) {

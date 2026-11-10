@@ -121,6 +121,39 @@ public final class InventoryConfig {
     /** Whether this screen uses the global value, a wildcard rule or its own exact entry. */
     public ScreenRules.Source opacitySource(String className) { return ScreenRules.source(screenOpacities, className); }
 
+    /** True when an exact entry or a wildcard rule excludes this screen from spatial handling. */
+    public boolean isScreenExcluded(String className) { return ScreenRules.matchesAny(excludedScreens, className); }
+
+    /** True when an exact exclusion entry exists for this screen (wildcard rules are not removed). */
+    public boolean hasExactExclusion(String className) { return screenNameIn(excludedScreens, className); }
+
+    /**
+     * Adds or removes an exact exclusion for this screen.
+     * A wildcard rule that already excludes it is left alone, so the button is a no-op then.
+     *
+     * @return true when the screen is excluded afterwards
+     */
+    public boolean toggleScreenExclusion(String className) {
+        String clean = ScreenRules.cleanName(className);
+        if (clean == null) return false;
+        if (excludedScreens.remove(clean)) return false;
+        // A wildcard rule already excludes it; adding an exact entry would change nothing.
+        if (ScreenRules.matchesAny(excludedScreens, clean)) return true;
+        excludedScreens.add(clean);
+        return true;
+    }
+
+    /** Removes every exact and wildcard exclusion. */
+    public void clearScreenExclusions() { excludedScreens.clear(); }
+
+    /** Removes every per-screen opacity override; screens fall back to the global value. */
+    public void clearScreenOpacities() { screenOpacities.clear(); }
+
+    private static boolean screenNameIn(List<String> rules, String className) {
+        String clean = ScreenRules.cleanName(className);
+        return clean != null && rules.contains(clean);
+    }
+
     // ------------------------------------------------------------------
     // Visual alpha values
     // ------------------------------------------------------------------
