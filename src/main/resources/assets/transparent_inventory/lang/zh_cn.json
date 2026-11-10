@@ -12,7 +12,7 @@
   "spatialui.settings.custom": "%s · 独立透明度",
   "spatialui.settings.inherited": "%s · 跟随全局透明度",
   "spatialui.settings.rule": "%s · 来自界面通配规则",
-  "spatialui.settings.hint": "PgUp/PgDn 翻页 · 实时预览 · F8/Esc 保存",
+  "spatialui.settings.hint": "PgUp/PgDn 翻页 · Del 重置本页 · F8/Esc 保存",
   "spatialui.settings.page": "第 %s / %s 页",
   "spatialui.settings.previous": "上一页",
   "spatialui.settings.next": "下一页",

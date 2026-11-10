@@ -50,6 +50,7 @@ public final class InventoryRegressionTest {
         testHotbarRim();
         testGlassMaterials();
         testGlassMaterialPresets();
+        testPageDefaults();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -1177,6 +1178,144 @@ public final class InventoryRegressionTest {
         GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.VIVID);
         check(GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.VIVID),
                 "re-applying a preset stays idempotent");
+    }
+
+    private static void testPageDefaults() {
+        for (int page = 0; page < SettingsPages.COUNT; page++) {
+            check(PageDefaults.supports(page) == (page != SettingsPages.COMPATIBILITY),
+                    "page " + page + " reset support");
+        }
+        check(!PageDefaults.supports(-1) && !PageDefaults.supports(SettingsPages.COUNT),
+                "out-of-range pages have no reset");
+
+        InventoryConfig config = new InventoryConfig();
+
+        config.panelOpacity = .9F;
+        config.worldDimOpacity = .5F;
+        config.screenOpacities.put("net.minecraft.client.gui.screens.inventory.InventoryScreen", .4F);
+        check(PageDefaults.reset(config, 0), "the transparency page resets");
+        checkClose(config.panelOpacity, .18, 1E-6, "page reset restores the global transparency");
+        checkClose(config.worldDimOpacity, 0, 1E-6, "page reset restores the world dim");
+        check(config.screenOpacities.isEmpty(), "page reset clears per-screen overrides");
+
+        config.guiScale = 1.5;
+        config.cameraDistance = 6;
+        config.cameraTransitionDurationMs = 1200;
+        config.cameraEnabled = false;
+        config.worldAnchoringEnabled = false;
+        config.containerScale = 2;
+        config.containerCameraEnabled = false;
+        check(PageDefaults.reset(config, 1), "the spatial page resets");
+        checkClose(config.guiScale, 1.0, 1E-6, "page reset restores the GUI scale");
+        checkClose(config.cameraDistance, 3.0, 1E-6, "page reset restores the camera distance");
+        check(config.cameraTransitionDurationMs == 420, "page reset restores the camera duration");
+        check(config.cameraEnabled && config.worldAnchoringEnabled, "page reset re-enables camera toggles");
+        checkClose(config.containerScale, 1.35, 1E-6, "page reset restores the container scale");
+        check(config.containerCameraEnabled, "page reset re-enables the container camera");
+
+        config.cinematicInventory = false;
+        config.inventoryTiltDegrees = -9;
+        config.openingAnimationDurationMs = 900;
+        config.glassInventory = false;
+        config.inventoryCameraSide = .95;
+        config.reopenSnapWindowMs = 1500;
+        check(PageDefaults.reset(config, 2), "the entrance page resets");
+        check(config.cinematicInventory && config.glassInventory, "page reset re-enables the entrance toggles");
+        checkClose(config.inventoryTiltDegrees, 4.0, 1E-6, "page reset restores the tilt");
+        check(config.openingAnimationDurationMs == 480, "page reset restores the opening duration");
+        checkClose(config.inventoryCameraSide, .72, 1E-6, "page reset restores the camera side");
+        check(config.reopenSnapWindowMs == 400, "page reset restores the quick reopen window");
+
+        config.playerLookAtInventory = false;
+        config.maxHeadYaw = 10;
+        config.maxHeadPitch = 5;
+        config.lookSmoothing = 40;
+        check(PageDefaults.reset(config, 3), "the head follow page resets");
+        check(config.playerLookAtInventory, "page reset re-enables head tracking");
+        checkClose(config.maxHeadYaw, 50, 1E-6, "page reset restores the yaw range");
+        checkClose(config.maxHeadPitch, 35, 1E-6, "page reset restores the pitch range");
+        checkClose(config.lookSmoothing, 11, 1E-6, "page reset restores the follow speed");
+
+        config.glassHotbar = false;
+        config.hotbarOpacity = .6F;
+        config.hotbarBorderOpacity = .2F;
+        check(PageDefaults.reset(config, 4), "the hotbar page resets");
+        check(config.glassHotbar, "page reset re-enables the glass hotbar");
+        checkClose(config.hotbarOpacity, .16, 1E-6, "page reset restores the hotbar fill");
+        checkClose(config.hotbarBorderOpacity, .72, 1E-6, "page reset restores the hotbar rim");
+
+        config.motion.enabled = false;
+        config.motion.reduceMotion = true;
+        config.motion.itemSwap = false;
+        config.motion.attackAnimation = false;
+        config.motion.firstPersonIntensity = .1;
+        check(PageDefaults.reset(config, 5), "the first-person motion page resets");
+        check(config.motion.enabled && !config.motion.reduceMotion, "page reset restores the motion master switches");
+        check(config.motion.itemSwap && config.motion.attackAnimation, "page reset re-enables first-person layers");
+        checkClose(config.motion.firstPersonIntensity, .65, 1E-6, "page reset restores the hand intensity");
+
+        config.motion.sprintSway = false;
+        config.motion.jumpMotion = false;
+        config.motion.landingMotion = false;
+        config.motion.hitShake = false;
+        config.motion.cameraIntensity = .9;
+        check(PageDefaults.reset(config, 6), "the camera motion page resets");
+        check(config.motion.sprintSway && config.motion.jumpMotion && config.motion.landingMotion
+                && config.motion.hitShake, "page reset re-enables camera motion layers");
+        checkClose(config.motion.cameraIntensity, .5, 1E-6, "page reset restores the camera intensity");
+
+        config.motion.blockBreakEffects = false;
+        config.motion.blockPlaceAnimation = false;
+        config.motion.particleMultiplier = 2;
+        check(PageDefaults.reset(config, 7), "the world effects page resets");
+        check(config.motion.blockBreakEffects && config.motion.blockPlaceAnimation,
+                "page reset re-enables world effect layers");
+        checkClose(config.motion.particleMultiplier, 1, 1E-6, "page reset restores the particle multiplier");
+
+        config.motion.playerAnimations = false;
+        config.motion.playerAttackAnimation = false;
+        config.motion.craftingAnimation = false;
+        config.motion.sprintStride = false;
+        config.motion.airborneMotion = false;
+        config.motion.playerIntensity = .2;
+        check(PageDefaults.reset(config, 8), "the avatar motion page resets");
+        check(config.motion.playerAnimations && config.motion.playerAttackAnimation
+                && config.motion.craftingAnimation && config.motion.sprintStride
+                && config.motion.airborneMotion, "page reset re-enables every avatar layer");
+        checkClose(config.motion.playerIntensity, .8, 1E-6, "page reset restores the avatar intensity");
+
+        config.cameraYawOffset = 45;
+        config.cameraPitchOffset = -30;
+        check(PageDefaults.reset(config, SettingsPages.CAMERA_ANGLES), "the camera angles page resets");
+        checkClose(config.cameraYawOffset, 0, 1E-6, "page reset restores the yaw offset");
+        checkClose(config.cameraPitchOffset, 0, 1E-6, "page reset restores the pitch offset");
+
+        config.slotOpacity = .3F;
+        config.borderOpacity = .1F;
+        check(PageDefaults.reset(config, SettingsPages.GLASS_MATERIAL), "the material page resets");
+        check(GlassMaterialPresets.matches(config, GlassMaterialPresets.Preset.FROSTED),
+                "page reset restores the reference material");
+
+        config.panelOpacity = .5F;
+        check(!PageDefaults.reset(config, SettingsPages.COMPATIBILITY),
+                "the compatibility page has no reset");
+        checkClose(config.panelOpacity, .5, 1E-6, "an unsupported page leaves the config untouched");
+        check(!PageDefaults.reset(config, SettingsPages.COUNT), "an unknown page has no reset");
+        check(!PageDefaults.reset(null, 0), "a missing config is refused");
+
+        // Resetting a page over a fresh config must be a no-op, so the button can
+        // never introduce a value different from what a new install starts with.
+        InventoryConfig fresh = new InventoryConfig();
+        for (int page = 0; page < SettingsPages.COUNT; page++) {
+            if (!PageDefaults.supports(page)) continue;
+            PageDefaults.reset(fresh, page);
+        }
+        checkClose(fresh.panelOpacity, .18, 1E-6, "repeated page resets keep the global transparency");
+        checkClose(fresh.guiScale, 1.0, 1E-6, "repeated page resets keep the GUI scale");
+        checkClose(fresh.lookSmoothing, 11, 1E-6, "repeated page resets keep the follow speed");
+        checkClose(fresh.motion.playerIntensity, .8, 1E-6, "repeated page resets keep the avatar intensity");
+        check(GlassMaterialPresets.matches(fresh, GlassMaterialPresets.Preset.FROSTED),
+                "repeated page resets keep the reference material");
     }
 
     private static void testInventoryCursorLook() {

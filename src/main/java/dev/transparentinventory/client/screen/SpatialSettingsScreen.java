@@ -4,6 +4,7 @@ import dev.transparentinventory.client.ConfigLoader;
 import dev.transparentinventory.client.ConfigTransfer;
 import dev.transparentinventory.client.GlassMaterialPresets;
 import dev.transparentinventory.client.InventoryConfig;
+import dev.transparentinventory.client.PageDefaults;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
@@ -364,6 +365,10 @@ public final class SpatialSettingsScreen extends Screen {
         }
         if (key.key() == InputConstants.KEY_HOME) {
             page = 0;
+            rebuildWidgets();
+            return true;
+        }
+        if (key.key() == InputConstants.KEY_DELETE && PageDefaults.reset(InventoryConfig.get(), page)) {
             rebuildWidgets();
             return true;
         }
