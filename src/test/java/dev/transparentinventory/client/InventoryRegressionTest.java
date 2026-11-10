@@ -33,6 +33,7 @@ public final class InventoryRegressionTest {
         testCreativeGlassMigration();
         testScreenRules();
         testReducedMotion();
+        testConfigRecovery();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -664,6 +665,25 @@ public final class InventoryRegressionTest {
         var midway = dev.transparentinventory.client.render.InventoryEntrance.transform(1920, 1080, 806, 540,
                 176, 166, 1.12, .4, .4, 4, 0);
         check(midway.centerX() < snapped.centerX() - 1, "an ordinary entrance still starts left of the resting pose");
+    }
+
+    private static void testConfigRecovery() {
+        check(ConfigFileRecovery.backupName("transparent_inventory.json", 0L)
+                        .equals("transparent_inventory.json.corrupt-19700101-000000"),
+                "backup names are deterministic and Windows-safe");
+        check(!ConfigFileRecovery.backupName("config.json", 1_000L)
+                        .equals(ConfigFileRecovery.backupName("config.json", 2_000L)),
+                "two quarantines never collide");
+        check(ConfigFileRecovery.backupName("dir\\config.json", 0L)
+                        .equals(ConfigFileRecovery.backupName("dir/config.json", 0L)),
+                "directory components are stripped");
+        check(ConfigFileRecovery.backupName(null, 0L).startsWith("config.corrupt-"),
+                "a missing file name still yields a usable backup name");
+        check(ConfigFileRecovery.backupName("a:b?.json", 0L).equals("ab.json.corrupt-19700101-000000"),
+                "reserved characters are removed from the backup name");
+        String oversized = "x".repeat(200);
+        String backup = ConfigFileRecovery.backupName(oversized, 0L);
+        check(backup.startsWith("x".repeat(128) + ".corrupt-"), "backup base names are length-capped");
     }
 
     private static void testInventoryCursorLook() {

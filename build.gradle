@@ -79,6 +79,8 @@ def overrides = overlay.exists() ? fileTree(overlay).matching { include '**/*.ja
 // (anchor/camera/input/layout/look/render/screen/compat/mixin packages) is dropped.
 def legacyKeep = [
         'dev/transparentinventory/client/ConfigLoader.java',
+        // Used by ConfigLoader on every branch to quarantine unreadable files.
+        'dev/transparentinventory/client/ConfigFileRecovery.java',
         'dev/transparentinventory/client/InventoryConfig.java',
         // Shared by both branches: the legacy InventoryConfig uses it for screen overrides.
         'dev/transparentinventory/client/ScreenRules.java',

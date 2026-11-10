@@ -48,7 +48,7 @@ public final class ConfigLoader {
         if (config == null) {
             config = new InventoryConfig();
             if (!Files.exists(path)) writeDefault(path, config);
-            else ModClient.LOGGER.warn("Could not parse {}. Using defaults; original file preserved.", path);
+            else quarantine(path);
         }
         config.sanitize();
         InventoryConfig.setInstance(config);
@@ -57,6 +57,22 @@ public final class ConfigLoader {
     public static synchronized boolean save() {
         InventoryConfig.get().sanitize();
         return writeDefault(FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME), InventoryConfig.get());
+    }
+
+    /**
+     * Moves an unreadable config aside so defaults can be written without destroying
+     * the user's file. If the move fails the original is left untouched and only
+     * defaults are used for this session.
+     */
+    private static void quarantine(Path path) {
+        Path backup = path.resolveSibling(ConfigFileRecovery.backupName(
+                String.valueOf(path.getFileName()), System.currentTimeMillis()));
+        try {
+            Files.move(path, backup, StandardCopyOption.REPLACE_EXISTING);
+            ModClient.LOGGER.warn("Could not parse {}. Using defaults; the original was moved to {}.", path, backup);
+        } catch (IOException | RuntimeException ignored) {
+            ModClient.LOGGER.warn("Could not parse {}. Using defaults for this session; it will be replaced on save.", path);
+        }
     }
 
     private static boolean writeDefault(Path path, InventoryConfig config) {

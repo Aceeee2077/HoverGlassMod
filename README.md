@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.8.1 config recovery:** If `config/transparent_inventory.json` cannot be parsed, the mod now moves it aside as `transparent_inventory.json.corrupt-<UTC timestamp>` before using defaults. Previously the in-memory defaults would replace the unreadable file on the next save, destroying any hand edits worth recovering. Backup names use a Windows-safe UTC timestamp, never collide, and are length-capped; if the move itself fails, the original is left untouched and defaults are used for that session only.
+
 **26.x · 0.8.0 reduced motion:** The existing **Reduce motion** switch now covers the container UI itself. With it on, the glass panel appears and disappears at its resting pose — no slide, overshoot, landing flash or fade — and the camera snaps straight to the container framing instead of sweeping into it. When the switch is off, the F8 durations still apply. A zero-length camera transition now lands on the new view in the same frame instead of one frame later, so dragging the camera-duration slider to 0 also snaps cleanly. Reduced motion is persisted with the rest of the config and applies on both branches.
 
 **26.x · 0.7.0 screen rules:** `screenOpacities`, `excludedScreens` and `additionalScreens` now accept `*` (any run of characters) and `?` (exactly one) wildcards, so a single entry can cover a screen family such as `"net.minecraft.client.gui.screens.inventory.*"` or `"*MerchantScreen"`. An exact class entry always beats a wildcard and the most specific matching pattern wins, so the per-screen slider keeps working unchanged. Rules are trimmed, de-duplicated and length-capped when the config is loaded or saved.
@@ -113,7 +115,7 @@ The settings screen supports Chinese and English. F8 is a fixed key; Mod Menu an
 
 Location: `config/transparent_inventory.json` in your game instance, or `run/config/transparent_inventory.json` for the development client.
 
-The in-game slider speaks in "transparency" while the JSON speaks in "opacity": `panelOpacity: 0.65` corresponds to 35% transparency on the slider. A missing file generates defaults, missing fields fall back to defaults, and out-of-range values are clamped to safe limits. A corrupted JSON keeps the original file at startup and uses defaults in memory; saving writes a temporary file first and then replaces the original.
+The in-game slider speaks in "transparency" while the JSON speaks in "opacity": `panelOpacity: 0.65` corresponds to 35% transparency on the slider. A missing file generates defaults, missing fields fall back to defaults, and out-of-range values are clamped to safe limits. A corrupted JSON is renamed to `transparent_inventory.json.corrupt-<UTC timestamp>` and defaults are used, so the next save cannot destroy the unreadable file; if the rename fails the original stays in place and defaults apply to that session. Saving writes a temporary file first and then replaces the original.
 
 Common fields, with an example:
 
