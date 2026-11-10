@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.29.0 可改的设置快捷键
+
+- 新增 `testSettingsKey`：默认 F8；循环顺序 F8→F9→F10→F6→F7→F8；普通游戏键（`key.keyboard.q`）、空值与列表外名称在 `sanitize()` 后回退 F8；带空格与大小写的名称会被规范化；从非法值开始循环会先回落到 F8 再前进。`testPageDefaults` 补上第 13 页重置恢复 F8 的断言。26.2 `physicsTest` 通过，共 **1,685 条断言**。
+- `KeyboardHandlerMixin` 改为读取 `settingsKey`，并用「名称变化才重新解析」的静态缓存避免每次按键都查表；解析失败回退 F8。界面支持页新增 **设置快捷键** 按钮，底部提示去掉写死的 F8。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。
+- 按用户要求未启动 Minecraft 客户端，未实机确认改键后按键事件是否被正确吞掉，也未确认与其他模组同时监听功能键时的顺序。
+
 ## 2026-11-10 · 0.28.0 界面支持设置页
 
 - 新增第十三页 **界面支持设置**（索引 12），提供 `defaultSpatialHandledScreens`、`fallbackToScreenSpace` 两个开关，以及把打开设置时所处界面加入/移出 `additionalScreens` 的按钮；精确条目可增删，通配规则只提示不改写。`SettingsPages` 更新为 13 页，`testSettingsPages` 覆盖新索引与首尾循环。

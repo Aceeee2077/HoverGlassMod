@@ -237,6 +237,13 @@ public final class SpatialSettingsScreen extends Screen {
             }).bounds(left, row + 44, contentWidth, 20).build());
             optIn.active = canToggleOptIn();
             optIn.setTooltip(Tooltip.create(Component.translatable("spatialui.support.optin.hint")));
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.support.key")
+                            .append(": " + InventoryConfig.get().settingsKeyName()), button -> {
+                InventoryConfig.get().cycleSettingsKey();
+                button.setMessage(Component.translatable("spatialui.support.key")
+                        .append(": " + InventoryConfig.get().settingsKeyName()));
+            }).bounds(left, row + 66, contentWidth, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.support.key.hint")));
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);

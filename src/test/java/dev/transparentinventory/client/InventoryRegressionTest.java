@@ -52,6 +52,7 @@ public final class InventoryRegressionTest {
         testGlassMaterialPresets();
         testPageDefaults();
         testScreenOptIn();
+        testSettingsKey();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -1306,9 +1307,11 @@ public final class InventoryRegressionTest {
 
         config.defaultSpatialHandledScreens = false;
         config.fallbackToScreenSpace = false;
+        config.settingsKey = "key.keyboard.f10";
         check(PageDefaults.reset(config, SettingsPages.SCREEN_SUPPORT), "the screen support page resets");
         check(config.defaultSpatialHandledScreens && config.fallbackToScreenSpace,
                 "page reset restores both screen support switches");
+        check(config.settingsKey.equals("key.keyboard.f8"), "page reset restores the settings key");
 
         config.panelOpacity = .5F;
         check(!PageDefaults.reset(config, SettingsPages.COMPATIBILITY),
@@ -1358,6 +1361,39 @@ public final class InventoryRegressionTest {
         check(config.hasExactOptIn("com.example.Padded"), "an opt-in name is trimmed");
         config.sanitize();
         check(config.isScreenOptedIn("com.example.Padded"), "a saved opt-in survives sanitizing");
+    }
+
+    private static void testSettingsKey() {
+        InventoryConfig config = new InventoryConfig();
+        check(config.settingsKey.equals("key.keyboard.f8"), "the settings key starts on F8");
+        check(config.settingsKeyName().equals("F8"), "the short label names the key");
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f9"), "cycling moves to F9");
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f10"), "cycling moves to F10");
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f6"), "cycling wraps to F6");
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f7"), "cycling reaches F7");
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f8"), "cycling returns to F8");
+        check(InventoryConfig.SETTINGS_KEYS.size() == 5, "five function keys are offered");
+
+        config.settingsKey = "key.keyboard.q";
+        config.sanitize();
+        check(config.settingsKey.equals("key.keyboard.f8"), "a gameplay key is refused on load");
+        config.settingsKey = " KEY.KEYBOARD.F7 ";
+        config.sanitize();
+        check(config.settingsKey.equals("key.keyboard.f7"), "the stored name is trimmed and normalized");
+        check(config.settingsKeyName().equals("F7"), "the label follows the stored name");
+        config.settingsKey = null;
+        config.sanitize();
+        check(config.settingsKey.equals("key.keyboard.f8"), "a missing key falls back to F8");
+
+        config.settingsKey = "key.keyboard.q";
+        config.cycleSettingsKey();
+        check(config.settingsKey.equals("key.keyboard.f9"),
+                "cycling from an invalid key starts from the F8 default");
     }
 
     private static void testInventoryCursorLook() {

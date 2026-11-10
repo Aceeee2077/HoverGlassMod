@@ -99,6 +99,7 @@ public final class PageDefaults {
             case 12 -> {
                 config.defaultSpatialHandledScreens = true;
                 config.fallbackToScreenSpace = true;
+                config.settingsKey = "key.keyboard.f8";
             }
             default -> {
                 return false;

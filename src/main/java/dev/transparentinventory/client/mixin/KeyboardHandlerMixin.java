@@ -2,6 +2,7 @@ package dev.transparentinventory.client.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.transparentinventory.client.InventoryConfig;
 import dev.transparentinventory.client.screen.SpatialScreenManager;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -16,11 +17,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardHandlerMixin {
+    /** Resolved configurable settings key; rebuilt only when the stored name changes. */
+    private static String cachedKeyName;
+    private static int cachedKeyCode = InputConstants.KEY_F8;
+
     @Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
     private void spatial$settings(long window, int action, KeyEvent key, CallbackInfo ci) {
-        if (window != Minecraft.getInstance().getWindow().handle() || key.key() != InputConstants.KEY_F8) return;
+        if (window != Minecraft.getInstance().getWindow().handle() || key.key() != settingsKeyCode()) return;
         if (action == InputConstants.PRESS) SpatialScreenManager.INSTANCE.toggleSettings();
         ci.cancel();
+    }
+
+    private static int settingsKeyCode() {
+        String name = InventoryConfig.get().settingsKey;
+        if (!name.equals(cachedKeyName)) {
+            cachedKeyName = name;
+            try {
+                cachedKeyCode = InputConstants.getKey(name).getValue();
+            } catch (RuntimeException invalid) {
+                // A hand-edited or stale name falls back to F8 rather than losing the UI.
+                cachedKeyCode = InputConstants.KEY_F8;
+            }
+        }
+        return cachedKeyCode;
     }
     @WrapOperation(method = "keyPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z"))
     private boolean spatial$key(Screen screen, KeyEvent key, Operation<Boolean> original) {

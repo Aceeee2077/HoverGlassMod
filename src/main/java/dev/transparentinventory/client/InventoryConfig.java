@@ -32,6 +32,12 @@ public final class InventoryConfig {
     // ------------------------------------------------------------------
 
     public boolean enabled = true;
+    /** Function keys reachable with the settings-key button, in cycle order. */
+    public static final List<String> SETTINGS_KEYS = List.of(
+            "key.keyboard.f6", "key.keyboard.f7", "key.keyboard.f8",
+            "key.keyboard.f9", "key.keyboard.f10");
+    /** Function key that opens the settings screen, stored as an InputConstants name. */
+    public String settingsKey = "key.keyboard.f8";
     /** Legacy player-preview settings. */
     public boolean playerPreview = true;
     public boolean playerLookAtInventory = true;
@@ -149,6 +155,25 @@ public final class InventoryConfig {
 
     /** Removes every exact and wildcard exclusion. */
     public void clearScreenExclusions() { excludedScreens.clear(); }
+
+    /** Short label for the configured key, e.g. {@code F8}. */
+    public String settingsKeyName() {
+        String name = settingsKey == null ? "key.keyboard.f8" : settingsKey;
+        int dot = name.lastIndexOf('.');
+        return (dot < 0 ? name : name.substring(dot + 1)).toUpperCase(java.util.Locale.ROOT);
+    }
+
+    /** Moves to the next allowed function key, wrapping around; the settings button drives this. */
+    public void cycleSettingsKey() {
+        settingsKey = cleanSettingsKey(settingsKey);
+        settingsKey = SETTINGS_KEYS.get((SETTINGS_KEYS.indexOf(settingsKey) + 1) % SETTINGS_KEYS.size());
+    }
+
+    private static String cleanSettingsKey(String value) {
+        if (value == null) return "key.keyboard.f8";
+        String clean = value.trim().toLowerCase(java.util.Locale.ROOT);
+        return SETTINGS_KEYS.contains(clean) ? clean : "key.keyboard.f8";
+    }
 
     /** True when this screen is opted in to the spatial UI, exactly or by a wildcard rule. */
     public boolean isScreenOptedIn(String className) { return ScreenRules.matchesAny(additionalScreens, className); }
@@ -332,6 +357,7 @@ public final class InventoryConfig {
         guiVerticalOffset = clamp(guiVerticalOffset, -2, 3);
         excludedScreens = ScreenRules.cleanList(excludedScreens);
         additionalScreens = ScreenRules.cleanList(additionalScreens);
+        settingsKey = cleanSettingsKey(settingsKey);
         Map<String, Float> cleanedOpacities = new LinkedHashMap<>();
         if (screenOpacities != null) {
             for (Map.Entry<String, Float> entry : screenOpacities.entrySet()) {
