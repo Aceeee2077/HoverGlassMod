@@ -78,6 +78,8 @@
   "spatialui.feel.bounce.hint": "How far the panel springs back after the slide; 0 is a clean stop",
   "spatialui.feel.close_speed": "Closing slide speed",
   "spatialui.feel.close_speed.hint": "Pixels per second while the panel slides away",
+  "spatialui.feel.close_brake": "Closing brake",
+  "spatialui.feel.close_brake.hint": "Deceleration while the panel slides away; higher values cut the exit short, lower values let it coast",
   "spatialui.feel.spring": "Settle stiffness",
   "spatialui.feel.spring.hint": "Spring strength pulling the panel to rest; higher settles sooner",
   "spatialui.feel.damping": "Settle damping",

@@ -1593,6 +1593,7 @@ public final class InventoryRegressionTest {
         config.slideBrake = 200;
         config.bounce = 0;
         config.closeSpeed = 600;
+        config.closeAcceleration = 300;
         config.spring = 900;
         config.damping = 5;
         check(PageDefaults.reset(config, SettingsPages.PANEL_FEEL), "the panel feel page resets");
@@ -1600,6 +1601,7 @@ public final class InventoryRegressionTest {
         checkClose(config.slideBrake, 3450, 1E-6, "page reset restores the opening brake");
         checkClose(config.bounce, .26, 1E-6, "page reset restores the bounce");
         checkClose(config.closeSpeed, 2200, 1E-6, "page reset restores the closing speed");
+        checkClose(config.closeAcceleration, 2400, 1E-6, "page reset restores the closing brake");
         checkClose(config.spring, 500, 1E-6, "page reset restores the settle stiffness");
         checkClose(config.damping, 38, 1E-6, "page reset restores the settle damping");
 
@@ -1752,6 +1754,12 @@ public final class InventoryRegressionTest {
                 "the middle of the brake range is reported in px/s²");
         check(SliderFormat.value("spatialui.feel.slide_brake", 1, false).equals("8000 px/s²"),
                 "the hardest brake reads as its deceleration");
+        check(SliderFormat.value("spatialui.feel.close_brake", 0, false).equals("300 px/s²"),
+                "the gentlest closing brake reads as its deceleration");
+        check(SliderFormat.value("spatialui.feel.close_brake", 0.5, false).equals("6150 px/s²"),
+                "the middle of the closing brake range is reported in px/s²");
+        check(SliderFormat.value("spatialui.feel.close_brake", 1, false).equals("12000 px/s²"),
+                "the hardest closing brake reads as its deceleration");
         check(SliderFormat.value("spatialui.feel.bounce", 0, false).equals("0%"),
                 "zero bounce reads as a plain stop");
         check(SliderFormat.value("spatialui.feel.bounce", 0.5, false).equals("30%"),

@@ -121,6 +121,7 @@ public final class PageDefaults {
                 config.slideBrake = 3450.0;
                 config.bounce = 0.26;
                 config.closeSpeed = 2200.0;
+                config.closeAcceleration = 2400.0;
                 config.spring = 500.0;
                 config.damping = 38.0;
             }

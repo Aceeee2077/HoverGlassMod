@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.63.0 退场减速滑条
+
+- 全字段对照显示 `closeAcceleration` 被 `InventoryAnimator` 读取（面板退场时的减速度），却没有设置入口。面板手感页的 **稳定弹簧强度** 与 **稳定阻尼** 改为同一行各占一半（各 `contentWidth / 2 - 2`），在 `row + 110` 放入全宽的 **退场减速** 滑条，映射到 300–12000 的清洗范围。
+- `SliderFormat` 新增 `spatialui.feel.close_brake`：0 → 300 px/s²、0.5 → 6150 px/s²、1 → 12000 px/s²；`PageDefaults` 的 `case 14` 增加 `closeAcceleration = 2400`，`testPageDefaults` 先设为 300 再断言恢复。
+- 新增四个语言键（中英各一），`testLanguageKeys` 继续校验两边键集合一致。26.2 `physicsTest` 通过，共 **1,941 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认半宽滑条上「稳定弹簧强度: 500」等标签是否完整显示，也未确认两列滑条的点击热区与相邻滑条之间是否有空隙问题。
+
 ## 2026-11-10 · 0.62.0 规则列表上限
 
 - `screenOpacities`、`excludedScreens`、`additionalScreens` 在 `sanitize()` 中分别经过 `ScreenRules.MAX_ENTRIES`（256）限制：`cleanList` 达到上限后停止扫描，透明度清理循环同样在达到上限时退出。`bestKey` 会遍历整个覆盖表，无上限时每次透明度查询的成本随条目数线性增长。

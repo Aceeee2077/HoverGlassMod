@@ -360,14 +360,19 @@ public final class SpatialSettingsScreen extends Screen {
                     () -> (InventoryConfig.get().closeSpeed - 600) / 5400.0,
                     value -> InventoryConfig.get().closeSpeed = 600 + value * 5400, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.close_speed.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.feel.spring",
+            int half = contentWidth / 2 - 2;
+            addRenderableWidget(new SettingSlider(left, row + 88, half, "spatialui.feel.spring",
                     () -> (InventoryConfig.get().spring - 40) / 860.0,
                     value -> InventoryConfig.get().spring = 40 + value * 860, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.spring.hint")));
-            addRenderableWidget(new SettingSlider(left, row + 110, contentWidth, "spatialui.feel.damping",
+            addRenderableWidget(new SettingSlider(left + half + 4, row + 88, half, "spatialui.feel.damping",
                     () -> (InventoryConfig.get().damping - 5) / 85.0,
                     value -> InventoryConfig.get().damping = 5 + value * 85, false))
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.damping.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 110, contentWidth, "spatialui.feel.close_brake",
+                    () -> (InventoryConfig.get().closeAcceleration - 300) / 11700.0,
+                    value -> InventoryConfig.get().closeAcceleration = 300 + value * 11700, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.feel.close_brake.hint")));
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);

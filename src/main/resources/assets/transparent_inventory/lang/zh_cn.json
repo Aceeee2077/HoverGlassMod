@@ -78,6 +78,8 @@
   "spatialui.feel.bounce.hint": "滑入结束后回弹的距离，0 表示干脆停住",
   "spatialui.feel.close_speed": "退场滑出速度",
   "spatialui.feel.close_speed.hint": "面板滑走时的速度（像素/秒）",
+  "spatialui.feel.close_brake": "退场减速",
+  "spatialui.feel.close_brake.hint": "面板滑走过程中施加的减速度；越高越快刹住，越低滑行越久",
   "spatialui.feel.spring": "稳定弹簧强度",
   "spatialui.feel.spring.hint": "把面板拉回静止位置的弹簧强度，越高越快停稳",
   "spatialui.feel.damping": "稳定阻尼",

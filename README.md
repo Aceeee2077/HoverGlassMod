@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.63.0 closing brake slider:** The panel feel page now exposes **Closing brake**, the deceleration applied while the panel slides away — previously reachable only by hand-editing `closeAcceleration`. Higher values cut the exit short, lower values let it coast; the readout is in px/s², Delete on the page restores the stock 2400, and the settle stiffness and damping sliders now share one half-width row to make space for it.
+
 **26.x · 0.62.0 bounded screen rule lists:** Excluded screens, added screens and per-screen opacity overrides now keep at most 256 entries each. Those lists are scanned whenever a screen opens and, for opacities, on every opacity lookup, so a hand-edited or pasted config with thousands of entries could make the UI crawl; the cap keeps the earliest entries — the ones the settings screen showed — and the seeded creative-mode override still survives. This only affects pathological configs; normal setups never come close.
 
 **26.x · 0.61.0 a failed save is never silent:** Pasting settings, restoring the previous file and restoring a snapshot now report a failed write instead of showing their usual success message over a config that was never persisted. A failure also leaves the close-time baseline alone, so closing the screen still retries the write and reports it, rather than treating the earlier failure as saved. In-memory changes stay active for the session either way, exactly as the message says.
