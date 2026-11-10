@@ -842,10 +842,10 @@ public final class InventoryRegressionTest {
     }
 
     private static void testSettingsPages() {
-        check(SettingsPages.COUNT == 14, "the settings screen has fourteen pages");
+        check(SettingsPages.COUNT == 15, "the settings screen has fifteen pages");
         check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10
                         && SettingsPages.GLASS_MATERIAL == 11 && SettingsPages.SCREEN_SUPPORT == 12
-                        && SettingsPages.PREVIEW_LAYOUT == 13,
+                        && SettingsPages.PREVIEW_LAYOUT == 13 && SettingsPages.PANEL_FEEL == 14,
                 "compatibility keeps its position and the advanced pages follow it");
         check(SettingsPages.titleKey(SettingsPages.COMPATIBILITY).equals("spatialui.settings.compatibility"),
                 "the compatibility index names the compatibility page");
@@ -857,6 +857,8 @@ public final class InventoryRegressionTest {
                 "the screen support index names the screen support page");
         check(SettingsPages.titleKey(SettingsPages.PREVIEW_LAYOUT).equals("spatialui.settings.preview_layout"),
                 "the preview layout index names the preview layout page");
+        check(SettingsPages.titleKey(SettingsPages.PANEL_FEEL).equals("spatialui.settings.panel_feel"),
+                "the panel feel index names the panel feel page");
         for (int page = 0; page < SettingsPages.COUNT; page++) {
             check(SettingsPages.clamp(page) == page, "valid page indices are kept");
             check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
@@ -880,11 +882,13 @@ public final class InventoryRegressionTest {
                 "glass material is followed by screen support");
         check(SettingsPages.next(SettingsPages.SCREEN_SUPPORT) == SettingsPages.PREVIEW_LAYOUT,
                 "screen support is followed by preview layout");
-        check(SettingsPages.next(SettingsPages.PREVIEW_LAYOUT) == 0, "the last page wraps to the first");
-        check(SettingsPages.previous(0) == SettingsPages.PREVIEW_LAYOUT,
+        check(SettingsPages.next(SettingsPages.PREVIEW_LAYOUT) == SettingsPages.PANEL_FEEL,
+                "preview layout is followed by panel feel");
+        check(SettingsPages.next(SettingsPages.PANEL_FEEL) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == SettingsPages.PANEL_FEEL,
                 "the first page wraps to the last");
-        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.preview_layout"),
-                "going back from the first page lands on preview layout");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.panel_feel"),
+                "going back from the first page lands on panel feel");
         check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
@@ -1421,6 +1425,18 @@ public final class InventoryRegressionTest {
         checkClose(config.playerCenterYRatio, .55, 1E-6, "page reset restores the preview vertical position");
         checkClose(config.panelCenterRatio, .42, 1E-6, "page reset restores the panel position");
         checkClose(config.recipeBookOffset, 77, 1E-6, "page reset restores the recipe book offset");
+
+        config.slideSpeed = 6000;
+        config.bounce = 0;
+        config.closeSpeed = 600;
+        config.spring = 900;
+        config.damping = 5;
+        check(PageDefaults.reset(config, SettingsPages.PANEL_FEEL), "the panel feel page resets");
+        checkClose(config.slideSpeed, 2600, 1E-6, "page reset restores the opening speed");
+        checkClose(config.bounce, .26, 1E-6, "page reset restores the bounce");
+        checkClose(config.closeSpeed, 2200, 1E-6, "page reset restores the closing speed");
+        checkClose(config.spring, 500, 1E-6, "page reset restores the settle stiffness");
+        checkClose(config.damping, 38, 1E-6, "page reset restores the settle damping");
 
         config.panelOpacity = .5F;
         check(!PageDefaults.reset(config, SettingsPages.COMPATIBILITY),

@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.36.0 面板手感设置页
+
+- `SettingsPages` 扩到 15 页，新增 `PANEL_FEEL = 14` 与标题键；`PageDefaults` 支持第 15 页，重置 `slideSpeed`、`bounce`、`closeSpeed`、`spring`、`damping` 五项。
+- 新页面五个滑条覆盖清洗范围：入场速度 600–6000、回弹 0–0.6、退场速度 600–6000、弹簧强度 40–900、阻尼 5–90；每项带 tooltip 解释手感。
+- `testSettingsPages` 更新：15 页、第 15 页索引与标题、预览布局之后是面板手感、末尾回到第一页；`testPageDefaults` 新增第 15 页五项复位断言。26.2 `physicsTest` 通过，共 **1,791 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认极低阻尼或极高弹簧强度下的面板观感与帧率稳定度。
+
 ## 2026-11-10 · 0.35.0 预览布局设置页
 
 - `SettingsPages` 扩到 14 页，新增 `PREVIEW_LAYOUT = 13` 与标题键；`PageDefaults` 支持第 14 页，重置 `playerHeightRatio`、`playerCenterXRatio`、`playerCenterYRatio`、`panelCenterRatio`、`recipeBookOffset` 五项。

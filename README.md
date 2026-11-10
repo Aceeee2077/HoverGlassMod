@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.36.0 panel feel page:** A fifteenth page exposes the slide itself. **Opening slide speed**, **Closing slide speed**, **Bounce**, **Settle stiffness** and **Settle damping** tune how the glass panel enters, springs back and settles — from a brisk clean stop to a slower, softer drift. These are the exact values the animator already used, so the page changes the real panel, and Delete restores the stock feel. Reduced motion still snaps everything instantly regardless of the sliders.
+
 **26.x · 0.35.0 preview layout page:** A fourteenth page exposes five placement values that previously required hand-editing the config. **Preview height**, **Preview horizontal position** and **Preview vertical position** place the third-person avatar on screen, while **Panel horizontal position** moves the glass panel and **Recipe book offset** shifts it when the recipe book is open. The avatar overlaps the panel on some resolutions and GUI scales; the sliders fix that without JSON. Each value keeps its sanitizer range, Delete on the page restores all five, and the avatar is still a pose-only preview.
 
 **26.x · 0.34.0 scroll to change pages:** The mouse wheel now moves through the F8 pages — scrolling up goes back, scrolling down goes forward, both wrapping at the ends. Reaching the last page no longer takes nine clicks or a trip to the keyboard. Sub-notch trackpad jitter and invalid scroll amounts are ignored so a page cannot flip by accident, and Page Up / Page Down still work as before.

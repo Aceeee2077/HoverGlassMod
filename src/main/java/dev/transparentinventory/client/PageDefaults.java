@@ -16,7 +16,7 @@ public final class PageDefaults {
     /** True when {@code page} has values that {@link #reset(InventoryConfig, int)} restores. */
     public static boolean supports(int page) {
         return switch (page) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13 -> true;
+            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14 -> true;
             default -> false;
         };
     }
@@ -108,6 +108,13 @@ public final class PageDefaults {
                 config.playerCenterYRatio = 0.55;
                 config.panelCenterRatio = 0.42;
                 config.recipeBookOffset = 77.0;
+            }
+            case 14 -> {
+                config.slideSpeed = 2600.0;
+                config.bounce = 0.26;
+                config.closeSpeed = 2200.0;
+                config.spring = 500.0;
+                config.damping = 38.0;
             }
             default -> {
                 return false;
