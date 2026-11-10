@@ -9,7 +9,7 @@ package dev.transparentinventory.client.screen;
  */
 public final class SettingsPages {
 
-    public static final int COUNT = 13;
+    public static final int COUNT = 14;
     /** Index of the compatibility page, which also owns the shortcut buttons. */
     public static final int COMPATIBILITY = 9;
     /** Advanced framing offsets, kept after compatibility so existing pages stay put. */
@@ -18,6 +18,8 @@ public final class SettingsPages {
     public static final int GLASS_MATERIAL = 11;
     /** Which screens the spatial UI applies to, and how it degrades. */
     public static final int SCREEN_SUPPORT = 12;
+    /** Placement of the glass panel and the third-person preview on screen. */
+    public static final int PREVIEW_LAYOUT = 13;
 
     private static final String[] TITLES = {
             "spatialui.settings.opacity",
@@ -32,7 +34,8 @@ public final class SettingsPages {
             "spatialui.settings.compatibility",
             "spatialui.settings.camera_angles",
             "spatialui.settings.glass_material",
-            "spatialui.settings.screen_support"
+            "spatialui.settings.screen_support",
+            "spatialui.settings.preview_layout"
     };
 
     /** Last page opened this session; 0 until the screen navigates somewhere else. */

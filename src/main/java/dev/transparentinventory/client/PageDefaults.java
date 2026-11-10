@@ -16,7 +16,7 @@ public final class PageDefaults {
     /** True when {@code page} has values that {@link #reset(InventoryConfig, int)} restores. */
     public static boolean supports(int page) {
         return switch (page) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12 -> true;
+            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13 -> true;
             default -> false;
         };
     }
@@ -101,6 +101,13 @@ public final class PageDefaults {
                 config.defaultSpatialHandledScreens = true;
                 config.fallbackToScreenSpace = true;
                 config.settingsKey = "key.keyboard.f8";
+            }
+            case 13 -> {
+                config.playerHeightRatio = 0.47;
+                config.playerCenterXRatio = 0.77;
+                config.playerCenterYRatio = 0.55;
+                config.panelCenterRatio = 0.42;
+                config.recipeBookOffset = 77.0;
             }
             default -> {
                 return false;

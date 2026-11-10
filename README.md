@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.35.0 preview layout page:** A fourteenth page exposes five placement values that previously required hand-editing the config. **Preview height**, **Preview horizontal position** and **Preview vertical position** place the third-person avatar on screen, while **Panel horizontal position** moves the glass panel and **Recipe book offset** shifts it when the recipe book is open. The avatar overlaps the panel on some resolutions and GUI scales; the sliders fix that without JSON. Each value keeps its sanitizer range, Delete on the page restores all five, and the avatar is still a pose-only preview.
+
 **26.x · 0.34.0 scroll to change pages:** The mouse wheel now moves through the F8 pages — scrolling up goes back, scrolling down goes forward, both wrapping at the ends. Reaching the last page no longer takes nine clicks or a trip to the keyboard. Sub-notch trackpad jitter and invalid scroll amounts are ignored so a page cannot flip by accident, and Page Up / Page Down still work as before.
 
 **26.x · 0.33.0 dim fades with the panel:** The world dim behind the glass panel now follows the entrance instead of appearing at full strength on the first frame. Opening darkens the world as the panel slides in, and closing lifts the dim with the panel, so neither transition jumps. The **World dim** strength still sets the settled opacity, reduced motion and zero-length durations still snap instantly, and screens that do not use the spatial panel keep their vanilla dim.

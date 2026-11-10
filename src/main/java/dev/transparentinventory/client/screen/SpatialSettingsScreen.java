@@ -245,6 +245,27 @@ public final class SpatialSettingsScreen extends Screen {
                         .append(": " + InventoryConfig.get().settingsKeyName()));
             }).bounds(left, row + 66, contentWidth, 20).build())
                     .setTooltip(Tooltip.create(Component.translatable("spatialui.support.key.hint")));
+        } else if (page == SettingsPages.PREVIEW_LAYOUT) {
+            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.layout.player_height",
+                    () -> (InventoryConfig.get().playerHeightRatio - 0.25) / 0.45,
+                    value -> InventoryConfig.get().playerHeightRatio = 0.25 + value * 0.45, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.player_height.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.layout.player_x",
+                    () -> (InventoryConfig.get().playerCenterXRatio - 0.50) / 0.45,
+                    value -> InventoryConfig.get().playerCenterXRatio = 0.50 + value * 0.45, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.player_x.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.layout.player_y",
+                    () -> (InventoryConfig.get().playerCenterYRatio - 0.30) / 0.50,
+                    value -> InventoryConfig.get().playerCenterYRatio = 0.30 + value * 0.50, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.player_y.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 66, contentWidth, "spatialui.layout.panel_x",
+                    () -> (InventoryConfig.get().panelCenterRatio - 0.20) / 0.45,
+                    value -> InventoryConfig.get().panelCenterRatio = 0.20 + value * 0.45, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.panel_x.hint")));
+            addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.layout.recipe_book",
+                    () -> InventoryConfig.get().recipeBookOffset / 160.0,
+                    value -> InventoryConfig.get().recipeBookOffset = value * 160.0, false))
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.layout.recipe_book.hint")));
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);

@@ -842,9 +842,10 @@ public final class InventoryRegressionTest {
     }
 
     private static void testSettingsPages() {
-        check(SettingsPages.COUNT == 13, "the settings screen has thirteen pages");
+        check(SettingsPages.COUNT == 14, "the settings screen has fourteen pages");
         check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10
-                        && SettingsPages.GLASS_MATERIAL == 11 && SettingsPages.SCREEN_SUPPORT == 12,
+                        && SettingsPages.GLASS_MATERIAL == 11 && SettingsPages.SCREEN_SUPPORT == 12
+                        && SettingsPages.PREVIEW_LAYOUT == 13,
                 "compatibility keeps its position and the advanced pages follow it");
         check(SettingsPages.titleKey(SettingsPages.COMPATIBILITY).equals("spatialui.settings.compatibility"),
                 "the compatibility index names the compatibility page");
@@ -854,6 +855,8 @@ public final class InventoryRegressionTest {
                 "the glass material index names the glass material page");
         check(SettingsPages.titleKey(SettingsPages.SCREEN_SUPPORT).equals("spatialui.settings.screen_support"),
                 "the screen support index names the screen support page");
+        check(SettingsPages.titleKey(SettingsPages.PREVIEW_LAYOUT).equals("spatialui.settings.preview_layout"),
+                "the preview layout index names the preview layout page");
         for (int page = 0; page < SettingsPages.COUNT; page++) {
             check(SettingsPages.clamp(page) == page, "valid page indices are kept");
             check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
@@ -875,11 +878,13 @@ public final class InventoryRegressionTest {
                 "camera angles are followed by glass material");
         check(SettingsPages.next(SettingsPages.GLASS_MATERIAL) == SettingsPages.SCREEN_SUPPORT,
                 "glass material is followed by screen support");
-        check(SettingsPages.next(SettingsPages.SCREEN_SUPPORT) == 0, "the last page wraps to the first");
-        check(SettingsPages.previous(0) == SettingsPages.SCREEN_SUPPORT,
+        check(SettingsPages.next(SettingsPages.SCREEN_SUPPORT) == SettingsPages.PREVIEW_LAYOUT,
+                "screen support is followed by preview layout");
+        check(SettingsPages.next(SettingsPages.PREVIEW_LAYOUT) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == SettingsPages.PREVIEW_LAYOUT,
                 "the first page wraps to the last");
-        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.screen_support"),
-                "going back from the first page lands on screen support");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.preview_layout"),
+                "going back from the first page lands on preview layout");
         check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
@@ -1404,6 +1409,18 @@ public final class InventoryRegressionTest {
         check(config.defaultSpatialHandledScreens && config.fallbackToScreenSpace,
                 "page reset restores both screen support switches");
         check(config.settingsKey.equals("key.keyboard.f8"), "page reset restores the settings key");
+
+        config.playerHeightRatio = .30;
+        config.playerCenterXRatio = .60;
+        config.playerCenterYRatio = .40;
+        config.panelCenterRatio = .55;
+        config.recipeBookOffset = 0;
+        check(PageDefaults.reset(config, SettingsPages.PREVIEW_LAYOUT), "the preview layout page resets");
+        checkClose(config.playerHeightRatio, .47, 1E-6, "page reset restores the preview height");
+        checkClose(config.playerCenterXRatio, .77, 1E-6, "page reset restores the preview horizontal position");
+        checkClose(config.playerCenterYRatio, .55, 1E-6, "page reset restores the preview vertical position");
+        checkClose(config.panelCenterRatio, .42, 1E-6, "page reset restores the panel position");
+        checkClose(config.recipeBookOffset, 77, 1E-6, "page reset restores the recipe book offset");
 
         config.panelOpacity = .5F;
         check(!PageDefaults.reset(config, SettingsPages.COMPATIBILITY),

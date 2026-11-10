@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.35.0 预览布局设置页
+
+- `SettingsPages` 扩到 14 页，新增 `PREVIEW_LAYOUT = 13` 与标题键；`PageDefaults` 支持第 14 页，重置 `playerHeightRatio`、`playerCenterXRatio`、`playerCenterYRatio`、`panelCenterRatio`、`recipeBookOffset` 五项。
+- 新页面五个滑条分别映射到清洗后的完整范围：人物高度 0.25–0.70、人物水平 0.50–0.95、人物垂直 0.30–0.80、面板水平 0.20–0.65、配方书偏移 0–160；每项带说明性 tooltip。
+- `testSettingsPages` 更新：14 页、第 14 页索引与标题、界面支持之后是预览布局、首尾循环回到预览布局；`testPageDefaults` 新增第 14 页五项复位断言。26.2 `physicsTest` 通过，共 **1,775 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认极值下滑条摆放人物与面板的实际观感，也未确认配方书打开时偏移与面板动画的配合。
+
 ## 2026-11-10 · 0.34.0 滚轮翻页
 
 - `SettingsPages` 新增 `shift(page, steps)`（用 `Math.floorMod` 双向循环）与 `scrollStep(scrollY)`（向上为 -1、向下为 +1，`|scrollY| < 0.5` 或非有限值返回 0）。`SpatialSettingsScreen.mouseScrolled` 在步长为 0 时交回父类，否则 `goTo(shift(page, step))` 并吞掉本次滚动。
