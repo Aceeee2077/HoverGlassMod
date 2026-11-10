@@ -6,6 +6,8 @@
   "spatialui.opacity.dim": "世界背景遮罩强度",
   "spatialui.opacity.inherit": "当前界面跟随全局",
   "spatialui.settings.reset": "恢复所有默认设置",
+  "spatialui.settings.reset.confirm": "再次点击以全部重置",
+  "spatialui.settings.reset.hint": "恢复所有页面与容器独立设置。需要点击两次；轮换快照可以找回之前的配置。",
   "spatialui.settings.more": "空间与镜头设置",
   "spatialui.settings.opacity": "透明度设置",
   "spatialui.settings.global.hint": "打开容器后可为该界面单独设置",

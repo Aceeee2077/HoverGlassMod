@@ -6,6 +6,8 @@
   "spatialui.opacity.dim": "World dimming",
   "spatialui.opacity.inherit": "Use global for this screen",
   "spatialui.settings.reset": "Reset all settings",
+  "spatialui.settings.reset.confirm": "Click again to reset all",
+  "spatialui.settings.reset.hint": "Restores every page and container override. Click twice; the rotating snapshots can bring a previous config back.",
   "spatialui.settings.more": "Spatial and camera settings",
   "spatialui.settings.opacity": "Transparency settings",
   "spatialui.settings.global.hint": "Open a container to set its own transparency",

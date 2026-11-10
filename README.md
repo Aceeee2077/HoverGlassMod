@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.51.0 confirm the full reset:** **Reset all settings** on the transparency page now takes two clicks. The first arms it and changes the label to **Click again to reset all**; the second restores every page and container override. Navigating away, resizing, or pressing any other action button disarms it, so the confirmation cannot linger, and the rotating snapshots remain the way back if the reset was a mistake.
+
 **26.x · 0.50.0 full duration range:** The **Camera transition** and **GUI animation duration** sliders now cover the whole 0–2000 ms range the config already accepted. Previously they stopped at 1000 ms, so a hand-edited value above that pinned the knob at the right edge and snapped back on the first drag; slowly sweeping transitions can now be set from the UI, and the readout follows the new range.
 
 **26.x · 0.49.0 level the camera:** The camera angles page gains **Level the camera**, which zeroes both angle offsets in one click while keeping the pull-back distance, sideways framing, panel tilt and transition duration exactly as they are — handy after trying angles without wanting to snap back to a whole framing preset. It greys out once both offsets are zero and re-enables as soon as either slider moves, and Delete on the page still restores every camera value.

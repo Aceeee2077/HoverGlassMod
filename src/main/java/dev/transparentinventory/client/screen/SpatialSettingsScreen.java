@@ -30,6 +30,7 @@ public final class SpatialSettingsScreen extends Screen {
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
     private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
     private Button levelCameraButton;
+    private boolean resetAllArmed;
     private final ScrollAccumulator scroll = new ScrollAccumulator();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
@@ -72,10 +73,18 @@ public final class SpatialSettingsScreen extends Screen {
                 button.active = false;
             }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build());
             inheritButton.active = screenName != null && InventoryConfig.get().hasScreenOverride(screenName);
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.settings.reset"), button -> {
+            addRenderableWidget(Button.builder(Component.translatable(
+                    resetAllArmed ? "spatialui.settings.reset.confirm" : "spatialui.settings.reset"), button -> {
+                if (!resetAllArmed) {
+                    resetAllArmed = true;
+                    button.setMessage(Component.translatable("spatialui.settings.reset.confirm"));
+                    return;
+                }
+                resetAllArmed = false;
                 InventoryConfig.setInstance(new InventoryConfig());
                 rebuildWidgets();
-            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build());
+            }).bounds(left + contentWidth / 2 + 2, row + 68, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.settings.reset.hint")));
             addRenderableWidget(Button.builder(Component.translatable("spatialui.inventory.preset"), button -> {
                 InventoryConfig.get().applyGlassPreset();
                 rebuildWidgets();
@@ -421,6 +430,15 @@ public final class SpatialSettingsScreen extends Screen {
         this.page = SettingsPages.remember(page);
         scroll.reset();
         rebuildWidgets();
+    }
+
+    /**
+     * Rebuilding the widgets invalidates any pending confirmation: leaving the
+     * page or pressing another button must not leave the reset button armed.
+     */
+    @Override protected void rebuildWidgets() {
+        resetAllArmed = false;
+        super.rebuildWidgets();
     }
 
     private void notify(String key) {
