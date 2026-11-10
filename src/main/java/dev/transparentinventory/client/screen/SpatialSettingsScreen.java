@@ -1,6 +1,7 @@
 package dev.transparentinventory.client.screen;
 
 import dev.transparentinventory.client.ConfigLoader;
+import dev.transparentinventory.client.ConfigTransfer;
 import dev.transparentinventory.client.InventoryConfig;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -175,6 +176,21 @@ public final class SpatialSettingsScreen extends Screen {
                 InventoryConfig.get().clearScreenOpacities();
                 rebuildWidgets();
             }).bounds(left, row + 44, contentWidth, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.copy"), button -> {
+                minecraft.keyboardHandler.setClipboard(ConfigTransfer.export(InventoryConfig.get()));
+                notify("spatialui.transfer.copied");
+            }).bounds(left, row + 66, contentWidth, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("spatialui.transfer.paste"), button -> {
+                InventoryConfig parsed = ConfigTransfer.parse(minecraft.keyboardHandler.getClipboard());
+                if (parsed == null) {
+                    notify("spatialui.transfer.invalid");
+                    return;
+                }
+                InventoryConfig.setInstance(parsed);
+                ConfigLoader.save();
+                rebuildWidgets();
+                notify("spatialui.transfer.pasted");
+            }).bounds(left, row + 88, contentWidth, 20).build());
         }
         var previous = addRenderableWidget(Button.builder(Component.literal("<"), button -> {
             page = SettingsPages.previous(page);
@@ -191,6 +207,13 @@ public final class SpatialSettingsScreen extends Screen {
                 .append(": ").append(Component.translatable(SettingsPages.nextLabelKey(page)))));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
                 .bounds(left + contentWidth / 2 + 2, row + 138, contentWidth / 2 - 2, 20).build());
+    }
+
+    /** Short chat feedback so copy/paste results are visible without leaving the screen. */
+    private void notify(String key) {
+        if (minecraft.player != null) {
+            minecraft.player.sendSystemMessage(Component.translatable(key));
+        }
     }
 
     /** Label for the exclusion action; disabled states explain why nothing happens. */

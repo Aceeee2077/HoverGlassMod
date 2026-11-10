@@ -40,6 +40,7 @@ public final class InventoryRegressionTest {
         testQuickReopen();
         testCompatibilityActions();
         testSettingsPages();
+        testConfigTransfer();
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
@@ -804,6 +805,59 @@ public final class InventoryRegressionTest {
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
                 "invalid titles fall back to the first page");
+    }
+
+    private static void testConfigTransfer() {
+        InventoryConfig source = new InventoryConfig();
+        source.panelOpacity = 0.23F;
+        source.containerScale = 1.7;
+        source.openingAnimationDurationMs = 610;
+        source.inventoryCameraSide = 0.61;
+        source.motion.reduceMotion = true;
+        source.motion.particleMultiplier = 1.4;
+        source.screenOpacities.put("com.example.ChestScreen", 0.44F);
+        source.screenOpacities.put("com.example.*", 0.5F);
+        source.excludedScreens.add("com.example.HiddenScreen");
+        source.excludedScreens.add("*Debug*");
+
+        String json = ConfigTransfer.export(source);
+        check(json.startsWith("{") && json.endsWith("}"), "exported settings are a JSON object");
+        check(json.contains("\n"), "exported settings are pretty-printed");
+
+        InventoryConfig parsed = ConfigTransfer.parse(json);
+        check(parsed != null, "exported settings parse again");
+        checkClose(parsed.panelOpacity, 0.23, 1E-6, "panel opacity survives a round trip");
+        checkClose(parsed.containerScale, 1.7, 1E-6, "container scale survives a round trip");
+        check(parsed.openingAnimationDurationMs == 610, "durations survive a round trip");
+        checkClose(parsed.inventoryCameraSide, 0.61, 1E-6, "camera framing survives a round trip");
+        check(parsed.motion.reduceMotion && Math.abs(parsed.motion.particleMultiplier - 1.4) < 1E-9,
+                "motion options survive a round trip");
+        checkClose(parsed.opacityFor("com.example.ChestScreen"), 0.44, 1E-6,
+                "exact screen opacity survives a round trip");
+        checkClose(parsed.opacityFor("com.example.OtherScreen"), 0.5, 1E-6,
+                "wildcard screen opacity survives a round trip");
+        check(parsed.isScreenExcluded("com.example.HiddenScreen"), "exact exclusions survive a round trip");
+        check(parsed.isScreenExcluded("aDebugb"), "wildcard exclusions survive a round trip");
+
+        check(ConfigTransfer.parse(null) == null && ConfigTransfer.parse("   ") == null,
+                "blank text is rejected");
+        check(ConfigTransfer.parse("hello") == null, "arbitrary text is rejected");
+        check(ConfigTransfer.parse("null") == null, "a null literal is rejected");
+        check(ConfigTransfer.parse("[]") == null, "JSON arrays are rejected");
+        InventoryConfig empty = ConfigTransfer.parse("{}");
+        check(empty != null, "an empty object yields defaults");
+        checkClose(empty.panelOpacity, new InventoryConfig().panelOpacity, 1E-6,
+                "an empty object keeps the default opacity");
+
+        InventoryConfig odd = ConfigTransfer.parse(
+                "{\"panelOpacity\": 7, \"reopenSnapWindowMs\": -3, \"excludedScreens\": [\"  \", \"a\", \"a\"]}");
+        check(odd != null, "out-of-range values still parse");
+        checkClose(odd.panelOpacity, 1, 1E-6, "opacity is clamped on import");
+        check(odd.reopenSnapWindowMs == 0, "negative windows clamp to zero on import");
+        check(odd.excludedScreens.equals(java.util.List.of("a")), "screen rules are cleaned on import");
+
+        check(ConfigTransfer.parse("x".repeat(ConfigTransfer.MAX_LENGTH + 1)) == null,
+                "oversized pasted text is rejected");
     }
 
     private static void testInventoryCursorLook() {
