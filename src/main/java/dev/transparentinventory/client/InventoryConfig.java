@@ -118,6 +118,9 @@ public final class InventoryConfig {
     /** True when this screen has its own exact override and does not inherit a wildcard. */
     public boolean hasScreenOverride(String className) { return ScreenRules.hasExactOverride(screenOpacities, className); }
 
+    /** Whether this screen uses the global value, a wildcard rule or its own exact entry. */
+    public ScreenRules.Source opacitySource(String className) { return ScreenRules.source(screenOpacities, className); }
+
     // ------------------------------------------------------------------
     // Visual alpha values
     // ------------------------------------------------------------------

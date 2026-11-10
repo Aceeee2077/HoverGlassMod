@@ -11,6 +11,7 @@
   "spatialui.settings.global.hint": "Open a container to set its own transparency",
   "spatialui.settings.custom": "%s · Custom transparency",
   "spatialui.settings.inherited": "%s · Global transparency",
+  "spatialui.settings.rule": "%s · Transparency from a screen rule",
   "spatialui.settings.hint": "Live preview · F8 / Esc saves and returns",
   "spatialui.settings.save_failed": "Hoverglass could not save settings. Changes remain active for this game session.",
   "spatialui.scale": "GUI scale",

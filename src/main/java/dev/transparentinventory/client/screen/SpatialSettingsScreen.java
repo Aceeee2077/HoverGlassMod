@@ -19,6 +19,7 @@ public final class SpatialSettingsScreen extends Screen {
     private final String screenName;
     private int page;
     private int top;
+    private Button inheritButton;
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -35,19 +36,26 @@ public final class SpatialSettingsScreen extends Screen {
         int left = (width - contentWidth) / 2;
         top = Math.max(6, (height - 220) / 2);
         int row = top + 34;
+        inheritButton = null;
         if (page == 0) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
                     () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true));
             var current = addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.opacity.current",
                     () -> screenName == null ? 0 : 1 - InventoryConfig.get().opacityFor(screenName),
-                    value -> { if (screenName != null) InventoryConfig.get().screenOpacities.put(screenName, (float) (1 - value)); }, true));
+                    value -> {
+                        if (screenName == null) return;
+                        InventoryConfig.get().screenOpacities.put(screenName, (float) (1 - value));
+                        if (inheritButton != null) inheritButton.active = true;
+                    }, true));
             current.active = screenName != null;
             current.setTooltip(Tooltip.create(Component.translatable("spatialui.opacity.current.hint")));
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.opacity.dim",
                     () -> InventoryConfig.get().worldDimOpacity, value -> InventoryConfig.get().worldDimOpacity = (float) value, true));
-            addRenderableWidget(Button.builder(Component.translatable("spatialui.opacity.inherit"), button -> {
+            inheritButton = addRenderableWidget(Button.builder(Component.translatable("spatialui.opacity.inherit"), button -> {
                 if (screenName != null) InventoryConfig.get().screenOpacities.remove(screenName);
-            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build()).active = screenName != null;
+                button.active = false;
+            }).bounds(left, row + 68, contentWidth / 2 - 2, 20).build());
+            inheritButton.active = screenName != null && InventoryConfig.get().hasScreenOverride(screenName);
             addRenderableWidget(Button.builder(Component.translatable("spatialui.settings.reset"), button -> {
                 InventoryConfig.setInstance(new InventoryConfig());
                 rebuildWidgets();
@@ -194,8 +202,13 @@ public final class SpatialSettingsScreen extends Screen {
 
     @Override public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tick) {
         graphics.centeredText(font, title, width / 2, top, 0xFFFFFFFF);
-        Component context = screenName == null ? Component.translatable("spatialui.settings.global.hint")
-                : Component.translatable(InventoryConfig.get().screenOpacities.containsKey(screenName) ? "spatialui.settings.custom" : "spatialui.settings.inherited", parent.getTitle());
+        var source = screenName == null ? null : InventoryConfig.get().opacitySource(screenName);
+        Component context = source == null ? Component.translatable("spatialui.settings.global.hint")
+                : Component.translatable(switch (source) {
+                    case EXACT -> "spatialui.settings.custom";
+                    case RULE -> "spatialui.settings.rule";
+                    case GLOBAL -> "spatialui.settings.inherited";
+                }, parent.getTitle());
         graphics.centeredText(font, context, width / 2, top + 15, 0xFFCCD5E0);
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.hint"), width / 2, top + 200, 0xFFB9C7D4);

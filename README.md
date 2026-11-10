@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.10.1 screen-rule status:** The F8 transparency header now tells three cases apart: an exact per-screen value, a value inherited from a wildcard screen rule ("Transparency from a screen rule"), and the global value. **Use global for this screen** is enabled only when an exact entry exists and switches itself off once cleared, so a wildcard rule is never mistaken for the global default or silently ignored.
+
 **26.x · 0.10.0 quick reopen:** Closing a container and opening another within 400 ms now skips the panel entrance and the camera transition, snapping straight to the settled view — tapping E on and off no longer replays the full slide every time. The first open and slower reopens animate normally. The window is configurable with `reopenSnapWindowMs` (0 disables the shortcut, up to 1500 ms) and applies to both branches; **Reduce motion** still snaps every open.
 
 **26.x · 0.9.0 container camera:** A new **Container camera** switch on the F8 camera page (on by default) lets chests, furnaces, merchants and other world containers stay in first person while their glass panel, per-screen opacity and world anchoring still apply. The player inventory keeps its own entrance camera, and the master **Spatial camera** switch still overrides both. The choice is saved as `containerCameraEnabled` in the config file, next to the other camera fields.

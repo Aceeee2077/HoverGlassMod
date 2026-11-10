@@ -103,6 +103,15 @@ public final class ScreenRules {
         return overrides != null && name != null && overrides.containsKey(name);
     }
 
+    /** Where a screen's opacity came from, for the settings status line. */
+    public enum Source { GLOBAL, RULE, EXACT }
+
+    /** Classifies the winning opacity entry for a screen. */
+    public static Source source(Map<String, Float> overrides, String name) {
+        if (hasExactOverride(overrides, name)) return Source.EXACT;
+        return bestKey(overrides, name) != null ? Source.RULE : Source.GLOBAL;
+    }
+
     /** Number of literal characters in a rule; more literals means a more specific pattern. */
     public static int literalCount(String rule) {
         if (rule == null) return 0;

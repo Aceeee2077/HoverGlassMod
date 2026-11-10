@@ -591,13 +591,19 @@ public final class InventoryRegressionTest {
                 "wildcard opacity applies through the config");
         check(!config.hasScreenOverride("net.minecraft.client.gui.screens.ChatScreen"),
                 "a wildcard hit is inherited, not a per-screen override");
+        check(config.opacitySource("net.minecraft.client.gui.screens.ChatScreen") == ScreenRules.Source.RULE,
+                "the status line can name the wildcard source");
         config.screenOpacities.put("net.minecraft.client.gui.screens.ChatScreen", 0.12F);
         checkClose(config.opacityFor("net.minecraft.client.gui.screens.ChatScreen"), 0.12, 1E-6,
                 "a per-screen slider value beats the wildcard");
         check(config.hasScreenOverride("net.minecraft.client.gui.screens.ChatScreen"),
                 "an exact slider value is reported as an override");
+        check(config.opacitySource("net.minecraft.client.gui.screens.ChatScreen") == ScreenRules.Source.EXACT,
+                "the status line reports an exact override");
         checkClose(config.opacityFor("com.example.UnknownScreen"), 0.2, 1E-6,
                 "unmatched screens still use the global opacity");
+        check(config.opacitySource("com.example.UnknownScreen") == ScreenRules.Source.GLOBAL,
+                "unmatched screens report the global source");
 
         var messy = new InventoryConfig();
         messy.excludedScreens.add("  com.example.FancyScreen  ");
