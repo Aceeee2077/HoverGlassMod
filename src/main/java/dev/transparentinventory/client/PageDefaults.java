@@ -93,8 +93,12 @@ public final class PageDefaults {
                 config.motion.playerIntensity = 0.8;
             }
             case 10 -> {
+                config.cameraDistance = 3.0;
+                config.inventoryCameraSide = 0.72;
+                config.inventoryTiltDegrees = 4.0;
                 config.cameraYawOffset = 0;
                 config.cameraPitchOffset = 0;
+                config.cameraTransitionDurationMs = 420;
             }
             case 11 -> GlassMaterialPresets.apply(config, GlassMaterialPresets.Preset.FROSTED);
             case 12 -> {

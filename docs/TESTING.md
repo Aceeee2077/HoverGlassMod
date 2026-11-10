@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.43.0 镜头取景预设
+
+- 新增 `CameraPresets`：`SUBTLE(2.4, .45, 2.0, 0, 0, 300)`、`BALANCED(3.0, .72, 4.0, 0, 0, 420)`、`CINEMATIC(3.8, .90, 7.0, 0, 0, 600)`，`apply()` 一次写入距离、侧移、倾斜、两个角度偏角与过渡时长，`matches()` 以 1e-4 容差比较，`current()` 返回匹配项或 `null`。
+- 镜头角度页在两条滑条下方放置三个等宽预设按钮；当前取景匹配的按钮禁用，并在 `extractRenderState` 每帧刷新（拖动滑条后立即重新启用）。`PageDefaults` 第 10 页改为恢复全部六个值，`testPageDefaults` 相应扩展。
+- 新增 `testCameraPresets`：新配置匹配均衡预设；三个预设写入后即匹配且通过 `sanitize()` 仍匹配；距离、侧移、倾斜、时长均按轻量→均衡→电影感递增；重复应用幂等；手调距离后不匹配任何预设。26.2 `physicsTest` 通过，共 **1,830 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认三个预设的实际取景观感、预设按钮与滑条并存时的布局，以及 Delete 恢复六项后跨页滑条是否即时同步。
+
 ## 2026-11-10 · 0.42.0 快捷栏边框匹配物品栏
 
 - `InventoryConfig.matchHotbarRim()` 把 `borderOpacity` 一次性复制到 `hotbarBorderOpacity`，不建立联动；快捷栏页新增同名按钮，点击后重建页面让滑条立即反映新值。

@@ -42,6 +42,7 @@ public final class InventoryRegressionTest {
         testConfigRecovery();
         testCameraPolicy();
         testCameraOffsets();
+        testCameraPresets();
         testQuickReopen();
         testCompatibilityActions();
         testSettingsPages();
@@ -769,6 +770,38 @@ public final class InventoryRegressionTest {
         checkClose(config.cameraYawOffset, -60, 1E-9, "a NaN yaw offset falls back to its lower bound");
     }
 
+    private static void testCameraPresets() {
+        InventoryConfig config = new InventoryConfig();
+        check(CameraPresets.current(config) == CameraPresets.Preset.BALANCED,
+                "a fresh config matches the balanced framing preset");
+        for (CameraPresets.Preset preset : CameraPresets.Preset.values()) {
+            CameraPresets.apply(config, preset);
+            check(CameraPresets.matches(config, preset), preset + " applies every framing value");
+            check(CameraPresets.current(config) == preset, preset + " is reported as the current framing");
+            config.sanitize();
+            check(CameraPresets.matches(config, preset), preset + " stays inside the sanitizer ranges");
+        }
+        check(CameraPresets.Preset.SUBTLE.distance() < CameraPresets.Preset.BALANCED.distance()
+                        && CameraPresets.Preset.BALANCED.distance() < CameraPresets.Preset.CINEMATIC.distance(),
+                "presets pull the camera back in order");
+        check(CameraPresets.Preset.SUBTLE.side() < CameraPresets.Preset.BALANCED.side()
+                        && CameraPresets.Preset.BALANCED.side() < CameraPresets.Preset.CINEMATIC.side(),
+                "presets slide the framing aside in order");
+        check(CameraPresets.Preset.SUBTLE.tilt() < CameraPresets.Preset.BALANCED.tilt()
+                        && CameraPresets.Preset.BALANCED.tilt() < CameraPresets.Preset.CINEMATIC.tilt(),
+                "presets tilt the panel in order");
+        check(CameraPresets.Preset.SUBTLE.durationMs() < CameraPresets.Preset.BALANCED.durationMs()
+                        && CameraPresets.Preset.BALANCED.durationMs() < CameraPresets.Preset.CINEMATIC.durationMs(),
+                "presets slow the transition in order");
+
+        CameraPresets.apply(config, CameraPresets.Preset.CINEMATIC);
+        CameraPresets.apply(config, CameraPresets.Preset.CINEMATIC);
+        check(CameraPresets.matches(config, CameraPresets.Preset.CINEMATIC),
+                "applying a framing preset is idempotent");
+        config.cameraDistance = 4.5;
+        check(CameraPresets.current(config) == null, "hand-tuned framing matches no preset");
+    }
+
     private static void testQuickReopen() {
         var timing = new EntranceTiming();
         check(!timing.snap(0, 400), "a first open always animates");
@@ -1427,11 +1460,19 @@ public final class InventoryRegressionTest {
                 "page reset re-enables every avatar layer");
         checkClose(config.motion.playerIntensity, .8, 1E-6, "page reset restores the avatar intensity");
 
+        config.cameraDistance = 6;
+        config.inventoryCameraSide = .2;
+        config.inventoryTiltDegrees = -9;
         config.cameraYawOffset = 45;
         config.cameraPitchOffset = -30;
+        config.cameraTransitionDurationMs = 1500;
         check(PageDefaults.reset(config, SettingsPages.CAMERA_ANGLES), "the camera angles page resets");
+        checkClose(config.cameraDistance, 3.0, 1E-6, "page reset restores the camera distance");
+        checkClose(config.inventoryCameraSide, .72, 1E-6, "page reset restores the camera side");
+        checkClose(config.inventoryTiltDegrees, 4.0, 1E-6, "page reset restores the tilt");
         checkClose(config.cameraYawOffset, 0, 1E-6, "page reset restores the yaw offset");
         checkClose(config.cameraPitchOffset, 0, 1E-6, "page reset restores the pitch offset");
+        check(config.cameraTransitionDurationMs == 420, "page reset restores the camera transition");
 
         config.slotOpacity = .3F;
         config.borderOpacity = .1F;

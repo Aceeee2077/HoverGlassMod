@@ -1,5 +1,6 @@
 package dev.transparentinventory.client.screen;
 
+import dev.transparentinventory.client.CameraPresets;
 import dev.transparentinventory.client.ConfigLoader;
 import dev.transparentinventory.client.ConfigTransfer;
 import dev.transparentinventory.client.GlassMaterialPresets;
@@ -27,6 +28,7 @@ public final class SpatialSettingsScreen extends Screen {
     private int top;
     private Button inheritButton;
     private final java.util.List<Button> presetButtons = new java.util.ArrayList<>();
+    private final java.util.List<Button> cameraPresetButtons = new java.util.ArrayList<>();
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -47,6 +49,7 @@ public final class SpatialSettingsScreen extends Screen {
         int row = top + 34;
         inheritButton = null;
         presetButtons.clear();
+        cameraPresetButtons.clear();
         if (page == 0) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.opacity.global",
                     () -> 1 - InventoryConfig.get().panelOpacity, value -> InventoryConfig.get().panelOpacity = (float) (1 - value), true));
@@ -195,6 +198,20 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.pitch_offset",
                     () -> (InventoryConfig.get().cameraPitchOffset + 45) / 90.0,
                     value -> InventoryConfig.get().cameraPitchOffset = value * 90 - 45, false));
+            CameraPresets.Preset[] framing = CameraPresets.Preset.values();
+            int gap = 4;
+            int presetWidth = (contentWidth - gap * (framing.length - 1)) / framing.length;
+            for (int index = 0; index < framing.length; index++) {
+                CameraPresets.Preset preset = framing[index];
+                String key = "spatialui.camera.preset." + preset.name().toLowerCase(java.util.Locale.ROOT);
+                Button button = Button.builder(Component.translatable(key), pressed -> {
+                    CameraPresets.apply(InventoryConfig.get(), preset);
+                    rebuildWidgets();
+                }).bounds(left + index * (presetWidth + gap), row + 44, presetWidth, 20).build();
+                button.active = !CameraPresets.matches(InventoryConfig.get(), preset);
+                button.setTooltip(Tooltip.create(Component.translatable(key + ".hint")));
+                cameraPresetButtons.add(addRenderableWidget(button));
+            }
         } else if (page == SettingsPages.GLASS_MATERIAL) {
             addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.material.slot",
                     () -> InventoryConfig.get().slotOpacity,
@@ -463,6 +480,10 @@ public final class SpatialSettingsScreen extends Screen {
         GlassMaterialPresets.Preset[] presets = GlassMaterialPresets.Preset.values();
         for (int index = 0; index < presetButtons.size() && index < presets.length; index++) {
             presetButtons.get(index).active = !GlassMaterialPresets.matches(InventoryConfig.get(), presets[index]);
+        }
+        CameraPresets.Preset[] framing = CameraPresets.Preset.values();
+        for (int index = 0; index < cameraPresetButtons.size() && index < framing.length; index++) {
+            cameraPresetButtons.get(index).active = !CameraPresets.matches(InventoryConfig.get(), framing[index]);
         }
         super.extractRenderState(graphics, mouseX, mouseY, tick);
         graphics.centeredText(font, Component.translatable("spatialui.settings.page", page + 1, SettingsPages.COUNT)
