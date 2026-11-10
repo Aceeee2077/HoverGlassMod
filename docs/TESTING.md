@@ -1,5 +1,13 @@
 # 验证记录
 
+## 2026-11-10 · 0.58.0 无改动关闭不保存
+
+- `ConfigLoader` 新增 `toJson(InventoryConfig)`，用与写盘相同的 Gson 配置序列化，空配置返回空字符串；不触发 `FabricLoader`，可在纯 Java 测试中调用。
+- `SpatialSettingsScreen` 在首次 `init()` 记录 `openedJson`（窗口缩放再次 `init()` 不会覆盖），`onClose()` 比较当前序列化结果，相同则跳过 `save()`。这样频繁开关设置界面不会用完全相同的副本占满 `ConfigBackups.KEEP` 的轮换历史。
+- 三个界面内保存入口（粘贴、恢复上一次、恢复最新快照）改走 `saveNow()`：保存后同步刷新 `openedJson`，避免关闭时再写一次同样的内容。翻页会修改 `settingsPage`，因此仍被视为改动并保存。
+- 新增 `testConfigSnapshot` 六条断言：空配置、重复序列化一致、字段变化导致不同、`settingsPage` 变化计入、改回原值后一致。26.2 `physicsTest` 通过，共 **1,931 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认关闭界面的写盘次数；`ConfigLoader.save()` 失败提示路径保持不变，但跳过保存时不会提示（预期，因为没有需要写入的内容）。
+
 ## 2026-11-10 · 0.57.0 匹配按钮状态
 
 - `InventoryConfig` 新增两个纯查询：`hotbarRimMatches()` 与 `hotbarOpacityMatches()`，用 1e-6 容差比较快捷栏与面板的对应值，避免浮点复制后的尾差导致误判。

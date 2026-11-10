@@ -36,6 +36,8 @@ public final class SpatialSettingsScreen extends Screen {
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
     private final ScrollAccumulator scroll = new ScrollAccumulator();
+    /** Config JSON as it was when the screen opened, so an untouched close saves nothing. */
+    private String openedJson;
 
     public SpatialSettingsScreen(Screen parent, boolean overlay) {
         super(Component.translatable("spatialui.settings.title").append(" · "
@@ -53,6 +55,7 @@ public final class SpatialSettingsScreen extends Screen {
         int left = (width - contentWidth) / 2;
         top = Math.max(6, (height - 220) / 2);
         page = SettingsPages.remembered();
+        if (openedJson == null) openedJson = ConfigLoader.toJson(InventoryConfig.get());
         int row = top + 34;
         inheritButton = null;
         levelCameraButton = null;
@@ -381,7 +384,7 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(parsed);
-                ConfigLoader.save();
+                saveNow();
                 rebuildWidgets();
                 notify("spatialui.transfer.pasted");
             }).bounds(left + contentWidth / 2 + 2, row + 66, contentWidth / 2 - 2, 20).build());
@@ -398,7 +401,7 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(backup);
-                ConfigLoader.save();
+                saveNow();
                 rebuildWidgets();
                 notify("spatialui.transfer.restored");
             }).bounds(left, row + 88, contentWidth, 20).build());
@@ -418,7 +421,7 @@ public final class SpatialSettingsScreen extends Screen {
                     return;
                 }
                 InventoryConfig.setInstance(snapshot);
-                ConfigLoader.save();
+                saveNow();
                 rebuildWidgets();
                 notify("spatialui.transfer.snapshot.restored");
             }).bounds(left, row + 110, contentWidth, 20).build());
@@ -477,6 +480,13 @@ public final class SpatialSettingsScreen extends Screen {
         if (minecraft.player != null) {
             minecraft.player.sendSystemMessage(Component.translatable(key));
         }
+    }
+
+    /** Saves immediately and treats the result as the close-time baseline. */
+    private boolean saveNow() {
+        boolean saved = ConfigLoader.save();
+        openedJson = ConfigLoader.toJson(InventoryConfig.get());
+        return saved;
     }
 
     /** Label for the exclusion action; disabled states explain why nothing happens. */
@@ -600,7 +610,11 @@ public final class SpatialSettingsScreen extends Screen {
     }
 
     @Override public void onClose() {
-        boolean saved = ConfigLoader.save();
+        // Closing without touching anything must not rewrite the file: every save
+        // copies the previous version into the rotating history and would push a
+        // real snapshot out in favour of an identical one.
+        boolean unchanged = openedJson != null && openedJson.equals(ConfigLoader.toJson(InventoryConfig.get()));
+        boolean saved = unchanged || saveNow();
         if (!saved && minecraft.player != null) minecraft.player.sendSystemMessage(Component.translatable("spatialui.settings.save_failed"));
         if (overlay) SpatialScreenManager.INSTANCE.closeSettings();
         else dev.transparentinventory.client.compat.MinecraftAccess.screen(minecraft, parent);

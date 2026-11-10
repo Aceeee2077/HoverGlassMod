@@ -54,6 +54,16 @@ public final class ConfigLoader {
         InventoryConfig.setInstance(config);
     }
 
+    /**
+     * Serializes a config exactly as it would be written, so callers can compare
+     * two states without touching the disk.
+     *
+     * @return the JSON text, or an empty string for {@code null}
+     */
+    public static String toJson(InventoryConfig config) {
+        return config == null ? "" : GSON.toJson(config);
+    }
+
     public static synchronized boolean save() {
         InventoryConfig.get().sanitize();
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);

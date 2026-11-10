@@ -51,6 +51,7 @@ public final class InventoryRegressionTest {
         testSettingsPages();
         testLanguageKeys();
         testConfigTransfer();
+        testConfigSnapshot();
         testConfigBackups();
         testHotbarRim();
         testGlassMaterials();
@@ -998,6 +999,21 @@ public final class InventoryRegressionTest {
         } catch (IOException | RuntimeException e) {
             throw new AssertionError("could not read " + path, e);
         }
+    }
+
+    private static void testConfigSnapshot() {
+        check(ConfigLoader.toJson(null).isEmpty(), "a missing config serializes to nothing");
+        InventoryConfig config = new InventoryConfig();
+        String first = ConfigLoader.toJson(config);
+        check(!first.isEmpty(), "a config serializes to JSON");
+        check(first.equals(ConfigLoader.toJson(config)), "serializing the same config twice is identical");
+        InventoryConfig changed = new InventoryConfig();
+        changed.panelOpacity = 0.5F;
+        check(!first.equals(ConfigLoader.toJson(changed)), "a changed value serializes differently");
+        config.settingsPage = 7;
+        check(!first.equals(ConfigLoader.toJson(config)), "page memory counts as a change");
+        config.settingsPage = 0;
+        check(first.equals(ConfigLoader.toJson(config)), "returning to the original value matches again");
     }
 
     private static void testConfigTransfer() {

@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.58.0 an untouched settings screen saves nothing:** Opening F8 and closing it without changing a control no longer rewrites the config. Because every save copies the previous file into the five-slot rotating history, those no-op saves were pushing real snapshots out in favour of identical copies; now the screen compares the serialized config from open time with the one at close and writes only when they differ. Page browsing still counts as a change, the restores and paste still save immediately and update that baseline, and a genuine save failure still reports itself.
+
 **26.x · 0.57.0 match buttons know when they are done:** **Match inventory rim** and **Match panel opacity** now grey themselves out while the hotbar value already equals the panel's, with a tooltip that says so — so a click that would change nothing is visibly unavailable. Moving either the panel slider or the hotbar slider re-enables the matching button on the next frame, and pressing it after a match still works because the state is recomputed from the live values rather than remembered.
 
 **26.x · 0.56.0 snapshot time in the tooltip:** Hovering **Restore newest snapshot** now also says when that snapshot was taken, in the same local time the file manager shows, so restoring is an informed choice instead of grabbing the latest copy blindly. The timestamp is read from the snapshot's file name, a missing or unreadable history shows only the usual hint, and the count and the time always describe the same file.
