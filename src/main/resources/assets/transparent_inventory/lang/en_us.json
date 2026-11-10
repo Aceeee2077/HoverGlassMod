@@ -26,6 +26,8 @@
   "spatialui.anchors": "World anchors",
   "spatialui.settings.entrance": "Inventory entrance",
   "spatialui.inventory.cinematic": "First-person side entrance",
+  "spatialui.inventory.close": "Closing animation",
+  "spatialui.inventory.close.hint": "Off closes the panel instantly instead of sliding it away",
   "spatialui.inventory.tilt": "Resting panel tilt",
   "spatialui.inventory.duration": "GUI animation duration",
   "spatialui.inventory.glass": "Glass inventory",

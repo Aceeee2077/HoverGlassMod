@@ -1,5 +1,11 @@
 # 验证记录
 
+## 2026-11-10 · 0.27.0 关闭动画开关
+
+- 入场页第一行拆成两个半宽开关：**第一人称侧移入场** 与新增的 **关闭动画**（`closeAnimation`）。关闭后 `SpatialScreenManager.requestClose` 直接返回 false，由原版立即关闭界面，不再等待滑出动画。
+- `testPageDefaults` 补上入场页的 `closeAnimation` 恢复断言与出厂默认开启断言；`testLanguageKeys` 自动校验 3 个新键的中英一致性。26.2 `physicsTest` 通过，共 **1,643 条断言**；26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。
+- 按用户要求未启动 Minecraft 客户端，未实机确认关闭动画关闭后镜头回位与快速重开窗口的配合表现。
+
 ## 2026-11-10 · 0.26.0 单页重置
 
 - 新增 `testPageDefaults`：逐页把该页控件改成非默认值后调用重置，断言每个字段都回到 `new InventoryConfig()` 的取值；兼容性页返回 false 且不改动配置；越界页与 null 配置也被拒绝；在全新配置上依次重置所有支持页后仍与出厂值一致（防止重置写入与出厂值不同的值）；材质页重置后落在「磨砂」预设。26.2 `physicsTest` 通过，共 **1,641 条断言**。

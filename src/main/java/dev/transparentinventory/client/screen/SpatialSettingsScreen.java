@@ -105,7 +105,12 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory), button -> {
                 InventoryConfig.get().cinematicInventory = !InventoryConfig.get().cinematicInventory;
                 button.setMessage(toggle("spatialui.inventory.cinematic", InventoryConfig.get().cinematicInventory));
-            }).bounds(left, row, contentWidth, 20).build());
+            }).bounds(left, row, contentWidth / 2 - 2, 20).build());
+            addRenderableWidget(Button.builder(toggle("spatialui.inventory.close", InventoryConfig.get().closeAnimation), button -> {
+                InventoryConfig.get().closeAnimation = !InventoryConfig.get().closeAnimation;
+                button.setMessage(toggle("spatialui.inventory.close", InventoryConfig.get().closeAnimation));
+            }).bounds(left + contentWidth / 2 + 2, row, contentWidth / 2 - 2, 20).build())
+                    .setTooltip(Tooltip.create(Component.translatable("spatialui.inventory.close.hint")));
             addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.inventory.tilt",
                     () -> (InventoryConfig.get().inventoryTiltDegrees + 12) / 24,
                     value -> InventoryConfig.get().inventoryTiltDegrees = value * 24 - 12, false));

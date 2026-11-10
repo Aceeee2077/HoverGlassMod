@@ -26,6 +26,8 @@
   "spatialui.anchors": "世界锚点",
   "spatialui.settings.entrance": "背包入场动画",
   "spatialui.inventory.cinematic": "第一人称侧移入场",
+  "spatialui.inventory.close": "关闭动画",
+  "spatialui.inventory.close.hint": "关闭后界面直接消失，不再滑出",
   "spatialui.inventory.tilt": "面板停留倾角",
   "spatialui.inventory.duration": "界面开关时间",
   "spatialui.inventory.glass": "透明玻璃背包",

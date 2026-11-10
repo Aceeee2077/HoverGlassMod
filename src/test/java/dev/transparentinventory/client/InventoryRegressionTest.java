@@ -1214,6 +1214,7 @@ public final class InventoryRegressionTest {
         check(config.containerCameraEnabled, "page reset re-enables the container camera");
 
         config.cinematicInventory = false;
+        config.closeAnimation = false;
         config.inventoryTiltDegrees = -9;
         config.openingAnimationDurationMs = 900;
         config.glassInventory = false;
@@ -1221,6 +1222,8 @@ public final class InventoryRegressionTest {
         config.reopenSnapWindowMs = 1500;
         check(PageDefaults.reset(config, 2), "the entrance page resets");
         check(config.cinematicInventory && config.glassInventory, "page reset re-enables the entrance toggles");
+        check(config.closeAnimation, "page reset re-enables the closing animation");
+        check(new InventoryConfig().closeAnimation, "the closing animation ships enabled");
         checkClose(config.inventoryTiltDegrees, 4.0, 1E-6, "page reset restores the tilt");
         check(config.openingAnimationDurationMs == 480, "page reset restores the opening duration");
         checkClose(config.inventoryCameraSide, .72, 1E-6, "page reset restores the camera side");

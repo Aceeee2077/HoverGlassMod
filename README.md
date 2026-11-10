@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.27.0 closing animation switch:** The entrance page now exposes **Closing animation**, a switch that already existed as `closeAnimation` in the config file. Turned off, closing a container removes the glass panel in the same frame instead of sliding it away — handy when swapping containers quickly or when a hard cut is preferred. It shares the top row with **First-person side entrance**, and the page's Delete reset restores it.
+
 **26.x · 0.26.0 per-page reset:** **Delete** restores every control on the open settings page to its factory value without touching the other pages, so one mistuned slider no longer forces the all-or-nothing reset on the transparency page. The mapping lives in a small pure-Java helper the tests walk page by page, and the compatibility page is deliberately excluded because it holds hand-written exclusions and per-screen rules. The footer hint now names the key.
 
 **26.x · 0.25.0 landing pose:** Third-person avatars now absorb a real fall instead of snapping straight back to the walk cycle. The animation layer samples downward speed while the avatar is airborne and, on touchdown, eases a small crouch — knees forward, torso folded, arms out for balance — out over six ticks, scaled by the measured impact and **Avatar motion intensity**. Small drops and step-downs stay vanilla, the **Landing response** switch (previously camera-only) disables the pose along with the camera bump, and attacks, climbing and the airborne pose still take priority.

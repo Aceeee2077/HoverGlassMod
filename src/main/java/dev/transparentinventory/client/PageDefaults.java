@@ -46,6 +46,7 @@ public final class PageDefaults {
             }
             case 2 -> {
                 config.cinematicInventory = true;
+                config.closeAnimation = true;
                 config.inventoryTiltDegrees = 4.0;
                 config.openingAnimationDurationMs = 480;
                 config.glassInventory = true;
