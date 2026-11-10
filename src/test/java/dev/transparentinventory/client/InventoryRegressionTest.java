@@ -44,6 +44,7 @@ public final class InventoryRegressionTest {
         testInventoryCursorLook();
         testMotionUtilities();
         testAvatarMotion();
+        testAirbornePose();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -858,6 +859,40 @@ public final class InventoryRegressionTest {
 
         check(ConfigTransfer.parse("x".repeat(ConfigTransfer.MAX_LENGTH + 1)) == null,
                 "oversized pasted text is rejected");
+    }
+
+    private static void testAirbornePose() {
+        AvatarMotionMath.Pose rising = AvatarMotionMath.airborne(0.4F, 1F);
+        check(rising != AvatarMotionMath.Pose.NONE, "jumping produces an airborne pose");
+        check(finite(rising), "the rise pose is finite");
+        check(rising.rightLeg().pitch() > 0 && rising.rightLeg().pitch() == rising.leftLeg().pitch(),
+                "both knees tuck together while rising");
+        checkClose(rising.rightArm().roll(), -rising.leftArm().roll(), 1E-6, "rise arms mirror");
+        check(rising.body().pitch() < 0, "the torso settles back while rising");
+
+        AvatarMotionMath.Pose falling = AvatarMotionMath.airborne(-0.3F, 1F);
+        check(falling != AvatarMotionMath.Pose.NONE, "falling produces an airborne pose");
+        check(finite(falling), "the fall pose is finite");
+        check(falling.rightLeg().pitch() < 0 && falling.rightLeg().pitch() == falling.leftLeg().pitch(),
+                "both legs trail together while falling");
+        checkClose(falling.rightArm().roll(), -falling.leftArm().roll(), 1E-6, "fall arms mirror");
+        check(Math.abs(falling.rightArm().roll()) > Math.abs(falling.rightLeg().pitch()),
+                "falling spreads the arms more than the legs");
+
+        check(AvatarMotionMath.airborne(0F, 1F) == AvatarMotionMath.Pose.NONE,
+                "standing still adds no pose");
+        check(AvatarMotionMath.airborne(0.05F, 1F) == AvatarMotionMath.Pose.NONE,
+                "small steps stay vanilla");
+        check(AvatarMotionMath.airborne(Float.NaN, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid vertical speed adds no pose");
+        check(AvatarMotionMath.airborne(0.4F, 0F) == AvatarMotionMath.Pose.NONE,
+                "zero intensity adds no pose");
+
+        AvatarMotionMath.Pose half = AvatarMotionMath.airborne(0.4F, .5F);
+        checkClose(half.rightLeg().pitch(), rising.rightLeg().pitch() * .5, 1E-6,
+                "airborne intensity scales linearly");
+        check(AvatarMotionMath.airborne(5F, 1F).equals(AvatarMotionMath.airborne(0.6F, 1F)),
+                "extreme speed clamps to the authored range");
     }
 
     private static void testInventoryCursorLook() {

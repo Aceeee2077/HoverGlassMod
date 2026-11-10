@@ -117,6 +117,47 @@ public final class AvatarMotionMath {
     }
 
     /**
+     * Airborne pose: knees tuck while rising, arms spread for balance while falling.
+     *
+     * <p>Vanilla keeps the walking cycle running while a player is in the air,
+     * which reads as running on nothing. This layer replaces that read with a
+     * small, symmetric jump/fall silhouette. It is intentionally additive and
+     * small so crouching, riding, swimming and item use remain untouched.
+     *
+     * @param verticalSpeed vertical movement in blocks per tick (+ up, - down)
+     * @param intensity     0..1 user strength
+     */
+    public static Pose airborne(float verticalSpeed, float intensity) {
+        if (!Float.isFinite(verticalSpeed)) return Pose.NONE;
+        double strength = clamp(intensity, 0, 1);
+        if (strength <= 0) return Pose.NONE;
+        double lift = clamp(verticalSpeed / .6, -1, 1);
+        // Slow step-downs and tiny bumps stay vanilla; only a real jump or fall reads.
+        if (Math.abs(lift) < .13) return Pose.NONE;
+        double scale = Math.abs(lift) * strength;
+
+        if (lift > 0) {
+            // Rising: knees come forward and up, arms lift slightly ahead, torso settles back.
+            Limb body = new Limb((float) (-.06 * scale), 0, 0);
+            Limb head = new Limb((float) (.04 * scale), 0, 0);
+            Limb rightArm = new Limb((float) (-.24 * scale), 0, (float) (-.10 * scale));
+            Limb leftArm = new Limb((float) (-.24 * scale), 0, (float) (.10 * scale));
+            Limb rightLeg = new Limb((float) (.20 * scale), 0, 0);
+            Limb leftLeg = new Limb((float) (.20 * scale), 0, 0);
+            return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
+        }
+
+        // Falling: arms out to the sides, gaze down, legs trail slightly behind.
+        Limb body = new Limb((float) (.05 * scale), 0, 0);
+        Limb head = new Limb((float) (-.03 * scale), 0, 0);
+        Limb rightArm = new Limb((float) (-.10 * scale), 0, (float) (-.32 * scale));
+        Limb leftArm = new Limb((float) (-.10 * scale), 0, (float) (.32 * scale));
+        Limb rightLeg = new Limb((float) (-.14 * scale), 0, 0);
+        Limb leftLeg = new Limb((float) (-.14 * scale), 0, 0);
+        return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
+    }
+
+    /**
      * A reversible "hands at the bench" loop. The player is stationary while a
      * crafting menu is open, so this only supplies the upper-body work.
      */

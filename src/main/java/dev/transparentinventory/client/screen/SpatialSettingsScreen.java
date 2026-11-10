@@ -156,6 +156,7 @@ public final class SpatialSettingsScreen extends Screen {
             playerToggle(left, row + 22, contentWidth, "spatialui.motion.player_attack", () -> InventoryConfig.get().motion.playerAttackAnimation, value -> InventoryConfig.get().motion.playerAttackAnimation = value);
             playerToggle(left, row + 44, contentWidth, "spatialui.motion.crafting", () -> InventoryConfig.get().motion.craftingAnimation, value -> InventoryConfig.get().motion.craftingAnimation = value);
             playerToggle(left, row + 66, contentWidth, "spatialui.motion.sprint_stride", () -> InventoryConfig.get().motion.sprintStride, value -> InventoryConfig.get().motion.sprintStride = value);
+            playerToggle(left, row + 110, contentWidth, "spatialui.motion.airborne", () -> InventoryConfig.get().motion.airborneMotion, value -> InventoryConfig.get().motion.airborneMotion = value);
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
                     () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
         } else {

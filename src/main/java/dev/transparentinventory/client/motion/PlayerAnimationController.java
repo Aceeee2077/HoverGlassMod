@@ -55,6 +55,9 @@ public final class PlayerAnimationController {
                     : AvatarMotionMath.Pose.NONE;
             AvatarAttackView.Attack attack = config.motion.playerAttackAnimation
                     ? AvatarAttackView.of(state) : null;
+            AvatarMotionMath.Pose airborne = config.motion.airborneMotion
+                    ? airborne(client, state, (float) config.motion.playerIntensity)
+                    : AvatarMotionMath.Pose.NONE;
             if (attack != null) {
                 boolean idle = state.walkAnimationSpeed < .15F;
                 pose = AvatarMotionMath.attack(attack.style(), attack.progress(), attack.side(),
@@ -62,6 +65,9 @@ public final class PlayerAnimationController {
                 // Keep the footwork continuous during a running swing; the attack
                 // pose owns the upper body.
                 if (stride != AvatarMotionMath.Pose.NONE) applyLegs(model, stride);
+            } else if (airborne != AvatarMotionMath.Pose.NONE) {
+                // The walk cycle keeps running in the air; this replaces that read.
+                pose = airborne;
             } else if (stride != AvatarMotionMath.Pose.NONE) {
                 pose = stride;
             }
@@ -70,12 +76,27 @@ public final class PlayerAnimationController {
     }
 
     /**
-     * Sprint is server-replicated for every player, so nearby avatars stride too.
-     * The render state itself has no sprint flag, hence the entity lookup.
+     * Sprint and vertical motion are replicated for every player, so nearby avatars
+     * move too. The render state itself carries neither flag, hence the entity lookup.
      */
     private static boolean sprinting(Minecraft client, AvatarRenderState state) {
-        if (client.level == null) return false;
-        return client.level.getEntity(state.id) instanceof Avatar avatar && avatar.isSprinting();
+        Avatar avatar = avatar(client, state);
+        return avatar != null && avatar.isSprinting();
+    }
+
+    /** Airborne pose for a jumping or falling avatar; ground contact and fluids stay vanilla. */
+    private static AvatarMotionMath.Pose airborne(Minecraft client, AvatarRenderState state, float intensity) {
+        Avatar avatar = avatar(client, state);
+        if (avatar == null || avatar.onGround() || avatar.isInWater() || avatar.isInLava()
+                || avatar.onClimbable()) {
+            return AvatarMotionMath.Pose.NONE;
+        }
+        return AvatarMotionMath.airborne((float) avatar.getDeltaMovement().y, intensity);
+    }
+
+    private static Avatar avatar(Minecraft client, AvatarRenderState state) {
+        if (client.level == null) return null;
+        return client.level.getEntity(state.id) instanceof Avatar avatar ? avatar : null;
     }
 
     private static void apply(HumanoidModel<?> model, AvatarMotionMath.Pose pose) {

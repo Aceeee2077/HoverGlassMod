@@ -12,6 +12,8 @@ F8 新增第九页「人物动作设置」：总开关、攻击动作、工作�
 
 0.6.1 在同一页面加入「疾跑跨步」。`AvatarMotionMath.stride` 复用原版 `walkAnimationPos × 0.6662` 相位：腿部与原版同相放大，手臂反向摆动，躯干前倾且头部做反向补偿；幅度同时受 `walkAnimationSpeed` 和人物强度约束。`AvatarRenderState` 没有疾跑标志，控制器通过 `ClientLevel.getEntity(state.id)` 读取服务端同步的 `Avatar.isSprinting()`，因此远程玩家同样生效。优先级为工作台 > 攻击 > 跨步；疾跑挥击时攻击姿态接管上半身，但腿部跨步继续叠加，避免连续攻击时脚步突然退回原版。普通走路、游泳、骑乘、鞘翅、使用物品和睡眠状态不触发。
 
+0.14.0 加入「跳跃与下落姿态」。`AvatarMotionMath.airborne(verticalSpeed, intensity)` 以 0.6 m/tick 归一化垂直速度，低于 0.08 m/tick 时不介入；上升时双腿对称前收、双臂略微前抬、躯干后仰，下落时双臂向两侧展开、双腿后摆、视线下压。控制器只在实体离地且不在水、岩浆或攀爬状态时调用，优先级为工作台 > 攻击 > 空中 > 跨步，落地后跨步自然恢复；附近玩家同样生效，因为垂直速度由服务器同步。
+
 ## 0.5.0 流畅动效扩展
 
 兼容性审计见 `MOTION-AUDIT.md`。原有目录与 mod ID 保留；新增 `motion`、`effects` 包，纯数学继续放在 `anim`。`MotionClient` 仅在 26.x 注册原生攻击意图和破坏完成事件；legacy 资源处理移除该入口。
