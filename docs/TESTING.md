@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.21.0 镜头角度
+
+- `testSettingsPages` 更新为 11 页：兼容性仍在索引 9，新页 `CAMERA_ANGLES = 10`；越界与循环断言随页数更新。`testLanguageKeys` 自动覆盖新页标题。
+- 新增 `testCameraOffsets`：默认偏角为 0；越界值夹到 ±60 / ±45；NaN 偏角回落到下限。26.2 `physicsTest` 通过，共 **1,484 条断言**。
+- F8 新页提供左右与上下偏角滑条，映射范围分别为 ±60° 与 ±45°；英中语言键同步新增 `spatialui.settings.camera_angles` 与两个偏角键。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认偏角方向是否符合直觉。
+
 ## 2026-11-10 · 0.20.0 页面标题
 
 - 新增 `testLanguageKeys` 断言：从测试类路径读取 `en_us` 与 `zh_cn`，两者键集合完全相同；10 个设置页标题键均有翻译；页码与剪贴板文案键存在。26.2 `physicsTest` 通过，共 **1,469 条断言**。

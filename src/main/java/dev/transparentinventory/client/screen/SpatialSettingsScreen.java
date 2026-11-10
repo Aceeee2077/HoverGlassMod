@@ -169,6 +169,13 @@ public final class SpatialSettingsScreen extends Screen {
             playerToggle(left, row + 110, contentWidth, "spatialui.motion.airborne", () -> InventoryConfig.get().motion.airborneMotion, value -> InventoryConfig.get().motion.airborneMotion = value);
             addRenderableWidget(new SettingSlider(left, row + 88, contentWidth, "spatialui.motion.player_intensity",
                     () -> InventoryConfig.get().motion.playerIntensity, value -> InventoryConfig.get().motion.playerIntensity = value, true));
+        } else if (page == SettingsPages.CAMERA_ANGLES) {
+            addRenderableWidget(new SettingSlider(left, row, contentWidth, "spatialui.camera.yaw_offset",
+                    () -> (InventoryConfig.get().cameraYawOffset + 60) / 120.0,
+                    value -> InventoryConfig.get().cameraYawOffset = value * 120 - 60, false));
+            addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.pitch_offset",
+                    () -> (InventoryConfig.get().cameraPitchOffset + 45) / 90.0,
+                    value -> InventoryConfig.get().cameraPitchOffset = value * 90 - 45, false));
         } else {
             var exclude = addRenderableWidget(Button.builder(exclusionLabel(), button -> {
                 InventoryConfig.get().toggleScreenExclusion(screenName);
@@ -320,6 +327,8 @@ public final class SpatialSettingsScreen extends Screen {
                     : label.endsWith("particle_multiplier") ? String.format(java.util.Locale.ROOT, "%.2f×", value * 2)
                     : label.endsWith("head_yaw") || label.endsWith("head_pitch") ? Math.round(value * 90) + "°"
                     : percentage || label.endsWith("smoothing") ? Math.round(value * 100) + "%"
+                    : label.endsWith("yaw_offset") ? Math.round(value * 120 - 60) + "°"
+                    : label.endsWith("pitch_offset") ? Math.round(value * 90 - 45) + "°"
                     : label.endsWith("reopen") ? Math.round(value * 1500) + " ms"
                     : label.endsWith("duration") ? Math.round(value * 1000) + " ms"
                     : label.endsWith("tilt") ? String.format(java.util.Locale.ROOT, "%.1f°", value * 24 - 12)

@@ -40,6 +40,7 @@ public final class InventoryRegressionTest {
         testReducedMotion();
         testConfigRecovery();
         testCameraPolicy();
+        testCameraOffsets();
         testQuickReopen();
         testCompatibilityActions();
         testSettingsPages();
@@ -745,6 +746,20 @@ public final class InventoryRegressionTest {
                 "a missing config disables the camera");
     }
 
+    private static void testCameraOffsets() {
+        InventoryConfig config = new InventoryConfig();
+        checkClose(config.cameraYawOffset, 0, 1E-9, "the camera starts square on");
+        checkClose(config.cameraPitchOffset, 0, 1E-9, "the camera starts level");
+        config.cameraYawOffset = 500;
+        config.cameraPitchOffset = -500;
+        config.sanitize();
+        checkClose(config.cameraYawOffset, 60, 1E-9, "the yaw offset clamps high");
+        checkClose(config.cameraPitchOffset, -45, 1E-9, "the pitch offset clamps low");
+        config.cameraYawOffset = Double.NaN;
+        config.sanitize();
+        checkClose(config.cameraYawOffset, -60, 1E-9, "a NaN yaw offset falls back to its lower bound");
+    }
+
     private static void testQuickReopen() {
         var timing = new EntranceTiming();
         check(!timing.snap(0, 400), "a first open always animates");
@@ -818,8 +833,13 @@ public final class InventoryRegressionTest {
     }
 
     private static void testSettingsPages() {
-        check(SettingsPages.COUNT == 10, "the settings screen has ten pages");
-        check(SettingsPages.COMPATIBILITY == SettingsPages.COUNT - 1, "compatibility is the last page");
+        check(SettingsPages.COUNT == 11, "the settings screen has eleven pages");
+        check(SettingsPages.COMPATIBILITY == 9 && SettingsPages.CAMERA_ANGLES == 10,
+                "compatibility keeps its position and camera angles follow it");
+        check(SettingsPages.titleKey(SettingsPages.COMPATIBILITY).equals("spatialui.settings.compatibility"),
+                "the compatibility index names the compatibility page");
+        check(SettingsPages.titleKey(SettingsPages.CAMERA_ANGLES).equals("spatialui.settings.camera_angles"),
+                "the camera angle index names the camera angle page");
         for (int page = 0; page < SettingsPages.COUNT; page++) {
             check(SettingsPages.clamp(page) == page, "valid page indices are kept");
             check(SettingsPages.next(page) == (page + 1) % SettingsPages.COUNT,
@@ -835,10 +855,13 @@ public final class InventoryRegressionTest {
         }
         check(SettingsPages.next(8) == SettingsPages.COMPATIBILITY,
                 "player motion is followed by compatibility");
-        check(SettingsPages.next(9) == 0, "the last page wraps to the first");
-        check(SettingsPages.previous(0) == 9, "the first page wraps to the last");
-        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.compatibility"),
-                "going back from the first page lands on compatibility");
+        check(SettingsPages.next(SettingsPages.COMPATIBILITY) == SettingsPages.CAMERA_ANGLES,
+                "compatibility is followed by camera angles");
+        check(SettingsPages.next(SettingsPages.CAMERA_ANGLES) == 0, "the last page wraps to the first");
+        check(SettingsPages.previous(0) == SettingsPages.CAMERA_ANGLES,
+                "the first page wraps to the last");
+        check(SettingsPages.previousLabelKey(0).equals("spatialui.settings.camera_angles"),
+                "going back from the first page lands on camera angles");
         check(SettingsPages.clamp(-4) == 0 && SettingsPages.clamp(37) == 0,
                 "out-of-range pages restart at the first page");
         check(SettingsPages.titleKey(-1).equals(SettingsPages.titleKey(0)),
