@@ -1731,10 +1731,14 @@ public final class InventoryRegressionTest {
                 "camera distance keeps two decimals");
         check(SliderFormat.value("spatialui.camera.distance", 1, false).equals("8.00"),
                 "the far camera distance reads as eight blocks");
-        check(SliderFormat.value("spatialui.camera.duration", 0.5, false).equals("500 ms"),
-                "camera transitions are reported in milliseconds");
-        check(SliderFormat.value("spatialui.inventory.duration", 0.5, false).equals("500 ms"),
-                "the entrance duration is reported in milliseconds");
+        check(SliderFormat.value("spatialui.camera.duration", 0.5, false).equals("1000 ms"),
+                "camera transitions cover their full two-second range");
+        check(SliderFormat.value("spatialui.camera.duration", 1, false).equals("2000 ms"),
+                "the camera transition slider reaches the sanitizer limit");
+        check(SliderFormat.value("spatialui.inventory.duration", 0.5, false).equals("1000 ms"),
+                "the entrance duration covers its full two-second range");
+        check(SliderFormat.value("spatialui.inventory.duration", 1, false).equals("2000 ms"),
+                "the entrance duration slider reaches the sanitizer limit");
         check(SliderFormat.value("spatialui.inventory.tilt", 0.5, false).equals("0.0°"),
                 "the neutral tilt reads as zero degrees");
         check(SliderFormat.value("spatialui.inventory.reopen", 0.5, false).equals("750 ms"),

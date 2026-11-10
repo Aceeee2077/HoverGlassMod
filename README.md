@@ -1,5 +1,7 @@
 # Hoverglass
 
+**26.x · 0.50.0 full duration range:** The **Camera transition** and **GUI animation duration** sliders now cover the whole 0–2000 ms range the config already accepted. Previously they stopped at 1000 ms, so a hand-edited value above that pinned the knob at the right edge and snapped back on the first drag; slowly sweeping transitions can now be set from the UI, and the readout follows the new range.
+
 **26.x · 0.49.0 level the camera:** The camera angles page gains **Level the camera**, which zeroes both angle offsets in one click while keeping the pull-back distance, sideways framing, panel tilt and transition duration exactly as they are — handy after trying angles without wanting to snap back to a whole framing preset. It greys out once both offsets are zero and re-enables as soon as either slider moves, and Delete on the page still restores every camera value.
 
 **26.x · 0.48.0 trackpad scrolling:** The settings pages can now be changed with a trackpad or a fine-grained wheel. Previously every scroll event had to carry at least half a notch by itself, so devices reporting many small deltas never flipped a page; the screen now keeps a running total and moves once the deltas add up, while a normal wheel notch still turns exactly one page. Opposite-direction jitter cancels out instead of adding up, a fast flick is capped at one page, and partial scroll is dropped whenever the page changes by any other means.

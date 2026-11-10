@@ -54,7 +54,7 @@ public final class SliderFormat {
             case "spatialui.container_scale" -> Math.round((0.75 + value * 1.25) * 100) + "%";
             case "spatialui.camera.distance" -> String.format(Locale.ROOT, "%.2f", value * 8);
             case "spatialui.camera.duration", "spatialui.inventory.duration" ->
-                    Math.round(value * 1000) + " ms";
+                    Math.round(value * 2000) + " ms";
             case "spatialui.inventory.tilt" -> String.format(Locale.ROOT, "%.1f°", value * 24 - 12);
             case "spatialui.inventory.reopen" -> Math.round(value * 1500) + " ms";
             case "spatialui.camera.yaw_offset" -> Math.round(value * 120 - 60) + "°";

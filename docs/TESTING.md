@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.50.0 完整时长滑条范围
+
+- `SpatialSettingsScreen` 中 **镜头过渡时间**（第 2 页）与 **界面开关时间**（第 3 页）滑条的归一化映射由 `/1000` 改为 `/2000`，写回时乘 2000，与 `InventoryConfig.sanitize()` 的 0–2000 ms 上限一致。此前手改超过 1000 ms 的配置会让滑条读数超过量程、滑块贴边并在首次拖动时跳回。
+- `SliderFormat` 的 `camera.duration` / `inventory.duration` 改为按 2000 ms 换算；`testSliderFormat` 的中点断言更新为 1000 ms，并新增两处 2000 ms 上限断言。`PageDefaults` 默认值（420 / 480 ms）不变，仍落在新量程内。
+- 26.2 `physicsTest` 通过，共 **1,905 条断言**。
+- 26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认滑条在 0–2000 ms 区间上的拖动精度（约 20 ms/像素），也未观察 2 秒过渡的实际观感。
+
 ## 2026-11-10 · 0.49.0 镜头回正按钮
 
 - `CameraPresets` 新增纯逻辑 `isLevel(config)`（两个角度偏角是否为 0，空配置返回 false）与 `level(config)`（把两个偏角写入 0，返回是否真的发生变化，空配置返回 false）。`level` 不改动距离、侧移、倾斜与过渡时长。

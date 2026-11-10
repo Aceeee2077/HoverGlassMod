@@ -91,8 +91,8 @@ public final class SpatialSettingsScreen extends Screen {
             addRenderableWidget(new SettingSlider(left, row + 22, contentWidth, "spatialui.camera.distance",
                     () -> InventoryConfig.get().cameraDistance / 8, value -> InventoryConfig.get().cameraDistance = value * 8, false));
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.camera.duration",
-                    () -> InventoryConfig.get().cameraTransitionDurationMs / 1000.0,
-                    value -> InventoryConfig.get().cameraTransitionDurationMs = (int) (value * 1000), false));
+                    () -> InventoryConfig.get().cameraTransitionDurationMs / 2000.0,
+                    value -> InventoryConfig.get().cameraTransitionDurationMs = (int) (value * 2000), false));
             addRenderableWidget(Button.builder(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled), button -> {
                 InventoryConfig.get().cameraEnabled = !InventoryConfig.get().cameraEnabled;
                 button.setMessage(toggle("spatialui.camera", InventoryConfig.get().cameraEnabled));
@@ -123,8 +123,8 @@ public final class SpatialSettingsScreen extends Screen {
                     () -> (InventoryConfig.get().inventoryTiltDegrees + 12) / 24,
                     value -> InventoryConfig.get().inventoryTiltDegrees = value * 24 - 12, false));
             addRenderableWidget(new SettingSlider(left, row + 44, contentWidth, "spatialui.inventory.duration",
-                    () -> InventoryConfig.get().openingAnimationDurationMs / 1000.0,
-                    value -> InventoryConfig.get().openingAnimationDurationMs = (int) (value * 1000), false));
+                    () -> InventoryConfig.get().openingAnimationDurationMs / 2000.0,
+                    value -> InventoryConfig.get().openingAnimationDurationMs = (int) (value * 2000), false));
             addRenderableWidget(Button.builder(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory), button -> {
                 InventoryConfig.get().glassInventory = !InventoryConfig.get().glassInventory;
                 button.setMessage(toggle("spatialui.inventory.glass", InventoryConfig.get().glassInventory));
