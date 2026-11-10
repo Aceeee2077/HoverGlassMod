@@ -32,6 +32,7 @@ public final class SpatialSettingsScreen extends Screen {
     private Button levelCameraButton;
     private Button matchRimButton;
     private Button matchOpacityButton;
+    private Button resetPageButton;
     private SettingSlider hotbarOpacitySlider;
     private SettingSlider hotbarBorderSlider;
     private String matchRimTip;
@@ -39,6 +40,7 @@ public final class SpatialSettingsScreen extends Screen {
     private String hotbarOpacityTip;
     private String hotbarBorderTip;
     private final ConfirmPress resetConfirm = new ConfirmPress();
+    private final ConfirmPress pageResetConfirm = new ConfirmPress();
     private final ConfirmPress restoreConfirm = new ConfirmPress();
     private final ConfirmPress snapshotConfirm = new ConfirmPress();
     private final ConfirmPress presetConfirm = new ConfirmPress();
@@ -66,6 +68,7 @@ public final class SpatialSettingsScreen extends Screen {
         int row = top + 34;
         inheritButton = null;
         levelCameraButton = null;
+        resetPageButton = null;
         matchRimButton = null;
         matchOpacityButton = null;
         hotbarOpacitySlider = null;
@@ -506,17 +509,16 @@ public final class SpatialSettingsScreen extends Screen {
         }).bounds(left, row + 138, 20, 20).build());
         previous.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.previous")
                 .append(": ").append(Component.translatable(SettingsPages.previousLabelKey(page)))));
-        var resetPage = addRenderableWidget(Button.builder(
-                Component.translatable("spatialui.settings.reset_page"), button -> {
-            if (PageDefaults.reset(InventoryConfig.get(), page)) rebuildWidgets();
-        }).bounds(left + 22, row + 138, 20, 20).build());
-        resetPage.active = PageDefaults.supports(page);
-        resetPage.setTooltip(Tooltip.create(Component.translatable(PageDefaults.supports(page)
-                ? "spatialui.settings.reset_page.hint" : "spatialui.settings.reset_page.none")));
+        resetPageButton = addRenderableWidget(Button.builder(
+                Component.translatable("spatialui.settings.reset_page"), this::pressPageReset)
+                .bounds(left + 22, row + 138, 34, 20).build());
+        resetPageButton.active = PageDefaults.supports(page);
+        if (PageDefaults.supports(page)) refreshPageResetButton();
+        else resetPageButton.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.reset_page.none")));
         var forward = addRenderableWidget(Button.builder(
                 Component.translatable(SettingsPages.nextLabelKey(page)), button -> {
             goTo(SettingsPages.next(page));
-        }).bounds(left + 44, row + 138, contentWidth / 2 - 46, 20).build());
+        }).bounds(left + 58, row + 138, Math.max(20, contentWidth / 2 - 60), 20).build());
         forward.setTooltip(Tooltip.create(Component.translatable("spatialui.settings.next")
                 .append(": ").append(Component.translatable(SettingsPages.nextLabelKey(page)))));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
@@ -537,6 +539,7 @@ public final class SpatialSettingsScreen extends Screen {
      */
     @Override protected void rebuildWidgets() {
         resetConfirm.disarm();
+        pageResetConfirm.disarm();
         restoreConfirm.disarm();
         snapshotConfirm.disarm();
         presetConfirm.disarm();
@@ -634,6 +637,26 @@ public final class SpatialSettingsScreen extends Screen {
                 matchOpacityButton.setTooltip(Tooltip.create(Component.translatable(tip)));
             }
         }
+    }
+
+    /** First press arms the page reset; the matching second press restores the page defaults. */
+    private void pressPageReset(Button button) {
+        if (!PageDefaults.supports(page)) return;
+        if (!pageResetConfirm.press()) {
+            refreshPageResetButton();
+            return;
+        }
+        if (PageDefaults.reset(InventoryConfig.get(), page)) rebuildWidgets();
+    }
+
+    /** Mirrors the arming state on the small reset-page button and its tooltip. */
+    private void refreshPageResetButton() {
+        if (resetPageButton == null) return;
+        boolean armed = pageResetConfirm.armed();
+        resetPageButton.setMessage(Component.translatable(armed
+                ? "spatialui.settings.reset_page.confirm" : "spatialui.settings.reset_page"));
+        resetPageButton.setTooltip(Tooltip.create(Component.translatable(armed
+                ? "spatialui.settings.reset_page.confirm.hint" : "spatialui.settings.reset_page.hint")));
     }
 
     /** Attaches a static hint to a slider while returning it for widget registration. */
@@ -746,8 +769,12 @@ public final class SpatialSettingsScreen extends Screen {
             goTo(SettingsPages.last());
             return true;
         }
-        if (key.key() == InputConstants.KEY_DELETE && PageDefaults.reset(InventoryConfig.get(), page)) {
-            rebuildWidgets();
+        if (key.key() == InputConstants.KEY_DELETE && PageDefaults.supports(page)) {
+            if (!pageResetConfirm.press()) {
+                refreshPageResetButton();
+                return true;
+            }
+            if (PageDefaults.reset(InventoryConfig.get(), page)) rebuildWidgets();
             return true;
         }
         return super.keyPressed(key);

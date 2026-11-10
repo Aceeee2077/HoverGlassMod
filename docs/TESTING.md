@@ -1,5 +1,12 @@
 # 验证记录
 
+## 2026-11-10 · 0.70.0 本页重置二次确认
+
+- 底部 **↺** 与 Delete 共享新增的 `pageResetConfirm`：第一次按下只武装并把按钮文字改为 `spatialui.settings.reset_page.confirm`（`↺?`），tooltip 换成确认说明；第二次才调用 `PageDefaults.reset` 并重建。`rebuildWidgets()` 会 `disarm()`，因此翻页、预设、恢复等重建操作都会丢弃待确认状态。不支持重置的页面仍在按下时直接返回。
+- 按钮宽度由 20 调整为 34 以容纳 `↺?`，前进按钮起点从 `left + 44` 移到 `left + 58`，宽度改为 `Math.max(20, contentWidth / 2 - 60)`，保证极窄窗口下不为负。
+- 底部提示与 `reset_page.hint` 改为「连按两次 Del」，新增两个语言键（中英各一），键集合相等（228 个键）。
+- 复用既有 `ConfirmPress` 测试，本轮无新增纯逻辑，26.2 `physicsTest` 通过，共 **2,074 条断言**（计数不变）。26.2 `build`、26.3 与 1.21.11 `compileJava` 通过。按用户要求未启动 Minecraft 客户端，未实机确认 `↺?` 在 34 像素按钮内的显示与确认状态下 tooltip 的切换。
+
 ## 2026-11-10 · 0.69.0 全部开关提示
 
 - 0.68.0 之外仍有 22 个开关没有 tooltip：空间镜头、世界锚点、第一人称侧移入场、玻璃背包、头部跟随、玻璃快捷栏，以及 `motionToggle` / `playerToggle` 创建的 16 个动效与人物开关。前者逐个链式挂载 `.hint`，后者由两个辅助方法按 `key + ".hint"` 自动挂载。
