@@ -85,6 +85,8 @@ public final class InventoryConfig {
         public boolean sprintStride = true;
         /** Tuck while jumping and arms-out balance while falling. */
         public boolean airborneMotion = true;
+        /** Subtle breathing and weight shift while standing still. */
+        public boolean idleSway = true;
         /** 0 disables the added pose, 1 uses the full authored range. */
         public double playerIntensity = 0.8;
         public boolean reduceMotion;

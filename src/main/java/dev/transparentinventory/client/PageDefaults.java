@@ -89,6 +89,7 @@ public final class PageDefaults {
                 config.motion.craftingAnimation = true;
                 config.motion.sprintStride = true;
                 config.motion.airborneMotion = true;
+                config.motion.idleSway = true;
                 config.motion.playerIntensity = 0.8;
             }
             case 10 -> {

@@ -157,6 +157,38 @@ public final class AvatarMotionMath {
         return new Pose(body, head, rightArm, leftArm, rightLeg, leftLeg);
     }
 
+    /**
+     * Idle breathing and weight shift for a stationary avatar.
+     *
+     * <p>Vanilla leaves a standing player completely rigid between swings. This
+     * tiny additive layer breathes once every few seconds: the torso rises with
+     * the chest, the arms drift a hair outward, and the weight shifts slowly side
+     * to side. Amplitudes stay under three hundredths of a radian so it reads as
+     * breathing rather than fidgeting, and any real movement hands back to the
+     * walk cycle.
+     *
+     * @param ageTicks  render age in ticks, used as the slow clock
+     * @param walkSpeed vanilla {@code walkAnimationSpeed}; anything above a shuffle stops it
+     * @param intensity 0..1 user strength
+     */
+    public static Pose idle(float ageTicks, float walkSpeed, float intensity) {
+        if (!Float.isFinite(ageTicks) || !Float.isFinite(walkSpeed)) return Pose.NONE;
+        double strength = clamp(intensity, 0, 1);
+        if (strength <= 0 || walkSpeed > .06F || ageTicks < 0) return Pose.NONE;
+
+        double phase = ageTicks * .055;
+        double breath = Math.sin(phase * 2);
+        double shift = Math.sin(phase * .5);
+        double scale = strength;
+
+        Limb body = new Limb((float) (.022 * breath * scale), (float) (.010 * shift * scale),
+                (float) (-.008 * shift * scale));
+        Limb head = new Limb((float) (-.012 * breath * scale), (float) (-.006 * shift * scale), 0);
+        Limb rightArm = new Limb(0, 0, (float) (-.016 * breath * scale));
+        Limb leftArm = new Limb(0, 0, (float) (.016 * breath * scale));
+        return new Pose(body, head, rightArm, leftArm, Limb.NONE, Limb.NONE);
+    }
+
     /** How long the landing recovery lasts, in ticks. */
     public static final float LANDING_TICKS = 6F;
 

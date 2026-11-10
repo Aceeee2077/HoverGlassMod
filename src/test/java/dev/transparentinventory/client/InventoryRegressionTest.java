@@ -59,6 +59,7 @@ public final class InventoryRegressionTest {
         testAirbornePose();
         testClimbPose();
         testLandingPose();
+        testIdleSway();
         System.out.println("[physicsTest] all checks passed (" + checks + " assertions)");
     }
 
@@ -1119,6 +1120,38 @@ public final class InventoryRegressionTest {
         check(heavy.rightLeg().pitch() <= .4, "the hardest landing stays a small crouch");
     }
 
+    private static void testIdleSway() {
+        AvatarMotionMath.Pose idle = AvatarMotionMath.idle(10F, 0F, 1F);
+        check(idle != AvatarMotionMath.Pose.NONE, "a stationary avatar breathes");
+        check(finite(idle), "the idle pose is finite");
+        for (AvatarMotionMath.Limb limb : new AvatarMotionMath.Limb[]{idle.body(), idle.head(),
+                idle.rightArm(), idle.leftArm(), idle.rightLeg(), idle.leftLeg()}) {
+            check(Math.abs(limb.pitch()) <= .05 && Math.abs(limb.yaw()) <= .05 && Math.abs(limb.roll()) <= .05,
+                    "idle rotations stay subtle");
+        }
+        check(idle.rightArm().roll() < 0 && idle.leftArm().roll() > 0,
+                "the arms drift outward on the breath");
+        check(idle.rightLeg() == AvatarMotionMath.Limb.NONE && idle.leftLeg() == AvatarMotionMath.Limb.NONE,
+                "the idle layer leaves the legs to vanilla");
+        check(!AvatarMotionMath.idle(10F, 0F, 1F).equals(AvatarMotionMath.idle(30F, 0F, 1F)),
+                "the sway changes over time");
+
+        check(AvatarMotionMath.idle(10F, .2F, 1F) == AvatarMotionMath.Pose.NONE,
+                "walking stops the idle layer");
+        check(AvatarMotionMath.idle(10F, 0F, 0F) == AvatarMotionMath.Pose.NONE,
+                "zero intensity adds no pose");
+        check(AvatarMotionMath.idle(Float.NaN, 0F, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid clock adds no pose");
+        check(AvatarMotionMath.idle(-1F, 0F, 1F) == AvatarMotionMath.Pose.NONE,
+                "a negative clock adds no pose");
+        check(AvatarMotionMath.idle(10F, Float.NaN, 1F) == AvatarMotionMath.Pose.NONE,
+                "an invalid walk speed adds no pose");
+
+        AvatarMotionMath.Pose half = AvatarMotionMath.idle(10F, 0F, .5F);
+        checkClose(half.body().pitch(), idle.body().pitch() * .5, 1E-6,
+                "idle intensity scales linearly");
+    }
+
     private static void testGlassMaterials() {
         InventoryConfig config = new InventoryConfig();
         checkClose(config.slotOpacity, 0.09, 1E-6, "the slot fill starts subtle");
@@ -1286,11 +1319,13 @@ public final class InventoryRegressionTest {
         config.motion.craftingAnimation = false;
         config.motion.sprintStride = false;
         config.motion.airborneMotion = false;
+        config.motion.idleSway = false;
         config.motion.playerIntensity = .2;
         check(PageDefaults.reset(config, 8), "the avatar motion page resets");
         check(config.motion.playerAnimations && config.motion.playerAttackAnimation
                 && config.motion.craftingAnimation && config.motion.sprintStride
-                && config.motion.airborneMotion, "page reset re-enables every avatar layer");
+                && config.motion.airborneMotion && config.motion.idleSway,
+                "page reset re-enables every avatar layer");
         checkClose(config.motion.playerIntensity, .8, 1E-6, "page reset restores the avatar intensity");
 
         config.cameraYawOffset = 45;

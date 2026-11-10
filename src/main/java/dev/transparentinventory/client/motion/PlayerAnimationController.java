@@ -80,6 +80,10 @@ public final class PlayerAnimationController {
             AvatarMotionMath.Pose landing = config.motion.landingMotion
                     ? landing(client, state, (float) config.motion.playerIntensity)
                     : AvatarMotionMath.Pose.NONE;
+            AvatarMotionMath.Pose idlePose = config.motion.idleSway
+                    ? AvatarMotionMath.idle(state.ageInTicks, state.walkAnimationSpeed,
+                            (float) config.motion.playerIntensity)
+                    : AvatarMotionMath.Pose.NONE;
             if (attack != null) {
                 boolean idle = state.walkAnimationSpeed < .15F;
                 pose = AvatarMotionMath.attack(attack.style(), attack.progress(), attack.side(),
@@ -98,6 +102,9 @@ public final class PlayerAnimationController {
                 pose = landing;
             } else if (stride != AvatarMotionMath.Pose.NONE) {
                 pose = stride;
+            } else if (idlePose != AvatarMotionMath.Pose.NONE) {
+                // Standing still: breathe instead of freezing in the last pose.
+                pose = idlePose;
             }
         }
         if (pose != AvatarMotionMath.Pose.NONE) apply(model, pose);
